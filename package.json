@@ -1,10 +1,11 @@
 {
   "name": "fucci-rawdepot",
   "version": "1.0.0",
-  "description": "Sistema para control del deposito de materia prima para Panificadora Fucci Srl .",
+  "description": "Sistema para control del deposito de materia prima de la 'Panificadora Fucci Srl.'",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/index.js"
   },
   "author": "nickemolmedo",
   "license": "ISC",

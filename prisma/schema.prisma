@@ -1,14 +1,90 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+enum Calidad {
+  bueno
+  regular
+  malo
+}
+
+model Administrador {
+  id         BigInt    @id @default(autoincrement())
+  nombre     String    @db.VarChar(30)
+  apellido   String    @db.VarChar(30)
+  dni        BigInt    @unique
+  email      String    @db.VarChar(30)
+  contrasena String    @db.VarChar(30)
+  ingreso    Ingreso[]
+  retiro     Retiro[]
+}
+
+model Empleado {
+  id         BigInt   @id @default(autoincrement())
+  nombre     String   @db.VarChar(30)
+  apellido   String   @db.VarChar(30)
+  dni        BigInt   @unique
+  contrasena String   @db.VarChar(30)
+  area       String   @db.VarChar(30)
+  rol        String   @db.VarChar(30)
+  retiro     Retiro[]
+}
+
+model Producto {
+  id            BigInt          @id @default(autoincrement())
+  nombre        String          @db.VarChar(30)
+  stock         BigInt
+  marca         String          @db.VarChar(30)
+  fabricante    String          @db.VarChar(30)
+  presentacion  String          @db.VarChar(30)
+  estadoCalidad Calidad
+  loteProducto  LoteProducto[]
+  detalleRetiro DetalleRetiro[]
+}
+
+model Ingreso {
+  id               BigInt        @id @default(autoincrement())
+  tipoProducto     String        @db.VarChar(30)
+  codigoRemito     String        @db.VarChar(30)
+  empresaEntrega   String        @db.VarChar(30)
+  fechaIngreso     DateTime
+  cantidad         BigInt
+  estado           Calidad
+  administrador    Administrador @relation(fields: [administradorDni], references: [dni])
+  administradorDni BigInt
+}
+
+model LoteProducto {
+  id               BigInt   @id @default(autoincrement())
+  lote             String   @db.VarChar(50)
+  fechaVencimiento DateTime
+  cantidad         BigInt
+  producto         Producto @relation(fields: [productoId], references: [id])
+  productoId       BigInt
+}
+
+model Retiro {
+  id               BigInt          @id @default(autoincrement())
+  fechaRetiro      DateTime
+  empleado         Empleado        @relation(fields: [empleadoDni], references: [dni])
+  empleadoDni      BigInt
+  detalleRetiro    DetalleRetiro[]
+  administrador    Administrador?  @relation(fields: [administradorDni], references: [dni])
+  administradorDni BigInt?
+}
+
+model DetalleRetiro {
+  id            BigInt   @id @default(autoincrement())
+  cantidad      BigInt
+  estado        Calidad
+  observaciones String   @db.VarChar(100)
+  retiro        Retiro   @relation(fields: [retiroId], references: [id])
+  retiroId      BigInt
+  producto      Producto @relation(fields: [productoId], references: [id])
+  productoId    BigInt
 }
