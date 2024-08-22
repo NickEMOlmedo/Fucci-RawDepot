@@ -1,5 +1,3 @@
-import { Router } from "express";
+import { Router } from 'express'
 
-export const router = Router();
-
-router.get('/products', )
+export const router = Router()
