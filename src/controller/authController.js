@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client/extension'
+import { PrismaClient } from '@prisma/client'
 import bcryptjs from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 const { compareSync, hashSync } = bcryptjs

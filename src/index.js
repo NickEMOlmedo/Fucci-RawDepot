@@ -12,6 +12,9 @@ app.use(express.json())
 
 app.listen(port)
 
+app.get('/', (req, res) => {
+  res.send('Server Running')
+})
 app.use('/auth', auth)
 
 app.use((req, res, next) => {

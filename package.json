@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch ./src/index.js",
+    "dev": "nodemon ./src/index.js",
     "lint": "eslint ."
   },
   "author": "nickemolmedo",
@@ -19,6 +19,7 @@
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
+    "nodemon": "^3.1.4",
     "standard": "^17.1.0"
   },
   "eslintConfig": {
