@@ -14,29 +14,29 @@ enum Calidad {
 }
 
 model Administrador {
-  id         BigInt    @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   nombre     String    @db.VarChar(30)
   apellido   String    @db.VarChar(30)
-  dni        BigInt    @unique
-  email      String    @db.VarChar(30)
+  dni        Int       @unique
+  email      String    @db.VarChar(255)
   contrasena String    @db.VarChar(30)
   ingreso    Ingreso[]
   retiro     Retiro[]
 }
 
 model Empleado {
-  id         BigInt   @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   nombre     String   @db.VarChar(30)
   apellido   String   @db.VarChar(30)
-  dni        BigInt   @unique
-  contrasena String   @db.VarChar(30)
+  dni        Int      @unique
+  contrasena String   @db.VarChar(255)
   area       String   @db.VarChar(30)
   rol        String   @db.VarChar(30)
   retiro     Retiro[]
 }
 
 model Producto {
-  id            BigInt          @id @default(autoincrement())
+  id            Int             @id @default(autoincrement())
   nombre        String          @db.VarChar(30)
   stock         BigInt
   marca         String          @db.VarChar(30)
@@ -48,15 +48,15 @@ model Producto {
 }
 
 model Ingreso {
-  id               BigInt        @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   tipoProducto     String        @db.VarChar(30)
   codigoRemito     String        @db.VarChar(30)
   empresaEntrega   String        @db.VarChar(30)
   fechaIngreso     DateTime
-  cantidad         BigInt
+  cantidad         Int
   estado           Calidad
   administrador    Administrador @relation(fields: [administradorDni], references: [dni])
-  administradorDni BigInt
+  administradorDni Int
 }
 
 model LoteProducto {
@@ -65,17 +65,17 @@ model LoteProducto {
   fechaVencimiento DateTime
   cantidad         BigInt
   producto         Producto @relation(fields: [productoId], references: [id])
-  productoId       BigInt
+  productoId       Int
 }
 
 model Retiro {
-  id               BigInt          @id @default(autoincrement())
+  id               Int             @id @default(autoincrement())
   fechaRetiro      DateTime
   empleado         Empleado        @relation(fields: [empleadoDni], references: [dni])
-  empleadoDni      BigInt
+  empleadoDni      Int
   detalleRetiro    DetalleRetiro[]
   administrador    Administrador?  @relation(fields: [administradorDni], references: [dni])
-  administradorDni BigInt?
+  administradorDni Int?
 }
 
 model DetalleRetiro {
@@ -84,7 +84,7 @@ model DetalleRetiro {
   estado        Calidad
   observaciones String   @db.VarChar(100)
   retiro        Retiro   @relation(fields: [retiroId], references: [id])
-  retiroId      BigInt
+  retiroId      Int
   producto      Producto @relation(fields: [productoId], references: [id])
-  productoId    BigInt
+  productoId    Int
 }
