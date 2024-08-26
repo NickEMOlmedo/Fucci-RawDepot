@@ -32,7 +32,7 @@ export const register = async (req, res) => {
 
     const empleadoReturn = {
       succes: true,
-      message: `¡Empleado ${nombre} del area ${area} creado exitosamente!`
+      message: '¡Empleado creado exitosamente!'
     }
     res.status(201).json(empleadoReturn)
   } catch (error) {
@@ -62,7 +62,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: empleado.id, empleado: empleado.nombre },
+      { id: empleado.id, empleado: empleado.nombre, area: empleado.area },
       secret,
       { expiresIn: '15min' }
     )
@@ -79,7 +79,7 @@ export const login = async (req, res) => {
       })
       .json({
         succes: true,
-        message: `¡Bienvenido ${empleado.nombre}, has iniciado sesion exitosamente! `
+        message: '¡Bienvenido, has iniciado sesion exitosamente! '
       })
   } catch (error) {
     if (error.isValidationError) {
