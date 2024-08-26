@@ -29,13 +29,22 @@ export const register = async (req, res) => {
         rol
       }
     })
-    res.status(201).json(empleado)
+
+    const empleadoReturn = {
+      succes: true,
+      message: `¡Empleado ${nombre} del area ${area} creado exitosamente!`
+    }
+    res.status(201).json(empleadoReturn)
   } catch (error) {
-    res.status(400).send({ error: 'Porfavor verifique los datos.' })
+    if (error.isValidationError) {
+      res.status(400).send({ error: 'Porfavor verifique los datos.' })
+    } else {
+      res.status(500).send({ error: 'Error en el servidor.' })
+    }
   }
 }
 
-// Verificar si el empleado existe y realiza la comprobacion para ejecutar el login
+// Verificar si el empleado existe y realiza la comprobacion para ejecutar el login.
 
 export const login = async (req, res) => {
   try {
@@ -49,23 +58,34 @@ export const login = async (req, res) => {
         ? false
         : await compareSync(contrasena, empleado.contrasena)
     if (!passwordOk) {
-      res.status(401).json({ error: 'Usuario o clave incorrectos|' })
+      res.status(401).json({ error: 'Usuario o clave incorrectos.' })
     }
 
-    const userToken = {
-      id: empleado.id,
-      username: empleado.nombre
-    }
+    const token = jwt.sign(
+      { id: empleado.id, empleado: empleado.nombre },
+      secret,
+      { expiresIn: '15min' }
+    )
 
-    const token = jwt.sign(userToken, secret)
+    // Adicion de medidas de seguridad para la cookie que contiene el token.
 
-    res.status(200).json({
-      id: empleado.id,
-      nombre: empleado.nombre,
-      token
-    })
+    res
+      .status(200)
+      .cookie('acces_token', token, {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000
+      })
+      .json({
+        succes: true,
+        message: `¡Bienvenido ${empleado.nombre}, has iniciado sesion exitosamente! `
+      })
   } catch (error) {
-    console.error('Error en el servidor')
-    res.status(500).json({ error: 'Error en el servidor.' })
+    if (error.isValidationError) {
+      res.status(400).send({ error: 'Porfavor verifique los datos.' })
+    } else {
+      res.status(500).send({ error: 'Error en el servidor.' })
+    }
   }
 }
