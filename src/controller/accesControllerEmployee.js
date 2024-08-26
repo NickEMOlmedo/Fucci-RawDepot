@@ -11,30 +11,28 @@ const prisma = new PrismaClient()
 
 export const register = async (req, res) => {
   try {
-    const { nombre, apellido, dni, contrasena, area, rol } = req.body
+    const { firstName, lastName, dni, password, area, role } = req.body
     const dniParser = parseInt(dni)
-    let empleado = await prisma.empleado.findFirst({
+    let employee = await prisma.employee.findFirst({
       where: { dni: dniParser }
     })
-    if (empleado) {
+    if (employee) {
       throw new Error('¡El empleado ya existe!')
     }
-    empleado = await prisma.empleado.create({
+    employee = await prisma.employee.create({
       data: {
-        nombre,
-        apellido,
+        firstName,
+        lastName,
         dni: dniParser,
-        contrasena: hashSync(contrasena, 10),
+        password: hashSync(password, 10),
         area,
-        rol
+        role
       }
     })
 
-    const empleadoReturn = {
-      succes: true,
-      message: '¡Empleado creado exitosamente!'
-    }
-    res.status(201).json(empleadoReturn)
+    res
+      .status(201)
+      .json({ succes: true, message: '¡Empleado creado Exitosamente!' })
   } catch (error) {
     if (error.isValidationError) {
       res.status(400).send({ error: 'Porfavor verifique los datos.' })
@@ -48,21 +46,21 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { dni, contrasena } = req.body
+    const { dni, password } = req.body
     const dniParser = parseInt(dni)
-    const empleado = await prisma.empleado.findFirst({
+    const employee = await prisma.employee.findFirst({
       where: { dni: dniParser }
     })
     const passwordOk =
-      empleado === null
+      employee === null
         ? false
-        : await compareSync(contrasena, empleado.contrasena)
+        : await compareSync(password, employee.contrasena)
     if (!passwordOk) {
       res.status(401).json({ error: 'Usuario o clave incorrectos.' })
     }
 
     const token = jwt.sign(
-      { id: empleado.id, empleado: empleado.nombre, area: empleado.area },
+      { id: employee.id, empleado: employee.nombre, area: employee.area },
       secret,
       { expiresIn: '15min' }
     )

@@ -7,84 +7,84 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Calidad {
-  bueno
-  regular
-  malo
+enum Quality {
+  good
+  average
+  poor
 }
 
-model Administrador {
-  id         Int       @id @default(autoincrement())
-  nombre     String    @db.VarChar(30)
-  apellido   String    @db.VarChar(30)
-  dni        Int       @unique
-  email      String    @db.VarChar(255)
-  contrasena String    @db.VarChar(30)
-  ingreso    Ingreso[]
-  retiro     Retiro[]
+model Admin {
+  id          Int          @id @default(autoincrement())
+  firstName   String       @db.VarChar(30)
+  lastName    String       @db.VarChar(30)
+  dni         Int          @unique
+  email       String       @db.VarChar(255)
+  password    String       @db.VarChar(255)
+  entries     Entry[]
+  withdrawals Withdrawal[]
 }
 
-model Empleado {
-  id         Int      @id @default(autoincrement())
-  nombre     String   @db.VarChar(30)
-  apellido   String   @db.VarChar(30)
-  dni        Int      @unique
-  contrasena String   @db.VarChar(255)
-  area       String   @db.VarChar(30)
-  rol        String   @db.VarChar(30)
-  retiro     Retiro[]
+model Employee {
+  id          Int          @id @default(autoincrement())
+  firstName   String       @db.VarChar(30)
+  lastName    String       @db.VarChar(30)
+  dni         Int          @unique
+  password    String       @db.VarChar(255)
+  area        String       @db.VarChar(30)
+  role        String       @db.VarChar(30)
+  withdrawals Withdrawal[]
 }
 
-model Producto {
-  id            Int             @id @default(autoincrement())
-  nombre        String          @db.VarChar(30)
-  stock         BigInt
-  marca         String          @db.VarChar(30)
-  fabricante    String          @db.VarChar(30)
-  presentacion  String          @db.VarChar(30)
-  estadoCalidad Calidad
-  loteProducto  LoteProducto[]
-  detalleRetiro DetalleRetiro[]
+model Product {
+  id                Int                @id @default(autoincrement())
+  name              String             @db.VarChar(30)
+  stock             BigInt
+  brand             String             @db.VarChar(30)
+  manufacturer      String             @db.VarChar(30)
+  presentation      String             @db.VarChar(30)
+  quality           Quality
+  lots              Lot[]
+  withdrawalDetails WithdrawalDetail[]
 }
 
-model Ingreso {
-  id               Int           @id @default(autoincrement())
-  tipoProducto     String        @db.VarChar(30)
-  codigoRemito     String        @db.VarChar(30)
-  empresaEntrega   String        @db.VarChar(30)
-  fechaIngreso     DateTime
-  cantidad         Int
-  estado           Calidad
-  administrador    Administrador @relation(fields: [administradorDni], references: [dni])
-  administradorDni Int
+model Entry {
+  id              Int      @id @default(autoincrement())
+  productType     String   @db.VarChar(30)
+  receiptCode     String   @db.VarChar(30)
+  deliveryCompany String   @db.VarChar(30)
+  entryDate       DateTime
+  quantity        Int
+  status          Quality
+  admin           Admin    @relation(fields: [adminDni], references: [dni])
+  adminDni        Int
 }
 
-model LoteProducto {
-  id               BigInt   @id @default(autoincrement())
-  lote             String   @db.VarChar(50)
-  fechaVencimiento DateTime
-  cantidad         BigInt
-  producto         Producto @relation(fields: [productoId], references: [id])
-  productoId       Int
+model Lot {
+  id             BigInt   @id @default(autoincrement())
+  lotNumber      String   @db.VarChar(50)
+  expirationDate DateTime
+  quantity       BigInt
+  product        Product  @relation(fields: [productId], references: [id])
+  productId      Int
 }
 
-model Retiro {
-  id               Int             @id @default(autoincrement())
-  fechaRetiro      DateTime
-  empleado         Empleado        @relation(fields: [empleadoDni], references: [dni])
-  empleadoDni      Int
-  detalleRetiro    DetalleRetiro[]
-  administrador    Administrador?  @relation(fields: [administradorDni], references: [dni])
-  administradorDni Int?
+model Withdrawal {
+  id                Int                @id @default(autoincrement())
+  withdrawalDate    DateTime
+  employee          Employee           @relation(fields: [employeeDni], references: [dni])
+  employeeDni       Int
+  withdrawalDetails WithdrawalDetail[]
+  admin             Admin?             @relation(fields: [adminDni], references: [dni])
+  adminDni          Int?
 }
 
-model DetalleRetiro {
-  id            BigInt   @id @default(autoincrement())
-  cantidad      BigInt
-  estado        Calidad
-  observaciones String   @db.VarChar(100)
-  retiro        Retiro   @relation(fields: [retiroId], references: [id])
-  retiroId      Int
-  producto      Producto @relation(fields: [productoId], references: [id])
-  productoId    Int
+model WithdrawalDetail {
+  id           BigInt     @id @default(autoincrement())
+  quantity     BigInt
+  status       Quality
+  notes        String     @db.VarChar(100)
+  withdrawal   Withdrawal @relation(fields: [withdrawalId], references: [id])
+  withdrawalId Int
+  product      Product    @relation(fields: [productId], references: [id])
+  productId    Int
 }
