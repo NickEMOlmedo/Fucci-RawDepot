@@ -13,11 +13,11 @@ export const register = async (req, res) => {
   try {
     const { firstName, lastName, dni, password, area, role } = req.body
     const dniParser = parseInt(dni)
-    let employee = await prisma.employee.findFirst({
+    let employee = await prisma.employee.findUnique({
       where: { dni: dniParser }
     })
     if (employee) {
-      throw new Error('¡El empleado ya existe!')
+      res.status(409).json('¡El empleado ya existe!')
     }
     employee = await prisma.employee.create({
       data: {
@@ -34,7 +34,7 @@ export const register = async (req, res) => {
       .status(201)
       .json({ succes: true, message: '¡Empleado creado Exitosamente!' })
   } catch (error) {
-    if (error.isValidationError) {
+    if (error.status === 400) {
       res.status(400).send({ error: 'Porfavor verifique los datos.' })
     } else {
       res.status(500).send({ error: 'Error en el servidor.' })
@@ -48,21 +48,19 @@ export const login = async (req, res) => {
   try {
     const { dni, password } = req.body
     const dniParser = parseInt(dni)
-    const employee = await prisma.employee.findFirst({
+    const employee = await prisma.employee.findUnique({
       where: { dni: dniParser }
     })
     const passwordOk =
-      employee === null
-        ? false
-        : await compareSync(password, employee.contrasena)
+      employee === null ? false : await compareSync(password, employee.password)
     if (!passwordOk) {
       res.status(401).json({ error: 'Usuario o clave incorrectos.' })
     }
 
     const token = jwt.sign(
-      { id: employee.id, empleado: employee.nombre, area: employee.area },
+      { id: employee.id, empleado: employee.firstName, area: employee.area },
       secret,
-      { expiresIn: '15min' }
+      { expiresIn: '30min' }
     )
 
     // Adicion de medidas de seguridad para la cookie que contiene el token.
@@ -80,7 +78,7 @@ export const login = async (req, res) => {
         message: '¡Bienvenido, has iniciado sesion exitosamente! '
       })
   } catch (error) {
-    if (error.isValidationError) {
+    if (error.status === 400) {
       res.status(400).send({ error: 'Porfavor verifique los datos.' })
     } else {
       res.status(500).send({ error: 'Error en el servidor.' })

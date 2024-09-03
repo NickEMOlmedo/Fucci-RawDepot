@@ -1,6 +1,5 @@
 import { Router } from 'express'
-import { login, register } from '../controller/accesControllerEmpleado.js'
-
+import { register, login } from '../controller/accesControllerEmployee.js'
 const router = Router()
 
 router.post('/register', register)

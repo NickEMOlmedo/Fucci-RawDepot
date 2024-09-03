@@ -38,7 +38,7 @@ model Employee {
 model Product {
   id                Int                @id @default(autoincrement())
   name              String             @db.VarChar(30)
-  stock             BigInt
+  stock             Int
   brand             String             @db.VarChar(30)
   manufacturer      String             @db.VarChar(30)
   presentation      String             @db.VarChar(30)
@@ -60,10 +60,10 @@ model Entry {
 }
 
 model Lot {
-  id             BigInt   @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   lotNumber      String   @db.VarChar(50)
   expirationDate DateTime
-  quantity       BigInt
+  quantity       Int
   product        Product  @relation(fields: [productId], references: [id])
   productId      Int
 }
@@ -79,8 +79,8 @@ model Withdrawal {
 }
 
 model WithdrawalDetail {
-  id           BigInt     @id @default(autoincrement())
-  quantity     BigInt
+  id           Int        @id @default(autoincrement())
+  quantity     Int
   status       Quality
   notes        String     @db.VarChar(100)
   withdrawal   Withdrawal @relation(fields: [withdrawalId], references: [id])
