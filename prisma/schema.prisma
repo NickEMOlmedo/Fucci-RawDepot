@@ -38,11 +38,11 @@ model Employee {
 model Product {
   id                Int                @id @default(autoincrement())
   name              String             @db.VarChar(30)
-  stock             Int
   brand             String             @db.VarChar(30)
   manufacturer      String             @db.VarChar(30)
   presentation      String             @db.VarChar(30)
   quality           Quality
+  stock             Int
   lots              Lot[]
   withdrawalDetails WithdrawalDetail[]
 }

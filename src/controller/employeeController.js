@@ -58,7 +58,13 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: employee.id, empleado: employee.firstName, area: employee.area },
+      {
+        id: employee.id,
+        empleado: employee.firstName,
+        area: employee.area,
+        role: employee.role,
+        acces: 'employee'
+      },
       secret,
       { expiresIn: '30min' }
     )

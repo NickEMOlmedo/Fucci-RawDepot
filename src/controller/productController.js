@@ -7,86 +7,86 @@ const prisma = new PrismaClient()
 export const uploadProduct = async (req, res) => {
   try {
     const { name, stock, brand, manufacturer, presentation, quality } = req.body
-
     const product = await prisma.product.create({
       data: {
-        name,
-        stock,
-        brand,
-        manufacturer,
-        presentation,
-        quality
+        name: name.toLowerCase(),
+        brand: brand.toLowerCase(),
+        manufacturer: manufacturer.toLowerCase(),
+        presentation: presentation.toLowerCase(),
+        quality: quality.toLowerCase(),
+        stock
       }
     })
 
     if (product) {
-      res.status(201).json({ message: '¡Producto creado exitosamente!' })
+      return res.status(201).json({ message: '¡Producto creado exitosamente!' })
     }
   } catch (error) {
     if (error.status === 400) {
-      res.status(400).send({ error: '¡Porfavor verifique los datos!' })
+      return res.status(400).send({ error: '¡Porfavor verifique los datos!' })
     } else {
-      res.status(500).send({ error: 'Error en el servidor.' })
+      return res.status(500).send({ error: 'Error en el servidor.' })
     }
   } finally {
     await prisma.$disconnect()
   }
 }
 
+// Funcion que devuelve todos los productos que existan en la db.
+
 export const getAllProducts = async (req, res) => {
   try {
     const product = await prisma.product.findMany()
-
-    res.status(200).json(product)
+    return res.status(200).json(product)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Error al obtener productos.' })
+    return res.status(500).json({ error: 'Error al obtener productos.' })
   }
 }
 
 // Funcion que devuelve un producto si le pasamos la id de dicho producto.
 
 export const getProductById = async (req, res) => {
+  const productId = parseInt(req.params.id)
+  if (isNaN(productId)) {
+    return res
+      .status(400)
+      .send({ error: '¡El ID del producto debe ser numerico!' })
+  }
+
+  // Si pasa la verificacion y realmente es un numero, ahi asignamos ese valor a id.
+
+  const id = productId
+
   try {
-    const productId = parseInt(req.params)
-
-    if (isNaN(productId)) {
-      res
-        .status(400)
-        .send({ error: '¡Porfavor verifique los datos!' + productId })
-    }
-
-    const product = await prisma.product.findUnique({ where: { productId } })
-    const { id, name, stock, brand, manufacturer, presentation, quality } =
-      product
-
+    const product = await prisma.product.findUnique({ where: { id } })
     if (product) {
+      const { name, brand, manufacturer, presentation, quality, stock } =
+        product
       return res.status(200).json({
         id,
         name,
-        stock,
         brand,
         manufacturer,
         presentation,
-        quality
+        quality,
+        stock
       })
+    } else {
+      return res.status(404).json({ error: 'Producto No encontrado.' })
     }
   } catch (error) {
-    if (error.status === 400) {
-      res.status(400).send({ error: '¡Porfavor verifique los datos!' })
-    } else {
-      res.status(500).send({ error: 'Error en el servidor.' })
-    }
+    return res.status(500).send({ error: 'Error en el servidor.' })
   } finally {
     await prisma.$disconnect()
   }
 }
 
-// Funcion para modificar un nuevo producto en la db.
+// Funcion para modificar un producto en la db.
 
 export const updateProduct = async (req, res) => {
   try {
-    const { id, name, stock, brand, manufacturer, presentation, quality } =
+    const { id, name, brand, manufacturer, presentation, quality, stock } =
       req.body
 
     const product = await prisma.product.update({
@@ -94,61 +94,80 @@ export const updateProduct = async (req, res) => {
         id
       },
       data: {
-        name,
-        stock,
-        brand,
-        manufacturer,
-        presentation,
-        quality
+        name: name.toLowerCase(),
+        brand: brand.toLowerCase(),
+        manufacturer: manufacturer.toLowerCase(),
+        presentation: presentation.toLowerCase(),
+        quality: quality.toLowerCase(),
+        stock
       }
     })
 
     if (product) {
-      res.status(201).json({ message: '¡Producto actualizado exitosamente!' })
+      return res
+        .status(201)
+        .json({ message: '¡Producto actualizado exitosamente!' })
     }
   } catch (error) {
-    if (error.status === 400) {
-      res.status(400).send({ error: '¡Porfavor verifique los datos!' })
+    if (error.code === 'P2025') {
+      return res.status(400).send({ error: '¡Producto no encontrado!' })
     } else {
-      res.status(500).send({ error: 'Error en el servidor.' })
+      return res.status(500).send({ error: 'Error en el servidor.' })
     }
   } finally {
     await prisma.$disconnect()
   }
 }
 
-// Funcion para eliminar un  producto en la db.
+// Funcion para eliminar un  producto en la db a traves del iud.
 
 export const deleteProduct = async (req, res) => {
-  try {
-    const { id } = req.body
+  const productId = parseInt(req.params.id)
+  if (isNaN(productId)) {
+    return res
+      .status(400)
+      .send({ error: '¡El ID del producto debe ser numerico!' })
+  }
 
+  // Si pasa la verificacion y realmente es un numero, ahi asignamos ese valor a id.
+
+  const id = productId
+
+  try {
     const product = await prisma.product.delete({
       where: { id }
     })
 
     if (product) {
-      res.status(200).json({ message: '¡Producto actualizado exitosamente!' })
+      return res
+        .status(200)
+        .json({ message: '¡Producto eliminado exitosamente!' })
     }
   } catch (error) {
-    if (error.status === 400) {
-      res.status(400).send({ error: '¡Porfavor verifique los datos!' })
+    if (error.code === 'P2025') {
+      return res.status(400).send({ error: '¡Producto no encontrado!' })
     } else {
-      res.status(500).send({ error: 'Error en el servidor.' })
+      return res.status(500).send({ error: 'Error en el servidor.' })
     }
   } finally {
     await prisma.$disconnect()
   }
 }
 
+// Funcion para buscar un  producto en la db a traves del nombre.
+
 export const searchProduct = async (req, res) => {
+  const name = req.params.name
+  if (!name) {
+    return res.status(400).json({ error: 'Falta el parámetro de búsqueda.' })
+  }
+
   try {
-    const { name } = req.body
+    console.log(name)
     const products = await prisma.product.findMany({
       where: {
         name: {
-          contains: name,
-          mode: 'insensitive'
+          contains: name
         }
       }
     })
@@ -159,7 +178,7 @@ export const searchProduct = async (req, res) => {
       })
     }
 
-    res.status(200).json(products)
+    return res.status(200).json(products)
   } catch (error) {
     res.status(500).json({ error: 'Error al buscar productos.' })
   } finally {

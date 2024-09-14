@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.4",
+    "prisma": "^5.19.1",
     "standard": "^17.1.0"
   },
   "eslintConfig": {
