@@ -14,14 +14,15 @@ enum Quality {
 }
 
 model Admin {
-  id          Int          @id @default(autoincrement())
-  firstName   String       @db.VarChar(30)
-  lastName    String       @db.VarChar(30)
-  dni         Int          @unique
-  email       String       @db.VarChar(255)
-  password    String       @db.VarChar(255)
-  entries     Entry[]
-  withdrawals Withdrawal[]
+  id           Int          @id @default(autoincrement())
+  firstName    String       @db.VarChar(30)
+  lastName     String       @db.VarChar(30) 
+  dni          Int          @unique
+  email        String       @db.VarChar(255)
+  password     String       @db.VarChar(255)
+  isSuperAdmin Boolean      @default(false)
+  entries      Entry[]
+  withdrawals  Withdrawal[]
 }
 
 model Employee {

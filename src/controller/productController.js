@@ -13,7 +13,7 @@ export const uploadProduct = async (req, res) => {
         brand: brand.toLowerCase(),
         manufacturer: manufacturer.toLowerCase(),
         presentation: presentation.toLowerCase(),
-        quality: quality.toLowerCase(),
+        quality,
         stock
       }
     })
@@ -22,11 +22,9 @@ export const uploadProduct = async (req, res) => {
       return res.status(201).json({ message: '¡Producto creado exitosamente!' })
     }
   } catch (error) {
-    if (error.status === 400) {
-      return res.status(400).send({ error: '¡Porfavor verifique los datos!' })
-    } else {
-      return res.status(500).send({ error: 'Error en el servidor.' })
-    }
+    return res
+      .status(500)
+      .send({ error: 'Error en el servidor, no se pudo cargar el producto.' })
   } finally {
     await prisma.$disconnect()
   }
@@ -37,27 +35,20 @@ export const uploadProduct = async (req, res) => {
 export const getAllProducts = async (req, res) => {
   try {
     const product = await prisma.product.findMany()
-    return res.status(200).json(product)
+    if (product) {
+      return res.status(201).json(product)
+    }
   } catch (error) {
-    console.error(error)
     return res.status(500).json({ error: 'Error al obtener productos.' })
+  } finally {
+    prisma.$disconnect()
   }
 }
 
 // Funcion que devuelve un producto si le pasamos la id de dicho producto.
 
 export const getProductById = async (req, res) => {
-  const productId = parseInt(req.params.id)
-  if (isNaN(productId)) {
-    return res
-      .status(400)
-      .send({ error: '¡El ID del producto debe ser numerico!' })
-  }
-
-  // Si pasa la verificacion y realmente es un numero, ahi asignamos ese valor a id.
-
-  const id = productId
-
+  const id = parseInt(req.params.id)
   try {
     const product = await prisma.product.findUnique({ where: { id } })
     if (product) {
@@ -73,7 +64,7 @@ export const getProductById = async (req, res) => {
         stock
       })
     } else {
-      return res.status(404).json({ error: 'Producto No encontrado.' })
+      return res.status(404).json({ error: '¡Producto no encontrado!' })
     }
   } catch (error) {
     return res.status(500).send({ error: 'Error en el servidor.' })
@@ -85,10 +76,9 @@ export const getProductById = async (req, res) => {
 // Funcion para modificar un producto en la db.
 
 export const updateProduct = async (req, res) => {
+  const id = parseInt(req.params.id)
   try {
-    const { id, name, brand, manufacturer, presentation, quality, stock } =
-      req.body
-
+    const { name, brand, manufacturer, presentation, quality, stock } = req.body
     const product = await prisma.product.update({
       where: {
         id
@@ -98,7 +88,7 @@ export const updateProduct = async (req, res) => {
         brand: brand.toLowerCase(),
         manufacturer: manufacturer.toLowerCase(),
         presentation: presentation.toLowerCase(),
-        quality: quality.toLowerCase(),
+        quality,
         stock
       }
     })
@@ -112,7 +102,9 @@ export const updateProduct = async (req, res) => {
     if (error.code === 'P2025') {
       return res.status(400).send({ error: '¡Producto no encontrado!' })
     } else {
-      return res.status(500).send({ error: 'Error en el servidor.' })
+      return res.status(500).send({
+        error: 'Error en el servidor, no se pudo actualizar el producto.'
+      })
     }
   } finally {
     await prisma.$disconnect()
@@ -122,17 +114,7 @@ export const updateProduct = async (req, res) => {
 // Funcion para eliminar un  producto en la db a traves del iud.
 
 export const deleteProduct = async (req, res) => {
-  const productId = parseInt(req.params.id)
-  if (isNaN(productId)) {
-    return res
-      .status(400)
-      .send({ error: '¡El ID del producto debe ser numerico!' })
-  }
-
-  // Si pasa la verificacion y realmente es un numero, ahi asignamos ese valor a id.
-
-  const id = productId
-
+  const id = parseInt(req.params.id)
   try {
     const product = await prisma.product.delete({
       where: { id }
@@ -147,7 +129,9 @@ export const deleteProduct = async (req, res) => {
     if (error.code === 'P2025') {
       return res.status(400).send({ error: '¡Producto no encontrado!' })
     } else {
-      return res.status(500).send({ error: 'Error en el servidor.' })
+      return res.status(500).send({
+        error: 'Error en el servidor, no se pudo eliminar el producto.'
+      })
     }
   } finally {
     await prisma.$disconnect()
@@ -158,12 +142,7 @@ export const deleteProduct = async (req, res) => {
 
 export const searchProduct = async (req, res) => {
   const name = req.params.name
-  if (!name) {
-    return res.status(400).json({ error: 'Falta el parámetro de búsqueda.' })
-  }
-
   try {
-    console.log(name)
     const products = await prisma.product.findMany({
       where: {
         name: {
@@ -177,7 +156,6 @@ export const searchProduct = async (req, res) => {
         error: 'No se encontraron productos que coincidan con la busqueda.'
       })
     }
-
     return res.status(200).json(products)
   } catch (error) {
     res.status(500).json({ error: 'Error al buscar productos.' })

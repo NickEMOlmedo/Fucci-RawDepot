@@ -13,7 +13,7 @@ export const router = Router()
 router.post('/', uploadProduct)
 router.get('/', getAllProducts)
 router.get('/:id', getProductById)
-router.put('/', updateProduct)
+router.put('/:id', updateProduct)
 router.delete('/:id', deleteProduct)
 router.get('/search/:name', searchProduct)
 
