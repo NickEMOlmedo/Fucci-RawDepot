@@ -6,6 +6,24 @@ const prisma = new PrismaClient()
 
 export const uploadEntry = async (req, res) => {
   try {
+    const productToCompare = req.body.producType
+    const receiptCodeToCompare = req.body.receiptCode
+    const deliveryCompanyToCompare = req.body.deliveryCompany
+
+    const entryCompare = await prisma.entry.findFirst({
+      where: {
+        producType: { productToCompare },
+        receiptCode: { receiptCodeToCompare },
+        deliveryCompany: { deliveryCompanyToCompare }
+      }
+    })
+
+    if (entryCompare) {
+      return res.status(409).json({
+        error: '¡Este ingreso ya existe, porfavor verifique los datos!'
+      })
+    }
+
     const {
       producType,
       receiptCode,
@@ -21,7 +39,7 @@ export const uploadEntry = async (req, res) => {
         productType: producType.toLowerCase(),
         receiptCode: receiptCode.toLowerCase(),
         deliveryCompany: deliveryCompany.toLowerCase(),
-        entryDate: entryDate.toLowerCase(),
+        entryDate: new Date(entryDate),
         quantity: quantity.toLowerCase(),
         status,
         adminDni
@@ -29,9 +47,9 @@ export const uploadEntry = async (req, res) => {
     })
 
     if (entry) {
-      return res.status(201).json({
-        message: '¡Usted ha cargado un nuevo ingreso exitosamente!'
-      })
+      return res
+        .status(201)
+        .json({ message: '¡Usted ha cargado un nuevo ingreso exitosamente!' })
     }
   } catch (error) {
     return res.status(500).json({
@@ -44,41 +62,28 @@ export const uploadEntry = async (req, res) => {
 
 // Funcion que muestra todos los ingresos disponibles.
 
-export const getAllEntrys = async (req, res) => {
+export const getAllEntrys = async res => {
   try {
     const entry = await prisma.entry.findMany()
-    if (entry) {
-      return res.status(201).json(entry)
+    if (entry.length === 0) {
+      res.status(404).json({ error: 'No existen ingresos para mostrar.' })
     }
+    return res.status(200).json(entry)
   } catch (error) {
     return res.status(500).json({ message: 'Error al obtener los ingresos.' })
+  } finally {
+    prisma.$disconnect()
   }
 }
 
+// Funcion que retorna un ingreso segun el id.
+
 export const getEntryById = async (req, res) => {
-  const id = parseInt(req.params.id)
   try {
+    const id = parseInt(req.params.id)
     const entry = prisma.entry.findUnique({ where: { id } })
     if (entry) {
-      const {
-        producType,
-        receiptCode,
-        deliveryCompany,
-        entryDate,
-        quantity,
-        status,
-        adminDni
-      } = entry
-      return res.status(201).json({
-        id,
-        producType,
-        receiptCode,
-        deliveryCompany,
-        entryDate,
-        quantity,
-        status,
-        adminDni
-      })
+      return res.status(200).json(entry)
     } else {
       return res.status(404).json({ error: '¡Ingreso no encontrado!' })
     }
@@ -89,11 +94,21 @@ export const getEntryById = async (req, res) => {
   }
 }
 
-// Funcion para modificar o actualizar un ingreso de mercaderia.
+// Funcion para modificar un ingreso de mercaderia.
 
 export const updateEntry = async (req, res) => {
-  const id = parseInt(req.params.id)
   try {
+    const id = parseInt(req.params.id)
+    const entryCompare = await prisma.entry.findUnique({
+      id: { id }
+    })
+
+    if (!entryCompare) {
+      return res.status(409).json({
+        error: '¡Este ingreso no existe, porfavor verifique los datos!'
+      })
+    }
+
     const {
       producType,
       receiptCode,
@@ -110,7 +125,7 @@ export const updateEntry = async (req, res) => {
         productType: producType.toLowerCase(),
         receiptCode: receiptCode.toLowerCase(),
         deliveryCompany: deliveryCompany.toLowerCase(),
-        entryDate: entryDate.toLowerCase(),
+        entryDate: new Date(entryDate),
         quantity,
         status: status.toLowerCase(),
         adminDni
@@ -123,17 +138,21 @@ export const updateEntry = async (req, res) => {
       })
     }
   } catch (error) {
-    return res.status(404).json({
-      message: 'Error en el servidor, no se pudo actualizar el ingreso.'
-    })
+    if (error.code === 'P2025') {
+      return res.status(400).send({ error: 'Ingreso no encontrado!' })
+    } else {
+      return res.status(500).send({
+        error: 'Error en el servidor, no se pudo actualizar el ingreso.'
+      })
+    }
   } finally {
     prisma.$disconnect()
   }
 }
 
 export const deleteEntry = async (req, res) => {
-  const id = parseInt(req.params.id)
   try {
+    const id = parseInt(req.params.id)
     const entry = await prisma.entry.delete({
       where: {
         id: { id }
@@ -159,8 +178,8 @@ export const deleteEntry = async (req, res) => {
 // Funcion para buscar ingresos por tipo de producto.
 
 export const searchEntryByProductType = async (req, res) => {
-  const productType = req.params.productType
   try {
+    const productType = req.params.product_type
     const entry = await prisma.entry.findMany({
       where: {
         producType: { contains: productType }
@@ -183,8 +202,8 @@ export const searchEntryByProductType = async (req, res) => {
 // Funcion para buscar ingresos por compañia que envia.
 
 export const searchEntryByDeliveryCompany = async (req, res) => {
-  const deliveryCompany = req.params.deliveryCompany
   try {
+    const deliveryCompany = req.params.delivery_company
     const entry = await prisma.entry.findMany({
       where: {
         deliveryCompany: { contains: deliveryCompany }
@@ -207,8 +226,8 @@ export const searchEntryByDeliveryCompany = async (req, res) => {
 // Funcion pra buscar ingresos por fecha .
 
 export const searchEntryByDate = async (req, res) => {
-  const entryDate = req.params.entryDate
   try {
+    const entryDate = req.params.entry_date
     const entry = await prisma.entry.findMany({
       where: {
         entryDate: new Date(entryDate)
@@ -228,14 +247,14 @@ export const searchEntryByDate = async (req, res) => {
   }
 }
 
-// Funcion para buscar ingresos por el dni del admin.
+// Funcion para buscar ingresos por el status del producto al ingresar.
 
-export const searchEntryByAdmin = async (req, res) => {
-  const adminDni = req.params.adminDni
+export const searchEntryByStatus = async (req, res) => {
   try {
+    const status = req.params.status
     const entry = await prisma.entry.findMany({
       where: {
-        dni: { adminDni }
+        status: { status }
       }
     })
 
@@ -252,14 +271,14 @@ export const searchEntryByAdmin = async (req, res) => {
   }
 }
 
-// Funcion para buscar ingresos por el status del producto al ingresar.
+// Funcion para buscar ingresos por el dni del admin.
 
-export const searchEntryByStatus = async (req, res) => {
-  const status = req.params.status
+export const searchEntryByAdmin = async (req, res) => {
   try {
+    const adminDni = parseInt(req.params.admin_dni)
     const entry = await prisma.entry.findMany({
       where: {
-        status: { status }
+        dni: { adminDni }
       }
     })
 
@@ -268,6 +287,7 @@ export const searchEntryByStatus = async (req, res) => {
         error: 'No se encontraron ingresos que coincidan con la busqueda.'
       })
     }
+    return res.status(200).json(entry)
   } catch (error) {
     res.status(500).json({ error: 'Error al buscar ingresos.' })
   } finally {

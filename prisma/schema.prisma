@@ -16,7 +16,7 @@ enum Quality {
 model Admin {
   id           Int          @id @default(autoincrement())
   firstName    String       @db.VarChar(30)
-  lastName     String       @db.VarChar(30) 
+  lastName     String       @db.VarChar(30)
   dni          Int          @unique
   email        String       @db.VarChar(255)
   password     String       @db.VarChar(255)
@@ -46,6 +46,7 @@ model Product {
   stock             Int
   lots              Lot[]
   withdrawalDetails WithdrawalDetail[]
+  updateAt          DateTime           @updatedAt()
 }
 
 model Entry {
@@ -53,11 +54,12 @@ model Entry {
   productType     String   @db.VarChar(30)
   receiptCode     String   @db.VarChar(30)
   deliveryCompany String   @db.VarChar(30)
-  entryDate       DateTime
+  entryDate       DateTime @default(now())
   quantity        Int
   status          Quality
   admin           Admin    @relation(fields: [adminDni], references: [dni])
   adminDni        Int
+  updateAt        DateTime @updatedAt()
 }
 
 model Lot {
@@ -67,16 +69,18 @@ model Lot {
   quantity       Int
   product        Product  @relation(fields: [productId], references: [id])
   productId      Int
+  updateAt       DateTime @updatedAt()
 }
 
 model Withdrawal {
   id                Int                @id @default(autoincrement())
-  withdrawalDate    DateTime
-  employee          Employee           @relation(fields: [employeeDni], references: [dni])
-  employeeDni       Int
+  withdrawalDate    DateTime           @default(now())
+  employee          Employee?          @relation(fields: [employeeDni], references: [dni])
+  employeeDni       Int?
   withdrawalDetails WithdrawalDetail[]
   admin             Admin?             @relation(fields: [adminDni], references: [dni])
   adminDni          Int?
+  updateAt          DateTime           @updatedAt()
 }
 
 model WithdrawalDetail {
@@ -88,4 +92,5 @@ model WithdrawalDetail {
   withdrawalId Int
   product      Product    @relation(fields: [productId], references: [id])
   productId    Int
+  updateAt     DateTime   @updatedAt()
 }

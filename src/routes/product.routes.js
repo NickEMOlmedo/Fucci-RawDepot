@@ -16,5 +16,7 @@ router.get('/:id', getProductById)
 router.put('/:id', updateProduct)
 router.delete('/:id', deleteProduct)
 router.get('/search/:name', searchProduct)
+router.get('/search/:brand', searchProduct)
+router.get('/search/:presentation', searchProduct)
 
 export default router
