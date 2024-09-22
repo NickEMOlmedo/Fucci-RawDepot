@@ -70,7 +70,9 @@ export const getAllEntrys = async res => {
     }
     return res.status(200).json(entry)
   } catch (error) {
-    return res.status(500).json({ message: 'Error al obtener los ingresos.' })
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudieron obtener los ingresos.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -88,7 +90,9 @@ export const getEntryById = async (req, res) => {
       return res.status(404).json({ error: '¡Ingreso no encontrado!' })
     }
   } catch (error) {
-    return res.status(500).send({ error: 'Error en el servidor.' })
+    return res
+      .status(500)
+      .send({ error: 'Error en el servidor, no se pudo obtener el ingreso' })
   } finally {
     prisma.$disconnect()
   }
@@ -138,13 +142,9 @@ export const updateEntry = async (req, res) => {
       })
     }
   } catch (error) {
-    if (error.code === 'P2025') {
-      return res.status(400).send({ error: 'Ingreso no encontrado!' })
-    } else {
-      return res.status(500).send({
-        error: 'Error en el servidor, no se pudo actualizar el ingreso.'
-      })
-    }
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo actualizar el ingreso.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -153,6 +153,16 @@ export const updateEntry = async (req, res) => {
 export const deleteEntry = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
+    const entryCompare = await prisma.entry.findUnique({
+      id: { id }
+    })
+
+    if (!entryCompare) {
+      return res.status(409).json({
+        error: '¡Este ingreso no existe, porfavor verifique los datos!'
+      })
+    }
+
     const entry = await prisma.entry.delete({
       where: {
         id: { id }
@@ -165,13 +175,11 @@ export const deleteEntry = async (req, res) => {
         .json({ message: 'Ingreso eliminado exitosamente!' })
     }
   } catch (error) {
-    if (error.code === 'P2025') {
-      return res.status(400).send({ error: 'Ingreso no encontrado!' })
-    } else {
-      return res.status(500).send({
-        error: 'Error en el servidor, no se pudo eliminar el ingreso.'
-      })
-    }
+    return res.status(500).send({
+      error: 'Error en el servidor, no se pudo eliminar el ingreso.'
+    })
+  } finally {
+    prisma.$disconnect()
   }
 }
 
@@ -193,7 +201,9 @@ export const searchEntryByProductType = async (req, res) => {
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar ingresos.' })
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los ingresos.'
+    })
   } finally {
     await prisma.$disconnect()
   }
@@ -217,7 +227,9 @@ export const searchEntryByDeliveryCompany = async (req, res) => {
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar ingresos.' })
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los ingresos.'
+    })
   } finally {
     await prisma.$disconnect()
   }
@@ -241,7 +253,9 @@ export const searchEntryByDate = async (req, res) => {
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar ingresos.' })
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los ingresos.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -265,7 +279,9 @@ export const searchEntryByStatus = async (req, res) => {
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar ingresos.' })
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los ingresos.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -289,7 +305,11 @@ export const searchEntryByAdmin = async (req, res) => {
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar ingresos.' })
+    res
+      .status(500)
+      .json({
+        error: 'Error en el servidor, no se pudieron buscar los ingresos.'
+      })
   } finally {
     prisma.$disconnect()
   }

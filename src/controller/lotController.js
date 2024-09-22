@@ -58,7 +58,9 @@ export const getAllLots = async res => {
       return res.status(200).json(lot)
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Error al obtener los lotes.' })
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudieron obtener los lotes.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -81,7 +83,9 @@ export const getLotBydId = async (req, res) => {
       return res.status(404).json({ error: 'Lote no encontrado!' })
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Error en el servidor.' })
+    return res
+      .status(500)
+      .json({ error: 'Error en el servidor, no se pudo retornar el lote.' })
   } finally {
     prisma.$disconnect()
   }
@@ -113,13 +117,9 @@ export const updateLot = async (req, res) => {
         .json({ message: '¡Usted ha cargado un nuevo lote exitosamente!' })
     }
   } catch (error) {
-    if (error.code === 'P2025') {
-      return res.status(400).json({ error: 'Lote no encontrado!' })
-    } else {
-      return res.status(500).json({
-        error: 'Error en el servidor, no se pudo actualizar el lote.'
-      })
-    }
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo actualizar el lote.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -142,13 +142,9 @@ export const deleteLot = async (req, res) => {
       return res.status(200).json({ message: '¡Lote eliminado exitosamente!' })
     }
   } catch (error) {
-    if (error.code === 'P2025') {
-      return res.status(400).send({ error: '¡Lote no encontrado!' })
-    } else {
-      return res.status(500).json({
-        error: 'Error en el servidor, no se pudo eliminar el lote.'
-      })
-    }
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo eliminar el lote.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -172,7 +168,9 @@ export const searchLotByNum = async (req, res) => {
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar los lotes.' })
+    res
+      .status(500)
+      .json({ error: 'Error en el servidor, no se pudo buscar el lote.' })
   } finally {
     prisma.$disconnect()
   }
@@ -196,7 +194,9 @@ export const searchLotByExpirationDate = async (req, res) => {
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar los lotes.' })
+    res
+      .status(500)
+      .json({ error: 'Error en el servidor, no se pudieron buscar los lotes.' })
   } finally {
     prisma.$disconnect()
   }
@@ -220,7 +220,9 @@ export const searchLotByProduct = async (req, res) => {
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar los lotes.' })
+    res
+      .status(500)
+      .json({ error: 'Error en el servidor, no se pudieron buscar los lotes.' })
   } finally {
     prisma.$disconnect()
   }

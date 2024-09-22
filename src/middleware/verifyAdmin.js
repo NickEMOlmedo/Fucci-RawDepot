@@ -4,5 +4,5 @@ export const verifyAdmin = (req, res, next) => {
   }
   return res
     .status(403)
-    .json({ message: 'Acceso denegado. Solo administradores' })
+    .json({ message: '¡Acceso no autorizado, solo administradores!' })
 }

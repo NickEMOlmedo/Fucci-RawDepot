@@ -117,13 +117,9 @@ export const updateProduct = async (req, res) => {
         .json({ message: '¡Producto actualizado exitosamente!' })
     }
   } catch (error) {
-    if (error.code === 'P2025') {
-      return res.status(400).send({ error: '¡Producto no encontrado!' })
-    } else {
-      return res.status(500).send({
-        error: 'Error en el servidor, no se pudo actualizar el producto.'
-      })
-    }
+    return res.status(500).send({
+      error: 'Error en el servidor, no se pudo actualizar el producto.'
+    })
   } finally {
     await prisma.$disconnect()
   }
@@ -150,13 +146,9 @@ export const deleteProduct = async (req, res) => {
         .json({ message: '¡Producto eliminado exitosamente!' })
     }
   } catch (error) {
-    if (error.code === 'P2025') {
-      return res.status(400).send({ error: '¡Producto no encontrado!' })
-    } else {
-      return res.status(500).send({
-        error: 'Error en el servidor, no se pudo eliminar el producto.'
-      })
-    }
+    return res.status(500).send({
+      error: 'Error en el servidor, no se pudo eliminar el producto.'
+    })
   } finally {
     await prisma.$disconnect()
   }

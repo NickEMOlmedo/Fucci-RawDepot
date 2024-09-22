@@ -57,13 +57,16 @@ export const getAllWithdrawalDetails = async res => {
       return res.status(200).json(withdrawalDetail)
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Error en el servidor.' })
+    return res.status(500).json({
+      error:
+        'Error en el servidor, no se pudieron obtener los detalles de retiro.'
+    })
   }
 }
 
 // Funcion para obtener un detalle de retiro a traves de su id.
 
-export const getWithdrawalWithId = async (req, res) => {
+export const getWithdrawalDetailWithId = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
     const withdrawalDetail = await prisma.withdrawalDetail.findUnique({
@@ -80,7 +83,9 @@ export const getWithdrawalWithId = async (req, res) => {
         .json({ error: '¡Detalle de retiro no encontrado!' })
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Error en el servidor.' })
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo obtener el detalle de retiro.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -88,7 +93,7 @@ export const getWithdrawalWithId = async (req, res) => {
 
 // Funcion para obtener un detalle de retiro a traves de su status.
 
-export const getWithdrawalWithStatus = async (req, res) => {
+export const searchWithdrawalDetailWithStatus = async (req, res) => {
   try {
     const status = req.params.status
     const withdrawalDetail = await prisma.withdrawalDetail.findUnique({
@@ -105,7 +110,10 @@ export const getWithdrawalWithStatus = async (req, res) => {
         .json({ error: '¡Detalle de retiro no encontrado!' })
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Error en el servidor.' })
+    return res.status(500).json({
+      error:
+        'Error en el servidor, no se pudieron buscar los detalles de retiro.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -113,7 +121,7 @@ export const getWithdrawalWithStatus = async (req, res) => {
 
 // Funcion para obtener un detalle de retiro a traves de el id del producto.
 
-export const getWithdrawalWithProduct = async (req, res) => {
+export const searchWithdrawalDetailWithProduct = async (req, res) => {
   try {
     const productId = parseInt(req.params.product_id)
     const withdrawalDetail = await prisma.withdrawalDetail.findUnique({
@@ -130,7 +138,10 @@ export const getWithdrawalWithProduct = async (req, res) => {
         .json({ error: '¡Detalle de retiro no encontrado!' })
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Error en el servidor.' })
+    return res.status(500).json({
+      error:
+        'Error en el servidor, no se pudieron buscar los detalles de retiro.'
+    })
   } finally {
     prisma.$disconnect()
   }
