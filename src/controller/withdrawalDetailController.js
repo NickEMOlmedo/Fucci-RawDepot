@@ -3,7 +3,7 @@ const prisma = new PrismaClient()
 
 // Funcion para cargar un nuevo detalle de retiro.
 
-export const uploadWithdrawalDetail = async (req, res) => {
+export const createWithdrawalDetail = async (req, res) => {
   try {
     const idToCompare = parseInt(req.body.withdrawalId)
     const productIdToCompare = parseInt(req.body.productId)
@@ -85,6 +85,75 @@ export const getWithdrawalDetailWithId = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo obtener el detalle de retiro.'
+    })
+  } finally {
+    prisma.$disconnect()
+  }
+}
+
+// Funcion para actualizar un detalle de retiro.
+
+export const updateWithdrawalDetail = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id)
+    const withdrawalDetailCompare = await prisma.withdrawal.findUnique({
+      where: { id }
+    })
+    if (!withdrawalDetailCompare) {
+      return res.status(409).json({
+        error:
+          '¡Este detalle de retiro no existe, porfavor verifique los datos!'
+      })
+    }
+    const { quantity, status, notes, withdrawalId, productId } = req.body
+    const withdrawalDetail = await prisma.withdrawalDetail.update({
+      data: {
+        quantity,
+        status,
+        notes,
+        withdrawalId,
+        productId
+      }
+    })
+    if (withdrawalDetail) {
+      return res.status(201).json({
+        message:
+          '¡Usted ha actualizado un nuevo detalle de retiro exitosamente!'
+      })
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo actualizar el detalle de retiro.'
+    })
+  } finally {
+    prisma.$disconnect()
+  }
+}
+
+// Funcion para poder eliminar un detalle de retiro.
+
+export const deleteWithdrawalDetail = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id)
+    const withdrawalDetailCompare = await prisma.withdrawalDetail.findUnique({
+      where: { id }
+    })
+    if (!withdrawalDetailCompare) {
+      return res.status(409).send({
+        error:
+          '¡Este detalle de retiro no existe, porfavor verifique los datos!'
+      })
+    }
+
+    const withdrawal = await prisma.withdrawalDetail.delete({ where: { id } })
+    if (withdrawal) {
+      return res
+        .status(200)
+        .json({ message: '¡Detalle de retiro eliminado exitosamente!' })
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo eliminar el detalle de retiro.'
     })
   } finally {
     prisma.$disconnect()

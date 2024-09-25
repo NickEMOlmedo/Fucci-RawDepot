@@ -4,7 +4,7 @@ const prisma = new PrismaClient()
 
 // Funcion para cargar un nuevo producto a la db.
 
-export const uploadProduct = async (req, res) => {
+export const createProduct = async (req, res) => {
   try {
     const nameToCompare = req.body.name
     const manufacturerToCompare = req.body.manufacturer

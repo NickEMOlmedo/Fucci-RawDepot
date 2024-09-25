@@ -1,21 +1,24 @@
 import { PrismaClient } from '@prisma/client'
-import bcryptjs from 'bcryptjs'
+import pkg from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-const { compareSync, hashSync } = bcryptjs
+
+const { compareSync, hashSync } = pkg
 
 const secret = process.env.SECRET
 
 const prisma = new PrismaClient()
 
-// Verificar si el empleado existe y si no proceder a crearlo.
+// Funcion para crear un nuevo empleado.
 
-export const register = async (req, res) => {
+export const createEmployee = async (req, res) => {
   try {
     const { firstName, lastName, dni, password, area, role } = req.body
-    const dniParser = parseInt(dni)
     let employee = await prisma.employee.findUnique({
-      where: { dni: dniParser }
+      where: { dni }
     })
+
+    // Verificar si el empleado existe y si no proceder a crearlo.
+
     if (employee) {
       res.status(409).json('¡El empleado ya existe!')
     }
@@ -23,7 +26,7 @@ export const register = async (req, res) => {
       data: {
         firstName: firstName.toLowerCasee(),
         lastName: lastName.toLowerCasee(),
-        dni: dniParser,
+        dni: parseInt(dni),
         password: hashSync(password, 10),
         area: area.toLowerCasee(),
         role: role.toLowerCasee()
@@ -41,12 +44,14 @@ export const register = async (req, res) => {
         error: 'Error en el servidor, no se pudo registrar el empleado.'
       })
     }
+  } finally {
+    prisma.$disconnect()
   }
 }
 
 // Verificar si el empleado existe y realiza la comprobacion para ejecutar el login.
 
-export const login = async (req, res) => {
+export const loginEmployee = async (req, res) => {
   try {
     const { dni, password } = req.body
     const dniParser = parseInt(dni)
@@ -62,9 +67,6 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       {
         id: employee.id,
-        empleado: employee.firstName,
-        area: employee.area,
-        role: employee.role,
         acces: 'employee'
       },
       secret,
@@ -86,13 +88,11 @@ export const login = async (req, res) => {
         message: '¡Bienvenido, has iniciado sesion exitosamente! '
       })
   } catch (error) {
-    if (error.status === 400) {
-      res.status(400).json({ error: 'Porfavor verifique los datos.' })
-    } else {
-      res.status(500).json({
-        error: 'Error en el servidor, no se pudo loguear al empleado.'
-      })
-    }
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudo loguear al empleado.'
+    })
+  } finally {
+    prisma.$disconnect()
   }
 }
 
@@ -115,6 +115,8 @@ export const getEmployee = async (req, res) => {
     res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo retornar el empleado' })
+  } finally {
+    prisma.$disconnect()
   }
 }
 
@@ -148,6 +150,8 @@ export const deleteEmployee = async (req, res) => {
     return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo eliminar al empleado.' })
+  } finally {
+    prisma.$disconnect()
   }
 }
 
@@ -189,5 +193,7 @@ export const updateEmployee = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo actualizar al empleado.'
     })
+  } finally {
+    prisma.$disconnect()
   }
 }

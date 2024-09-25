@@ -4,7 +4,7 @@ const prisma = new PrismaClient()
 
 // Funcion para ingresar un nuevo lote.
 
-export const uploadLot = async (req, res) => {
+export const createLot = async (req, res) => {
   try {
     const lotNumberToCompare = req.body.lot_number
     const expirationDateToCompare = req.body.expiration_date
@@ -68,7 +68,7 @@ export const getAllLots = async res => {
 
 // Funcion que retorna un lote segun el id.
 
-export const getLotBydId = async (req, res) => {
+export const getLotById = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
     const lot = await prisma.lot.findUnique({

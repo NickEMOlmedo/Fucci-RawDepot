@@ -4,7 +4,7 @@ const prisma = new PrismaClient()
 
 // Funcion para cargar un nuevo retiro.
 
-export const uploadWithdrawal = async (req, res) => {
+export const createWithdrawal = async (req, res) => {
   try {
     const { withdrawalDate, employeeDni, adminDni } = req.body
     const withdrawal = await prisma.withdrawal.create({
@@ -37,7 +37,9 @@ export const getAllWithdrawals = async res => {
       return res.status(200).json(withdrawal)
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Error en el servidor, no se pudieron obtener los retiros.' })
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudieron obtener los retiros.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -60,7 +62,9 @@ export const getWithdrawalBydId = async (req, res) => {
       return res.status(404).json({ error: 'Retiro no encontrado!' })
     }
   } catch (error) {
-    return res.status(500).json({ error: 'Error en el servidor, no se pudo retornar el retiro.' })
+    return res
+      .status(500)
+      .json({ error: 'Error en el servidor, no se pudo retornar el retiro.' })
   } finally {
     prisma.$disconnect()
   }
@@ -80,7 +84,7 @@ export const updateWithdrawal = async (req, res) => {
       })
     }
     const { withdrawalDate, employeeDni, adminDni } = req.body
-    const withdrawal = await prisma.lot.update({
+    const withdrawal = await prisma.withdrawal.update({
       data: {
         withdrawalDate,
         employeeDni,
@@ -90,7 +94,9 @@ export const updateWithdrawal = async (req, res) => {
     if (withdrawal) {
       return res
         .status(201)
-        .json({ message: '¡Usted ha cargado un nuevo retiro exitosamente!' })
+        .json({
+          message: '¡Usted ha actualizado un nuevo retiro exitosamente!'
+        })
     }
   } catch (error) {
     return res.status(500).json({
@@ -146,11 +152,9 @@ export const searchWithdrawalWithDate = async (req, res) => {
     }
     return res.status(200).json(withdrawal)
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: 'Error en el servidor, no se pudieron buscar los retiros.'
-      })
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los retiros.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -174,11 +178,9 @@ export const searchWithdrawalWithEmployee = async (req, res) => {
     }
     return res.status(200).json(withdrawal)
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: 'Error en el servidor, no se pudieron buscar los retiros.'
-      })
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los retiros.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -202,11 +204,9 @@ export const searchWithdrawalWithAdmin = async (req, res) => {
     }
     return res.status(200).json(withdrawal)
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: 'Error en el servidor, no se pudieron buscar los retiros.'
-      })
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los retiros.'
+    })
   } finally {
     prisma.$disconnect()
   }

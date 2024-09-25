@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import {
+  createEntry,
   deleteEntry,
   getAllEntrys,
   getEntryById,
@@ -8,12 +9,12 @@ import {
   searchEntryByDeliveryCompany,
   searchEntryByProductType,
   searchEntryByStatus,
-  updateEntry,
-  uploadEntry
-} from '../controller/entryController'
-export const router = Router()
+  updateEntry
+} from '../controller/entryController.js'
 
-router.post('/', uploadEntry)
+const router = Router()
+
+router.post('/', createEntry)
 router.get('/', getAllEntrys)
 router.get('/:id', getEntryById)
 router.put('/', updateEntry)
@@ -23,3 +24,5 @@ router.get('/search/:delivery_company', searchEntryByDeliveryCompany)
 router.get('/search/:entry_date', searchEntryByDate)
 router.get('/search/:status', searchEntryByStatus)
 router.get('/search/:admin_dni', searchEntryByAdmin)
+
+export default router

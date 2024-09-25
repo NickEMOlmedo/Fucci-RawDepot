@@ -2,18 +2,21 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import employeeRoutes from './routes/employee.routes'
-import productRoutes from './routes/product.routes'
-import entryRoutes from './routes/entry.routes'
-import lotRoutes from './routes/lot.routes'
-import withdrawalRoutes from './routes/withdrawal.routes'
-import withdrawatlDetailRoutes from './routes/withdrawalDetails.routes'
+import helmet from 'helmet'
+import adminRoutes from './routes/admin.routes.js'
+import employeeRoutes from './routes/employee.routes.js'
+import productRoutes from './routes/product.routes.js'
+import entryRoutes from './routes/entry.routes.js'
+import lotRoutes from './routes/lot.routes.js'
+import withdrawalRoutes from './routes/withdrawal.routes.js'
+import withdrawatlDetailRoutes from './routes/withdrawalDetails.routes.js'
 
 dotenv.config()
 
 const port = process.env.PORT ?? 3000
 const app = express()
 
+app.use(helmet())
 app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
@@ -24,9 +27,10 @@ app.get('/', (req, res) => {
   res.send('Server Running')
 })
 
-app.use('/api/employee', employeeRoutes)
-app.use('/api/product', productRoutes)
-app.use('/api/entry', entryRoutes)
-app.ue('/api/lot', lotRoutes)
-app.use('/api/withdrawal', withdrawalRoutes)
-app.use('api/withdrawalDetail', withdrawatlDetailRoutes)
+app.use('/api/admins', adminRoutes)
+app.use('/api/employees', employeeRoutes)
+app.use('/api/products', productRoutes)
+app.use('/api/entrys', entryRoutes)
+app.use('/api/lots', lotRoutes)
+app.use('/api/withdrawals', withdrawalRoutes)
+app.use('/api/withdrawal-details', withdrawatlDetailRoutes)

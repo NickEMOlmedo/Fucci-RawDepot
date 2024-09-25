@@ -4,7 +4,7 @@ const prisma = new PrismaClient()
 
 // Funcion que carga un nuevo ingreso de mercaderia.
 
-export const uploadEntry = async (req, res) => {
+export const createEntry = async (req, res) => {
   try {
     const productToCompare = req.body.producType
     const receiptCodeToCompare = req.body.receiptCode
