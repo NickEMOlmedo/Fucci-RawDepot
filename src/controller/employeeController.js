@@ -20,27 +20,25 @@ export const createEmployee = async (req, res) => {
     // Verificar si el empleado existe y si no proceder a crearlo.
 
     if (employee) {
-      res.status(409).json('¡El empleado ya existe!')
+      return res.status(409).json('¡El empleado ya existe!')
     }
     employee = await prisma.employee.create({
       data: {
-        firstName: firstName.toLowerCasee(),
-        lastName: lastName.toLowerCasee(),
+        firstName: firstName.toLowerCase(),
+        lastName: lastName.toLowerCase(),
         dni: parseInt(dni),
         password: hashSync(password, 10),
-        area: area.toLowerCasee(),
-        role: role.toLowerCasee()
+        area: area.toLowerCase(),
+        role: role.toLowerCase()
       }
     })
 
-    res
-      .status(201)
-      .json({ succes: true, message: '¡Empleado creado exitosamente!' })
+    return res.status(201).json({ message: '¡Empleado creado exitosamente!' })
   } catch (error) {
     if (error.status === 400) {
-      res.status(400).json({ error: 'Porfavor verifique los datos.' })
+      return res.status(400).json({ error: 'Porfavor verifique los datos.' })
     } else {
-      res.status(500).json({
+      return res.status(500).json({
         error: 'Error en el servidor, no se pudo registrar el empleado.'
       })
     }
@@ -61,7 +59,7 @@ export const loginEmployee = async (req, res) => {
     const passwordOk =
       employee === null ? false : await compareSync(password, employee.password)
     if (!passwordOk) {
-      res.status(401).json({ error: 'Usuario o clave incorrectos.' })
+      return res.status(401).json({ error: 'Usuario o clave incorrectos.' })
     }
 
     const token = jwt.sign(
@@ -75,7 +73,7 @@ export const loginEmployee = async (req, res) => {
 
     // Adicion de medidas de seguridad para la cookie que contiene el token.
 
-    res
+    return res
       .status(200)
       .cookie('acces_token', token, {
         secure: process.env.NODE_ENV === 'production',
@@ -84,11 +82,10 @@ export const loginEmployee = async (req, res) => {
         maxAge: 15 * 60 * 1000
       })
       .json({
-        succes: true,
         message: '¡Bienvenido, has iniciado sesion exitosamente! '
       })
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudo loguear al empleado.'
     })
   } finally {
@@ -96,9 +93,34 @@ export const loginEmployee = async (req, res) => {
   }
 }
 
+// Funcion que devuelve todos los empleados.
+
+export const getAllEmployees = async (req, res) => {
+  try {
+    const employee = await prisma.employee.findMany()
+    if (employee.length === 0) {
+      res.status(404).json({ error: 'No existen empleados para mostrar.' })
+    }
+    return res.status(200).json(
+      employee.map(({ id, firstName, lastName, dni, area, role }) => ({
+        id,
+        firstName,
+        lastName,
+        dni,
+        area,
+        role
+      }))
+    )
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudieron retornar los empleados.'
+    })
+  }
+}
+
 // Funcion que retorna un empleado segun el dni.
 
-export const getEmployee = async (req, res) => {
+export const getEmployeeByDni = async (req, res) => {
   try {
     const dni = parseInt(req.params.dni)
 
@@ -107,12 +129,48 @@ export const getEmployee = async (req, res) => {
     })
 
     if (employee) {
-      return res.status(200).json(employee)
+      return res.status(200).json({
+        id: employee.id,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        area: employee.area,
+        role: employee.role
+      })
     } else {
       return res.status(404).json({ error: 'Empleado no encontrado!' })
     }
   } catch (error) {
-    res
+    return res
+      .status(500)
+      .json({ error: 'Error en el servidor, no se pudo retornar el empleado' })
+  } finally {
+    prisma.$disconnect()
+  }
+}
+
+// Funcion que retorna un empleado segun el id.
+
+export const getEmployeeById = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id)
+
+    const employee = await prisma.employee.findUnique({
+      where: { id }
+    })
+
+    if (employee) {
+      return res.status(200).json({
+        id: employee.id,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        area: employee.area,
+        role: employee.role
+      })
+    } else {
+      return res.status(404).json({ error: 'Empleado no encontrado!' })
+    }
+  } catch (error) {
+    return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo retornar el empleado' })
   } finally {
@@ -124,10 +182,10 @@ export const getEmployee = async (req, res) => {
 
 export const deleteEmployee = async (req, res) => {
   try {
-    const dni = req.params.dni
+    const id = req.params.id
     const verifyEmployee = prisma.employee.findUnique({
       where: {
-        dni: { dni }
+        id
       }
     })
     if (!verifyEmployee) {
@@ -138,7 +196,7 @@ export const deleteEmployee = async (req, res) => {
 
     const employee = await prisma.employee.delete({
       where: {
-        dni: { dni }
+        id
       }
     })
     if (employee) {
@@ -159,10 +217,10 @@ export const deleteEmployee = async (req, res) => {
 
 export const updateEmployee = async (req, res) => {
   try {
-    const dni = req.params.dni
+    const id = req.params.id
     const verifyEmployee = prisma.employee.findUnique({
       where: {
-        dni: { dni }
+        id
       }
     })
     if (!verifyEmployee) {
@@ -170,16 +228,21 @@ export const updateEmployee = async (req, res) => {
         .status(404)
         .json({ error: '¡El empleado no existe, verifique los datos!' })
     }
-    const { firstName, lastName, password, area, role } = req.body
+    const { firstName, lastName, dni, password, area, role } = req.body
     const employee = await prisma.employee.update({
       where: {
-        dni,
+        id,
         data: {
-          firstName: firstName.toLowerCasee(),
-          lastName: lastName.toLowerCasee(),
-          password: hashSync(password, 10),
-          area: area.toLowerCasee(),
-          role: role.toLowerCasee()
+          firstName: firstName
+            ? firstName.toLowerCasee()
+            : verifyEmployee.firstName,
+          lastName: lastName
+            ? lastName.toLowerCasee()
+            : verifyEmployee.lastName,
+          dni: dni ? parseInt(dni) : verifyEmployee.dni,
+          ...(password && { password: hashSync(password, 10) }),
+          area: area ? area.toLowerCasee() : verifyEmployee.area,
+          role: role ? role.toLowerCasee() : verifyEmployee.role
         }
       }
     })

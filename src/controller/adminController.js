@@ -14,7 +14,6 @@ export const createAdmin = async (req, res) => {
   try {
     console.log(req.body)
     const { firstName, lastName, dni, email, password } = req.body
-
     const verifyAdmin = await prisma.admin.findUnique({ where: { dni } })
 
     // Verificar si el administrador existe si no procedemos a crearlo.
@@ -42,9 +41,7 @@ export const createAdmin = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({
-      error:
-        'Error en el servidor, no se pudo crear el usuario administrador.' +
-        error
+      error: 'Error en el servidor, no se pudo crear el usuario administrador.'
     })
   }
 }
@@ -55,7 +52,7 @@ export const loginAdmin = async function (req, res) {
   try {
     const { dni, password } = req.body
     const dniParser = parseInt(dni)
-    const admin = await prisma.employee.findUnique({
+    const admin = await prisma.admin.findUnique({
       where: { dni: dniParser }
     })
     const passwordOk =
@@ -73,7 +70,7 @@ export const loginAdmin = async function (req, res) {
       secret,
       { expiresIn: '24h' }
     )
-    res
+    return res
       .status(200)
       .cookie('acces_token', token, {
         secure: process.env.NODE_ENV === 'production',
@@ -82,11 +79,10 @@ export const loginAdmin = async function (req, res) {
         maxAge: 15 * 60 * 1000
       })
       .json({
-        succes: true,
         message: '¡Bienvenido, has iniciado sesion exitosamente! '
       })
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudo loguear al empleado.'
     })
   } finally {
@@ -94,36 +90,99 @@ export const loginAdmin = async function (req, res) {
   }
 }
 
+// Funcion que retorna todos los administradores.
+
+export const getAllAdmins = async (req, res) => {
+  try {
+    const admins = await prisma.admin.findMany()
+    if (admins.length === 0) {
+      return res
+        .status(404)
+        .json({ error: 'No existen administradores para mostrar.' })
+    }
+    return res.status(200).json(
+      admins.map(({ id, firstName, lastName, isSuperAdmin }) => ({
+        id,
+        firstName,
+        lastName,
+        isSuperAdmin
+      }))
+    )
+  } catch (error) {
+    return res.status(500).json({
+      error:
+        'Error en el servidor, no se pudieron retornar los administradores.'
+    })
+  }
+}
+
 // Funcion que retorna un administrador segun el dni.
 
-export const getAdmin = async (req, res) => {
+export const getAdminByDni = async (req, res) => {
   try {
     const dni = parseInt(req.params.dni)
-
     const admin = await prisma.admin.findUnique({
-      where: { dni: { dni } }
+      where: { dni }
     })
 
     if (admin) {
-      return res.status(200).json(admin)
+      return res.status(200).json({
+        id: admin.id,
+        firstName: admin.firstName,
+        lastName: admin.lastName,
+        dni,
+        email: admin.email,
+        isSuperAdmin: admin.isSuperAdmin
+      })
     } else {
       return res.status(404).json({ error: '¡Administrador no encontrado!' })
     }
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudo retornar el administrador'
     })
   } finally {
     prisma.$disconnect()
   }
 }
-// Funcon para modificar un usuario administrador.
+
+// Funcion que retorna un administrador segun el id.
+
+export const getAdminById = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id)
+    const admin = await prisma.admin.findUnique({
+      where: { id }
+    })
+
+    if (admin) {
+      return res.status(200).json({
+        id: admin.id,
+        firstName: admin.firstName,
+        lastName: admin.lastName,
+        email: admin.email,
+        isSuperAdmin: admin.isSuperAdmin
+      })
+    } else {
+      return res.status(404).json({ error: '¡Administrador no encontrado!' })
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo retornar el administrador'
+    })
+  } finally {
+    prisma.$disconnect()
+  }
+}
+
+// Funcion para modificar un usuario administrador.
 
 export const updateAdmin = async (req, res) => {
   try {
+    const id = parseInt(req.params.id)
     const { firstName, lastName, dni, email, password } = req.body
 
-    const verifyAdmin = await prisma.admin.findUnique({ where: { dni } })
+    const verifyAdmin = await prisma.admin.findUnique({ where: { id } })
 
     // Verificar si el administrador existe y procedemos a modificar los datos.
 
@@ -134,11 +193,13 @@ export const updateAdmin = async (req, res) => {
     }
 
     const admin = await prisma.admin.update({
+      where: { id },
       data: {
-        firstName: firstName.toLowerCase(),
-        lastName: lastName.toLowerCase(),
-        email: email.toLowerCase(),
-        password: hashSync(password, 10)
+        firstName: firstName ? firstName.toLowerCase() : verifyAdmin.firstName,
+        lastName: lastName ? lastName.toLowerCase() : verifyAdmin.lastName,
+        dni: dni ? parseInt(dni) : verifyAdmin.dni,
+        email: email ? email.toLowerCase() : verifyAdmin.email,
+        ...(password && { password: hashSync(password, 10) })
       }
     })
 
@@ -159,10 +220,10 @@ export const updateAdmin = async (req, res) => {
 
 export const deleteAdmin = async (req, res) => {
   try {
-    const dni = parseInt(req.params.id)
+    const id = parseInt(req.params.id)
 
     const verifyAdmin = await prisma.admin.findUnique({
-      where: { dni }
+      where: { id }
     })
 
     if (!verifyAdmin) {
@@ -173,7 +234,7 @@ export const deleteAdmin = async (req, res) => {
 
     const admin = await prisma.admin.delete({
       where: {
-        dni
+        id
       }
     })
 

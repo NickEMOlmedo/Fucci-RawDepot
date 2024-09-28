@@ -58,7 +58,9 @@ export const getAllProducts = async res => {
     }
     return res.status(200).json(product)
   } catch (error) {
-    return res.status(500).json({ error: 'Error al obtener productos.' })
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudieron obtener los productos.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -76,7 +78,9 @@ export const getProductById = async (req, res) => {
       return res.status(404).json({ error: '¡Producto no encontrado!' })
     }
   } catch (error) {
-    return res.status(500).send({ error: 'Error en el servidor.' })
+    return res
+      .status(500)
+      .send({ error: 'Error en el servidor, no se pudo obtener el producto.' })
   } finally {
     await prisma.$disconnect()
   }
@@ -174,7 +178,9 @@ export const searchProductByName = async (req, res) => {
     }
     return res.status(200).json(products)
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar productos.' })
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los productos.'
+    })
   } finally {
     await prisma.$disconnect()
   }
@@ -200,7 +206,11 @@ export const searchProductByBrand = async (req, res) => {
     }
     return res.status(200).json(products)
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar productos.' })
+    res
+      .status(500)
+      .json({
+        error: 'Error en el servidor, no se pudieron buscar los productos..'
+      })
   } finally {
     await prisma.$disconnect()
   }
@@ -226,7 +236,11 @@ export const searchProductByPresentation = async (req, res) => {
     }
     return res.status(200).json(products)
   } catch (error) {
-    res.status(500).json({ error: 'Error al buscar productos.' })
+    res
+      .status(500)
+      .json({
+        error: 'Error en el servidor, no se pudieron buscar los productos..'
+      })
   } finally {
     await prisma.$disconnect()
   }
