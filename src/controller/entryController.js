@@ -12,9 +12,9 @@ export const createEntry = async (req, res) => {
 
     const entryCompare = await prisma.entry.findFirst({
       where: {
-        producType: { productToCompare },
-        receiptCode: { receiptCodeToCompare },
-        deliveryCompany: { deliveryCompanyToCompare }
+        producType: productToCompare.toLowerCase(),
+        receiptCode: receiptCodeToCompare.toLowerCase(),
+        deliveryCompany: deliveryCompanyToCompare.toLowerCase()
       }
     })
 
@@ -41,8 +41,8 @@ export const createEntry = async (req, res) => {
         deliveryCompany: deliveryCompany.toLowerCase(),
         entryDate: new Date(entryDate),
         quantity: quantity.toLowerCase(),
-        status,
-        adminDni
+        status: status ? status.toLowerCase() : entryCompare.status,
+        adminDni: parseInt(adminDni)
       }
     })
 
@@ -119,8 +119,7 @@ export const updateEntry = async (req, res) => {
       deliveryCompany,
       entryDate,
       quantity,
-      status,
-      adminDni
+      status
     } = req.body
 
     const entry = prisma.entry.update({
@@ -130,9 +129,8 @@ export const updateEntry = async (req, res) => {
         receiptCode: receiptCode.toLowerCase(),
         deliveryCompany: deliveryCompany.toLowerCase(),
         entryDate: new Date(entryDate),
-        quantity,
-        status: status.toLowerCase(),
-        adminDni
+        quantity: quantity ? parseInt(quantity) : entryCompare.quantity,
+        status: status ? status.toLowerCase() : entryCompare.status
       }
     })
 
@@ -190,7 +188,7 @@ export const searchEntryByProductType = async (req, res) => {
     const productType = req.params.product_type
     const entry = await prisma.entry.findMany({
       where: {
-        producType: { contains: productType }
+        producType: { contains: productType.toLowerCase() }
       }
     })
 
@@ -216,7 +214,7 @@ export const searchEntryByDeliveryCompany = async (req, res) => {
     const deliveryCompany = req.params.delivery_company
     const entry = await prisma.entry.findMany({
       where: {
-        deliveryCompany: { contains: deliveryCompany }
+        deliveryCompany: { contains: deliveryCompany.toLowerCase() }
       }
     })
 
@@ -268,7 +266,7 @@ export const searchEntryByStatus = async (req, res) => {
     const status = req.params.status
     const entry = await prisma.entry.findMany({
       where: {
-        status: { status }
+        status: status.toLowerCase()
       }
     })
 
@@ -294,7 +292,7 @@ export const searchEntryByAdmin = async (req, res) => {
     const adminDni = parseInt(req.params.admin_dni)
     const entry = await prisma.entry.findMany({
       where: {
-        dni: { adminDni }
+        dni: parseInt(adminDni)
       }
     })
 
@@ -305,11 +303,9 @@ export const searchEntryByAdmin = async (req, res) => {
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: 'Error en el servidor, no se pudieron buscar los ingresos.'
-      })
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los ingresos.'
+    })
   } finally {
     prisma.$disconnect()
   }

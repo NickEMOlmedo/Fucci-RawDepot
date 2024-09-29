@@ -8,14 +8,16 @@ import {
   loginAdmin,
   updateAdmin
 } from '../controller/adminController.js'
+import { logoutAllUsers } from '../middleware/logoutAllUsers.js'
 
 const router = Router()
 
 router.post('/', createAdmin)
-router.post('/login', loginAdmin)
+router.post('/auth/login', loginAdmin)
+router.post('/auth/logout', logoutAllUsers)
 router.get('/', getAllAdmins)
-router.get('/:dni', getAdminByDni)
-router.get('/:id', getAdminById)
+router.get('/dni/:dni', getAdminByDni)
+router.get('/id/:id', getAdminById)
 router.put('/:id', updateAdmin)
 router.delete('/:id', deleteAdmin)
 

@@ -7,14 +7,14 @@ const prisma = new PrismaClient()
 export const createProduct = async (req, res) => {
   try {
     const nameToCompare = req.body.name
+    const brandToCompare = req.body.brand
     const manufacturerToCompare = req.body.manufacturer
-    const presentationToCompare = req.body.presentation
 
     const productCompare = await prisma.product.findFirst({
       where: {
-        name: { nameToCompare },
-        manufacturer: { manufacturerToCompare },
-        presentation: { presentationToCompare }
+        name: nameToCompare.toLowerCase(),
+        brand: brandToCompare.toLowerCase(),
+        manufacturer: manufacturerToCompare.toLowerCase()
       }
     })
 
@@ -31,8 +31,8 @@ export const createProduct = async (req, res) => {
         brand: brand.toLowerCase(),
         manufacturer: manufacturer.toLowerCase(),
         presentation: presentation.toLowerCase(),
-        quality,
-        stock
+        quality: quality.toLowerCase(),
+        stock: parseInt(stock)
       }
     })
 
@@ -40,9 +40,9 @@ export const createProduct = async (req, res) => {
       return res.status(201).json({ message: '¡Producto creado exitosamente!' })
     }
   } catch (error) {
-    return res
-      .status(500)
-      .send({ error: 'Error en el servidor, no se pudo cargar el producto.' })
+    return res.status(500).send({
+      error: 'Error en el servidor, no se pudo cargar el producto.' + error
+    })
   } finally {
     await prisma.$disconnect()
   }
@@ -92,7 +92,7 @@ export const updateProduct = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
     const productCompare = await prisma.product.findUnique({
-      id: { id }
+      where: { id }
     })
 
     if (!productCompare) {
@@ -106,12 +106,16 @@ export const updateProduct = async (req, res) => {
         id
       },
       data: {
-        name: name.toLowerCase(),
-        brand: brand.toLowerCase(),
-        manufacturer: manufacturer.toLowerCase(),
-        presentation: presentation.toLowerCase(),
-        quality,
-        stock
+        name: name ? name.toLowerCase() : productCompare.name,
+        brand: brand ? brand.toLowerCase() : productCompare.brand,
+        manufacturer: manufacturer
+          ? manufacturer.toLowerCase()
+          : productCompare.manufacturer,
+        presentation: presentation
+          ? presentation.toLowerCase()
+          : productCompare.presentation,
+        quality: quality ? quality.toLowerCase() : productCompare.quality,
+        stock: stock ? parseInt(stock) : productCompare.parseInt()
       }
     })
 
@@ -122,7 +126,7 @@ export const updateProduct = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).send({
-      error: 'Error en el servidor, no se pudo actualizar el producto.'
+      error: 'Error en el servidor, no se pudo actualizar el producto.' + error
     })
   } finally {
     await prisma.$disconnect()
@@ -166,7 +170,7 @@ export const searchProductByName = async (req, res) => {
     const products = await prisma.product.findMany({
       where: {
         name: {
-          contains: name
+          contains: name.toLowerCase()
         }
       }
     })
@@ -194,7 +198,7 @@ export const searchProductByBrand = async (req, res) => {
     const products = await prisma.product.findMany({
       where: {
         brand: {
-          contains: brand
+          contains: brand.toLowerCase()
         }
       }
     })
@@ -206,11 +210,9 @@ export const searchProductByBrand = async (req, res) => {
     }
     return res.status(200).json(products)
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: 'Error en el servidor, no se pudieron buscar los productos..'
-      })
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los productos..'
+    })
   } finally {
     await prisma.$disconnect()
   }
@@ -224,7 +226,7 @@ export const searchProductByPresentation = async (req, res) => {
     const products = await prisma.product.findMany({
       where: {
         presentation: {
-          contains: presentacion
+          contains: presentacion.toLowerCase()
         }
       }
     })
@@ -236,11 +238,9 @@ export const searchProductByPresentation = async (req, res) => {
     }
     return res.status(200).json(products)
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: 'Error en el servidor, no se pudieron buscar los productos..'
-      })
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los productos..'
+    })
   } finally {
     await prisma.$disconnect()
   }

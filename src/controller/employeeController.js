@@ -35,13 +35,9 @@ export const createEmployee = async (req, res) => {
 
     return res.status(201).json({ message: '¡Empleado creado exitosamente!' })
   } catch (error) {
-    if (error.status === 400) {
-      return res.status(400).json({ error: 'Porfavor verifique los datos.' })
-    } else {
-      return res.status(500).json({
-        error: 'Error en el servidor, no se pudo registrar el empleado.'
-      })
-    }
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo registrar el empleado.'
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -125,7 +121,7 @@ export const getEmployeeByDni = async (req, res) => {
     const dni = parseInt(req.params.dni)
 
     const employee = await prisma.employee.findUnique({
-      where: { dni: { dni } }
+      where: { dni }
     })
 
     if (employee) {
@@ -137,7 +133,7 @@ export const getEmployeeByDni = async (req, res) => {
         role: employee.role
       })
     } else {
-      return res.status(404).json({ error: 'Empleado no encontrado!' })
+      return res.status(404).json({ error: '¡Empleado no encontrado!' })
     }
   } catch (error) {
     return res
@@ -182,7 +178,7 @@ export const getEmployeeById = async (req, res) => {
 
 export const deleteEmployee = async (req, res) => {
   try {
-    const id = req.params.id
+    const id = parseInt(req.params.id)
     const verifyEmployee = prisma.employee.findUnique({
       where: {
         id
@@ -205,9 +201,9 @@ export const deleteEmployee = async (req, res) => {
         .json({ message: '¡El empleado ha sido eliminado satisfactoriamente!' })
     }
   } catch (error) {
-    return res
-      .status(500)
-      .json({ error: 'Error en el servidor, no se pudo eliminar al empleado.' })
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo eliminar al empleado.' + error
+    })
   } finally {
     prisma.$disconnect()
   }
@@ -217,7 +213,7 @@ export const deleteEmployee = async (req, res) => {
 
 export const updateEmployee = async (req, res) => {
   try {
-    const id = req.params.id
+    const id = parseInt(req.params.id)
     const verifyEmployee = prisma.employee.findUnique({
       where: {
         id
@@ -229,21 +225,31 @@ export const updateEmployee = async (req, res) => {
         .json({ error: '¡El empleado no existe, verifique los datos!' })
     }
     const { firstName, lastName, dni, password, area, role } = req.body
+
+    const existingDni = await prisma.admin.findUnique({
+      where: { dni: parseInt(dni) }
+    })
+
+    if (existingDni) {
+      return res.status(409).json({
+        error:
+          '¡El DNI ya está en uso por otro empleado, ingrese uno diferente!'
+      })
+    }
+
     const employee = await prisma.employee.update({
       where: {
-        id,
-        data: {
-          firstName: firstName
-            ? firstName.toLowerCasee()
-            : verifyEmployee.firstName,
-          lastName: lastName
-            ? lastName.toLowerCasee()
-            : verifyEmployee.lastName,
-          dni: dni ? parseInt(dni) : verifyEmployee.dni,
-          ...(password && { password: hashSync(password, 10) }),
-          area: area ? area.toLowerCasee() : verifyEmployee.area,
-          role: role ? role.toLowerCasee() : verifyEmployee.role
-        }
+        id
+      },
+      data: {
+        firstName: firstName
+          ? firstName.toLowerCase()
+          : verifyEmployee.firstName,
+        lastName: lastName ? lastName.toLowerCase() : verifyEmployee.lastName,
+        dni: dni ? parseInt(dni) : verifyEmployee.dni,
+        ...(password && { password: hashSync(password, 10) }),
+        area: area ? area.toLowerCase() : verifyEmployee.area,
+        role: role ? role.toLowerCase() : verifyEmployee.role
       }
     })
 
@@ -254,7 +260,7 @@ export const updateEmployee = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo actualizar al empleado.'
+      error: 'Error en el servidor, no se pudo actualizar al empleado.' + error
     })
   } finally {
     prisma.$disconnect()

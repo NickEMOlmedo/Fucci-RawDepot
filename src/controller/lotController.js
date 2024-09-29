@@ -12,9 +12,9 @@ export const createLot = async (req, res) => {
 
     const lotCompare = await prisma.lot.findFirst({
       where: {
-        lotNumber: { lotNumberToCompare },
-        expirationDate: { expirationDateToCompare },
-        productId: { productIdToCompare }
+        lotNumber: lotNumberToCompare.toLowerCase(),
+        expirationDate: expirationDateToCompare.toLowerCase(),
+        productId: parseInt(productIdToCompare)
       }
     })
 
@@ -29,10 +29,10 @@ export const createLot = async (req, res) => {
 
     const lot = await prisma.lot.create({
       data: {
-        lotNumber,
+        lotNumber: lotNumber.toLowerCase(),
         expirationDate,
-        quantity,
-        productId
+        quantity: parseInt(quantity),
+        productId: parseInt(productId)
       }
     })
     if (lot) {
