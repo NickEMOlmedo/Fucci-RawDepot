@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { body, param, validationResult } from 'express-validator'
 import {
   createAdmin,
   deleteAdmin,
@@ -12,13 +13,169 @@ import { logoutAllUsers } from '../middleware/logoutAllUsers.js'
 
 const router = Router()
 
-router.post('/', createAdmin)
-router.post('/auth/login', loginAdmin)
+router.post(
+  '/',
+  createAdmin,
+  [
+    body('firstName')
+      .trim()
+      .notEmpty()
+      .withMessage('El nombre es obligatorio.')
+      .isAlpha()
+      .withMessage('El nombre solo puede contener letras.')
+      .isLength({ min: 3 })
+      .withMessage('El nombre debe tener al menos 3 caracteres.'),
+    body('lastName')
+      .trim()
+      .notEmpty()
+      .withMessage('El apellido es obligatorio.')
+      .isAlpha()
+      .withMessage('El apellido solo puede contener letras.')
+      .isLength({ min: 3 })
+      .withMessage('El apellido debe tener al menos 3 caracteres.'),
+    body('dni')
+      .trim()
+      .notEmpty()
+      .withMessage('El DNI es obligatorio.')
+      .isNumeric()
+      .withMessage('El DNI debe contener solo números.')
+      .isLength({ min: 7, max: 8 })
+      .withMessage('El DNI debe tener 7 o 8 dígitos.'),
+    body('email')
+      .trim()
+      .notEmpty()
+      .withMessage('El email es obliatorio.')
+      .isEmail()
+      .withMessage('Debe proporcionar un email valido.'),
+    body('password')
+      .trim()
+      .isLength({ min: 8 })
+      .withMessage('La contraseña debe tener al menos 8 caracteres.')
+      .matches(/[A-Z]/)
+      .withMessage('La contraseña debe contener al menos una letra mayúscula.')
+      .matches(/[a-z]/)
+      .withMessage('La contraseña debe contener al menos una letra minúscula.')
+      .matches(/[0-9]/)
+      .withMessage('La contraseña debe contener al menos un número.')
+      .matches(/[!@#$%^&*(),.?":{}|<>]/)
+      .withMessage('La contraseña debe contener al menos un carácter especial.')
+      .matches(/^\S*$/, 'g')
+      .withMessage('La contraseña no debe contener espacios en blanco.')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+  }
+)
+router.post(
+  '/auth/login',
+  loginAdmin,
+  [
+    body('dni')
+      .trim()
+      .notEmpty()
+      .withMessage('¡El DNI o la contraseña son incorrectos!')
+      .isNumeric()
+      .withMessage('¡El DNI o la contraseña son incorrectos!')
+      .isLength({ min: 7, max: 8 })
+      .withMessage('¡El DNI o la contraseña son incorrectos!'),
+    body('password')
+      .trim()
+      .notEmpty()
+      .withMessage('¡El DNI o la contraseña son incorrectos!')
+      .isLength({ min: 8 })
+      .withMessage('¡El DNI o la contraseña son incorrectos!')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+  }
+)
 router.post('/auth/logout', logoutAllUsers)
 router.get('/', getAllAdmins)
-router.get('/dni/:dni', getAdminByDni)
-router.get('/id/:id', getAdminById)
-router.put('/:id', updateAdmin)
-router.delete('/:id', deleteAdmin)
+router.get(
+  '/dni/:dni',
+  getAdminByDni,
+  [
+    param('dni')
+      .trim()
+      .notEmpty()
+      .withMessage('El DNI es obligatorio.')
+      .isNumeric()
+      .withMessage('El DNI debe contener solo números.')
+      .isLength({ min: 7, max: 8 })
+      .withMessage('El DNI debe tener 7 o 8 dígitos.')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+  }
+)
+router.get(
+  '/id/:id',
+  getAdminById,
+  [
+    param('id')
+      .trim()
+      .notEmpty()
+      .withMessage('El id es obligatorio.')
+      .isNumeric()
+      .withMessage('El id debe contener solo números.')
+      .isLength({ min: 1, max: 10 })
+      .withMessage('El id debe tener minimo 1 digito y maximo 10.')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+  }
+)
+router.put(
+  '/:id',
+  updateAdmin,
+  [
+    param('id')
+      .trim()
+      .notEmpty()
+      .withMessage('El id es obligatorio.')
+      .isNumeric()
+      .withMessage('El id debe contener solo números.')
+      .isLength({ min: 1, max: 10 })
+      .withMessage('El id debe tener minimo 1 digito y maximo 10.')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+  }
+)
+router.delete(
+  '/:id',
+  deleteAdmin,
+  [
+    param('id')
+      .trim()
+      .notEmpty()
+      .withMessage('El id es obligatorio.')
+      .isNumeric()
+      .withMessage('El id debe contener solo números.')
+      .isLength({ min: 1, max: 10 })
+      .withMessage('El id debe tener minimo 1 digito y maximo 10.')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+  }
+)
 
 export default router

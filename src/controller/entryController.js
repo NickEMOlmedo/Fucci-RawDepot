@@ -193,6 +193,30 @@ export const searchEntryByProductType = async (req, res) => {
   }
 }
 
+// Funcion para buscar productos por el codigo de remito.
+
+export const searchEntryByReceiptCode = async (req, res) => {
+  try {
+    const receiptCode = req.params.receipt_code
+    const entry = await prisma.entry.findMany({
+      where: {
+        receiptCode: { contains: receiptCode.toLowerCase() }
+      }
+    })
+
+    if (entry.length === 0) {
+      res.status(404).json({
+        error: 'No se encontraron ingresos que coincidan con la busqueda.'
+      })
+    }
+    return res.status(200).json(entry)
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los ingresos.'
+    })
+  }
+}
+
 // Funcion para buscar ingresos por compañia que envia.
 
 export const searchEntryByDeliveryCompany = async (req, res) => {
