@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '../libs/db'
 
 // Funcion para cargar un nuevo retiro.
 
@@ -23,8 +21,6 @@ export const createWithdrawal = async (req, res) => {
     return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo cargar el retiro.' })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -40,8 +36,6 @@ export const getAllWithdrawals = async res => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudieron obtener los retiros.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -65,8 +59,6 @@ export const getWithdrawalBydId = async (req, res) => {
     return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo retornar el retiro.' })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -102,8 +94,6 @@ export const updateWithdrawal = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo actualizar el retiro.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -129,8 +119,6 @@ export const deleteWithdrawal = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo eliminar el retiro.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -155,8 +143,6 @@ export const searchWithdrawalWithDate = async (req, res) => {
     res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los retiros.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -181,8 +167,6 @@ export const searchWithdrawalWithEmployee = async (req, res) => {
     res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los retiros.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -207,7 +191,5 @@ export const searchWithdrawalWithAdmin = async (req, res) => {
     res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los retiros.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }

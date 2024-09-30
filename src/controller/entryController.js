@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '../libs/db'
 
 // Funcion que carga un nuevo ingreso de mercaderia.
 
@@ -55,14 +53,12 @@ export const createEntry = async (req, res) => {
     return res.status(500).json({
       message: 'Error en el servidor, no se pudo cargar el ingreso.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
 // Funcion que muestra todos los ingresos disponibles.
 
-export const getAllEntrys = async res => {
+export const getAllEntrys = async (req, res) => {
   try {
     const entry = await prisma.entry.findMany()
     if (entry.length === 0) {
@@ -73,8 +69,6 @@ export const getAllEntrys = async res => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudieron obtener los ingresos.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -93,8 +87,6 @@ export const getEntryById = async (req, res) => {
     return res
       .status(500)
       .send({ error: 'Error en el servidor, no se pudo obtener el ingreso' })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -143,8 +135,6 @@ export const updateEntry = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo actualizar el ingreso.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -176,8 +166,6 @@ export const deleteEntry = async (req, res) => {
     return res.status(500).send({
       error: 'Error en el servidor, no se pudo eliminar el ingreso.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -202,8 +190,6 @@ export const searchEntryByProductType = async (req, res) => {
     res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
@@ -228,8 +214,6 @@ export const searchEntryByDeliveryCompany = async (req, res) => {
     res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
@@ -254,8 +238,6 @@ export const searchEntryByDate = async (req, res) => {
     res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -280,8 +262,6 @@ export const searchEntryByStatus = async (req, res) => {
     res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -306,7 +286,5 @@ export const searchEntryByAdmin = async (req, res) => {
     res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }

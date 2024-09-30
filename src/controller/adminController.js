@@ -1,12 +1,10 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '../libs/db'
 import pkg from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 const { compareSync, hashSync } = pkg
 
 const secret = process.env.SECRET
-
-const prisma = new PrismaClient()
 
 // Funcion para crear un nuevo usuario administrador.
 
@@ -85,8 +83,6 @@ export const loginAdmin = async function (req, res) {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo loguear al empleado.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -141,8 +137,6 @@ export const getAdminByDni = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo retornar el administrador'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -170,8 +164,6 @@ export const getAdminById = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo retornar el administrador'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -191,15 +183,15 @@ export const updateAdmin = async (req, res) => {
         .json({ error: '¡El administrador no existe, verifique los datos!' })
     }
     const { firstName, lastName, dni, email, password } = req.body
-
     const existingDni = await prisma.admin.findUnique({
       where: { dni: parseInt(dni) }
     })
 
     if (existingDni) {
-      return res
-        .status(409)
-        .json({ error: '¡El DNI ya está en uso por otro administrador, ingrese uno difetente!' })
+      return res.status(409).json({
+        error:
+          '¡El DNI ya está en uso por otro administrador, ingrese uno difetente!'
+      })
     }
 
     const admin = await prisma.admin.update({
@@ -221,8 +213,7 @@ export const updateAdmin = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       error:
-        'Error en el servidor, no se pudo modificar el usuario administrador.' +
-        error
+        'Error en el servidor, no se pudo modificar el usuario administrador.'
     })
   }
 }
@@ -232,7 +223,6 @@ export const updateAdmin = async (req, res) => {
 export const deleteAdmin = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
-
     const verifyAdmin = await prisma.admin.findUnique({
       where: { id }
     })
@@ -258,7 +248,5 @@ export const deleteAdmin = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, el administrador no pudo ser eliminado'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }

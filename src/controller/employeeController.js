@@ -1,12 +1,10 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '../libs/db'
 import pkg from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 const { compareSync, hashSync } = pkg
 
 const secret = process.env.SECRET
-
-const prisma = new PrismaClient()
 
 // Funcion para crear un nuevo empleado.
 
@@ -38,8 +36,6 @@ export const createEmployee = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo registrar el empleado.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -84,8 +80,6 @@ export const loginEmployee = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo loguear al empleado.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -119,7 +113,6 @@ export const getAllEmployees = async (req, res) => {
 export const getEmployeeByDni = async (req, res) => {
   try {
     const dni = parseInt(req.params.dni)
-
     const employee = await prisma.employee.findUnique({
       where: { dni }
     })
@@ -139,8 +132,6 @@ export const getEmployeeByDni = async (req, res) => {
     return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo retornar el empleado' })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -149,7 +140,6 @@ export const getEmployeeByDni = async (req, res) => {
 export const getEmployeeById = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
-
     const employee = await prisma.employee.findUnique({
       where: { id }
     })
@@ -169,8 +159,6 @@ export const getEmployeeById = async (req, res) => {
     return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo retornar el empleado' })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -204,8 +192,6 @@ export const deleteEmployee = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo eliminar al empleado.' + error
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -219,11 +205,13 @@ export const updateEmployee = async (req, res) => {
         id
       }
     })
+
     if (!verifyEmployee) {
       return res
         .status(404)
         .json({ error: '¡El empleado no existe, verifique los datos!' })
     }
+
     const { firstName, lastName, dni, password, area, role } = req.body
 
     const existingDni = await prisma.admin.findUnique({
@@ -262,7 +250,5 @@ export const updateEmployee = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo actualizar al empleado.' + error
     })
-  } finally {
-    prisma.$disconnect()
   }
 }

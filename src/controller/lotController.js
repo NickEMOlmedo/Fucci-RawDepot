@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '../libs/db'
 
 // Funcion para ingresar un nuevo lote.
 
@@ -44,8 +42,6 @@ export const createLot = async (req, res) => {
     return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo cargar el lote.' })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -61,8 +57,6 @@ export const getAllLots = async res => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudieron obtener los lotes.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -86,8 +80,6 @@ export const getLotById = async (req, res) => {
     return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo retornar el lote.' })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -120,8 +112,6 @@ export const updateLot = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo actualizar el lote.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -145,8 +135,6 @@ export const deleteLot = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo eliminar el lote.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -171,8 +159,6 @@ export const searchLotByNum = async (req, res) => {
     res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo buscar el lote.' })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -197,8 +183,6 @@ export const searchLotByExpirationDate = async (req, res) => {
     res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudieron buscar los lotes.' })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -223,7 +207,5 @@ export const searchLotByProduct = async (req, res) => {
     res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudieron buscar los lotes.' })
-  } finally {
-    prisma.$disconnect()
   }
 }

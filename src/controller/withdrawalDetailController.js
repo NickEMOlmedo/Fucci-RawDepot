@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import prisma from '../libs/db'
 
 // Funcion para cargar un nuevo detalle de retiro.
 
@@ -42,8 +41,6 @@ export const createWithdrawalDetail = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo cargar el detalle de retiro.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -86,8 +83,6 @@ export const getWithdrawalDetailWithId = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo obtener el detalle de retiro.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -125,8 +120,6 @@ export const updateWithdrawalDetail = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo actualizar el detalle de retiro.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -155,8 +148,6 @@ export const deleteWithdrawalDetail = async (req, res) => {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo eliminar el detalle de retiro.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -183,8 +174,6 @@ export const searchWithdrawalDetailWithStatus = async (req, res) => {
       error:
         'Error en el servidor, no se pudieron buscar los detalles de retiro.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -211,7 +200,5 @@ export const searchWithdrawalDetailWithProduct = async (req, res) => {
       error:
         'Error en el servidor, no se pudieron buscar los detalles de retiro.'
     })
-  } finally {
-    prisma.$disconnect()
   }
 }

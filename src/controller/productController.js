@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '../libs/db'
 
 // Funcion para cargar un nuevo producto a la db.
 
@@ -9,12 +7,14 @@ export const createProduct = async (req, res) => {
     const nameToCompare = req.body.name
     const brandToCompare = req.body.brand
     const manufacturerToCompare = req.body.manufacturer
+    const presentationToCompare = req.body.presentation
 
     const productCompare = await prisma.product.findFirst({
       where: {
         name: nameToCompare.toLowerCase(),
         brand: brandToCompare.toLowerCase(),
-        manufacturer: manufacturerToCompare.toLowerCase()
+        manufacturer: manufacturerToCompare.toLowerCase(),
+        presentation: presentationToCompare.toLowerCase()
       }
     })
 
@@ -40,17 +40,15 @@ export const createProduct = async (req, res) => {
       return res.status(201).json({ message: '¡Producto creado exitosamente!' })
     }
   } catch (error) {
-    return res.status(500).send({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudo cargar el producto.' + error
     })
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
 // Funcion que devuelve todos los productos que existan en la db.
 
-export const getAllProducts = async res => {
+export const getAllProducts = async (req, res) => {
   try {
     const product = await prisma.product.findMany()
     if (product.length === 0) {
@@ -59,10 +57,9 @@ export const getAllProducts = async res => {
     return res.status(200).json(product)
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudieron obtener los productos.'
+      error:
+        'Error en el servidor, no se pudieron obtener los productos.' + error
     })
-  } finally {
-    prisma.$disconnect()
   }
 }
 
@@ -81,8 +78,6 @@ export const getProductById = async (req, res) => {
     return res
       .status(500)
       .send({ error: 'Error en el servidor, no se pudo obtener el producto.' })
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
@@ -128,8 +123,6 @@ export const updateProduct = async (req, res) => {
     return res.status(500).send({
       error: 'Error en el servidor, no se pudo actualizar el producto.' + error
     })
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
@@ -157,8 +150,6 @@ export const deleteProduct = async (req, res) => {
     return res.status(500).send({
       error: 'Error en el servidor, no se pudo eliminar el producto.'
     })
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
@@ -185,8 +176,6 @@ export const searchProductByName = async (req, res) => {
     res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los productos.'
     })
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
@@ -213,8 +202,6 @@ export const searchProductByBrand = async (req, res) => {
     res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los productos..'
     })
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
@@ -241,7 +228,5 @@ export const searchProductByPresentation = async (req, res) => {
     res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los productos..'
     })
-  } finally {
-    await prisma.$disconnect()
   }
 }
