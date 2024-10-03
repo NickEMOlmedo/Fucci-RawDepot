@@ -15,7 +15,6 @@ const router = Router()
 
 router.post(
   '/',
-  createEmployee,
   [
     body('firstName')
       .trim()
@@ -43,6 +42,7 @@ router.post(
       .withMessage('El DNI debe tener 7 o 8 dígitos.'),
     body('password')
       .trim()
+      .notEmpty()
       .isLength({ min: 8 })
       .withMessage('La contraseña debe tener al menos 8 caracteres.')
       .matches(/[A-Z]/)
@@ -77,12 +77,12 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    createEmployee(req, res)
   }
 )
 
 router.post(
   '/auth/login',
-  loginEmployee,
   [
     body('dni')
       .trim()
@@ -104,13 +104,13 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    loginEmployee(req, res)
   }
 )
 router.post('/auth/logout', logoutAllUsers)
 router.get('/', getAllEmployees)
 router.get(
   '/dni/:dni',
-  getEmployeeByDni,
   [
     param('dni')
       .trim()
@@ -126,11 +126,11 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    getEmployeeByDni(req, res)
   }
 )
 router.get(
   '/id/:id',
-  getEmployeeById,
   [
     param('id')
       .trim()
@@ -146,11 +146,11 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    getEmployeeById(req, res)
   }
 )
 router.put(
   '/:id',
-  updateEmployee,
   [
     param('id')
       .trim()
@@ -166,11 +166,11 @@ router.put(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    updateEmployee(req, res)
   }
 )
 router.delete(
   '/:id',
-  deleteEmployee,
   [
     param('id')
       .trim()
@@ -186,6 +186,7 @@ router.delete(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    deleteEmployee(req, res)
   }
 )
 

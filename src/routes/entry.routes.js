@@ -18,7 +18,6 @@ const router = Router()
 
 router.post(
   '/',
-  createEntry,
   [
     body('producType')
       .trim()
@@ -45,7 +44,9 @@ router.post(
       .isLength({ min: 3, max: 30 })
       .withMessage('El largo debe estar entre 3 y 30 digitos.'),
     body('entryDate')
-      .isDate()
+      .notEmpty()
+      .withMessage('La fecha de entrada es obligatoria.')
+      .isISO8601()
       .withMessage('La fecha debe ser una fecha válida.')
       .toDate(),
     body('quantity')
@@ -65,12 +66,12 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    createEntry(req, res)
   }
 )
 router.get('/', getAllEntrys)
 router.get(
   '/:id',
-  getEntryById,
   [
     param('id')
       .trim()
@@ -84,11 +85,11 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    getEntryById(req, res)
   }
 )
 router.put(
   '/:id',
-  updateEntry,
   [
     param('id')
       .trim()
@@ -102,11 +103,11 @@ router.put(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    updateEntry(req, res)
   }
 )
 router.delete(
   '/:id',
-  deleteEntry,
   [
     param('id')
       .trim()
@@ -120,11 +121,11 @@ router.delete(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    deleteEntry(req, res)
   }
 )
 router.get(
   '/search/:product_type',
-  searchEntryByProductType,
   [
     param('product_type')
       .trim()
@@ -140,12 +141,12 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    searchEntryByProductType(req, res)
   }
 )
 
 router.get(
   '/search/:receipt_code',
-  searchEntryByReceiptCode,
   [
     param('receipt_code')
       .trim()
@@ -161,12 +162,12 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    searchEntryByReceiptCode(req, res)
   }
 )
 
 router.get(
   '/search/:delivery_company',
-  searchEntryByDeliveryCompany,
   [
     param('delivery_company')
       .trim()
@@ -182,31 +183,29 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    searchEntryByDeliveryCompany(req, res)
   }
 )
 router.get(
   '/search/:entry_date',
-  searchEntryByDate,
   [
     param('entry_date')
-      .trim()
       .notEmpty()
-      .withMessage('El término de búsqueda es obligatorio.')
-      .isAlphanumeric()
-      .withMessage(
-        'El término de búsqueda solo puede contener letras y números.'
-      )
+      .withMessage('La fecha de entrada es obligatoria.')
+      .isISO8601()
+      .withMessage('Formato de fecha invalido.')
+      .toDate()
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    searchEntryByDate(req, res)
   }
 )
 router.get(
   '/search/:status',
-  searchEntryByStatus,
   [
     param('status')
       .trim()
@@ -219,11 +218,11 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    searchEntryByStatus(req, res)
   }
 )
 router.get(
   '/search/:admin_dni',
-  searchEntryByAdmin,
   [
     param('admin_dni')
       .trim()
@@ -239,6 +238,7 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    searchEntryByAdmin(req, res)
   }
 )
 

@@ -15,7 +15,6 @@ const router = Router()
 
 router.post(
   '/',
-  createAdmin,
   [
     body('firstName')
       .trim()
@@ -67,11 +66,11 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    createAdmin(req, res)
   }
 )
 router.post(
   '/auth/login',
-  loginAdmin,
   [
     body('dni')
       .trim()
@@ -93,13 +92,13 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    loginAdmin(req, res)
   }
 )
 router.post('/auth/logout', logoutAllUsers)
 router.get('/', getAllAdmins)
 router.get(
   '/dni/:dni',
-  getAdminByDni,
   [
     param('dni')
       .trim()
@@ -115,11 +114,11 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    getAdminByDni(req, res)
   }
 )
 router.get(
   '/id/:id',
-  getAdminById,
   [
     param('id')
       .trim()
@@ -135,11 +134,11 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    getAdminById(req, res)
   }
 )
 router.put(
   '/:id',
-  updateAdmin,
   [
     param('id')
       .trim()
@@ -148,18 +147,62 @@ router.put(
       .isNumeric()
       .withMessage('El id debe contener solo números.')
       .isLength({ min: 1, max: 10 })
-      .withMessage('El id debe tener minimo 1 digito y maximo 10.')
+      .withMessage('El id debe tener minimo 1 digito y maximo 10.'),
+    body('firstName')
+      .trim()
+      .notEmpty()
+      .withMessage('El nombre es obligatorio.')
+      .isAlpha()
+      .withMessage('El nombre solo puede contener letras.')
+      .isLength({ min: 3 })
+      .withMessage('El nombre debe tener al menos 3 caracteres.'),
+    body('lastName')
+      .trim()
+      .notEmpty()
+      .withMessage('El apellido es obligatorio.')
+      .isAlpha()
+      .withMessage('El apellido solo puede contener letras.')
+      .isLength({ min: 3 })
+      .withMessage('El apellido debe tener al menos 3 caracteres.'),
+    body('dni')
+      .trim()
+      .notEmpty()
+      .withMessage('El DNI es obligatorio.')
+      .isNumeric()
+      .withMessage('El DNI debe contener solo números.')
+      .isLength({ min: 7, max: 8 })
+      .withMessage('El DNI debe tener 7 o 8 dígitos.'),
+    body('email')
+      .trim()
+      .notEmpty()
+      .withMessage('El email es obliatorio.')
+      .isEmail()
+      .withMessage('Debe proporcionar un email valido.'),
+    body('password')
+      .trim()
+      .isLength({ min: 8 })
+      .withMessage('La contraseña debe tener al menos 8 caracteres.')
+      .matches(/[A-Z]/)
+      .withMessage('La contraseña debe contener al menos una letra mayúscula.')
+      .matches(/[a-z]/)
+      .withMessage('La contraseña debe contener al menos una letra minúscula.')
+      .matches(/[0-9]/)
+      .withMessage('La contraseña debe contener al menos un número.')
+      .matches(/[!@#$%^&*(),.?":{}|<>]/)
+      .withMessage('La contraseña debe contener al menos un carácter especial.')
+      .matches(/^\S*$/, 'g')
+      .withMessage('La contraseña no debe contener espacios en blanco.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    updateAdmin(req, res)
   }
 )
 router.delete(
   '/:id',
-  deleteAdmin,
   [
     param('id')
       .trim()
@@ -175,6 +218,7 @@ router.delete(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() })
     }
+    deleteAdmin(req, res)
   }
 )
 
