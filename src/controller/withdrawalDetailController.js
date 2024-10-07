@@ -1,4 +1,4 @@
-import prisma from '../libs/db'
+import prisma from '../libs/db.js'
 
 // Funcion para cargar un nuevo detalle de retiro.
 
@@ -24,11 +24,11 @@ export const createWithdrawalDetail = async (req, res) => {
 
     const withdrawalDetail = await prisma.withdrawalDetail.create({
       data: {
-        quantity,
+        quantity: parseInt(quantity),
         status: status.toLowerCase(),
         notes: notes.toLowerCase(),
-        withdrawalId,
-        productId
+        withdrawalId: parseInt(withdrawalId),
+        productId: parseInt(productId)
       }
     })
 
@@ -103,11 +103,11 @@ export const updateWithdrawalDetail = async (req, res) => {
     const { quantity, status, notes, withdrawalId, productId } = req.body
     const withdrawalDetail = await prisma.withdrawalDetail.update({
       data: {
-        quantity,
-        status,
-        notes,
-        withdrawalId,
-        productId
+        quantity: parseInt(quantity),
+        status: status.toLowerCase(),
+        notes: notes.toLowerCase(),
+        withdrawalId: parseInt(withdrawalId),
+        productId: parseInt(productId)
       }
     })
     if (withdrawalDetail) {

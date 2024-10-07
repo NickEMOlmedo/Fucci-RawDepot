@@ -47,7 +47,7 @@ router.post(
       .notEmpty()
       .withMessage('La fecha de entrada es obligatoria.')
       .isISO8601()
-      .withMessage('La fecha debe ser una fecha válida.')
+      .withMessage('Formato de fecha invalido.')
       .toDate(),
     body('quantity')
       .trim()
@@ -76,9 +76,9 @@ router.get(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('El id es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .isNumeric()
-      .withMessage('El id debe contener solo números.')
+      .withMessage('El ID debe contener solo números.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -94,9 +94,9 @@ router.put(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('El id es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .isNumeric()
-      .withMessage('El id debe contener solo números.')
+      .withMessage('El ID debe contener solo números.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -112,9 +112,9 @@ router.delete(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('El id es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .isNumeric()
-      .withMessage('El id debe contener solo números.')
+      .withMessage('El ID debe contener solo números.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -151,7 +151,7 @@ router.get(
     param('receipt_code')
       .trim()
       .notEmpty()
-      .withMessage('El término de búsqueda es obligatorio.')
+      .withMessage('El codigo de remito es obligatorio.')
       .isAlphanumeric()
       .withMessage(
         'El término de búsqueda solo puede contener letras y números.'
@@ -172,7 +172,7 @@ router.get(
     param('delivery_company')
       .trim()
       .notEmpty()
-      .withMessage('El término de búsqueda es obligatorio.')
+      .withMessage('La compañia de envio es obligatoria.')
       .isAlphanumeric()
       .withMessage(
         'El término de búsqueda solo puede contener letras y números.'

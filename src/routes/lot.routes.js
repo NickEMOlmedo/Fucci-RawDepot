@@ -21,7 +21,7 @@ router.post(
       .notEmpty()
       .withMessage('El numero de lote no puede estar vacio')
       .isAlphanumeric()
-      .withMessage('El numero de lote solo puede ser alphanumerico.')
+      .withMessage('El numero de lote solo permite letras o numeros.')
       .isLength({ min: 3, max: 30 })
       .withMessage('El largo debe estar entre 3 y 30 digitos.'),
     body('expirationDate')
@@ -39,7 +39,7 @@ router.post(
     body('productId')
       .trim()
       .notEmpty()
-      .withMessage('La id del producto es obligatorio.')
+      .withMessage('El id del producto es obligatorio.')
       .isNumeric()
       .withMessage('El id del producto debe ser un valor numerico.')
   ],
@@ -58,9 +58,9 @@ router.get(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('La id del lote es obligatorio.')
+      .withMessage('El ID del lote es obligatorio.')
       .isNumeric()
-      .withMessage('El id del lote debe ser un valor numerico.')
+      .withMessage('El ID del lote debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -76,15 +76,15 @@ router.put(
     param('id')
       .trim()
       .isEmpty()
-      .withMessage('La id del lote es obligatorio.')
+      .withMessage('El ID del lote es obligatorio.')
       .isNumeric()
-      .withMessage('El id del producto debe ser un valor numerico.'),
+      .withMessage('El ID del producto debe ser un valor numerico.'),
     body('lotNumber')
       .trim()
       .notEmpty()
       .withMessage('El numero de lote no puede estar vacio')
       .isAlphanumeric()
-      .withMessage('El numero de lote solo puede ser alphanumerico.')
+      .withMessage('El numero de lote solo permite letras o numeros.')
       .isLength({ min: 3, max: 30 })
       .withMessage('El largo debe estar entre 3 y 30 digitos.'),
     body('expirationDate')
@@ -102,9 +102,9 @@ router.put(
     body('productId')
       .trim()
       .isEmpty()
-      .withMessage('La id del producto es obligatorio.')
+      .withMessage('El ID del producto es obligatorio.')
       .isNumeric()
-      .withMessage('El id del producto debe ser un valor numerico.')
+      .withMessage('El ID del producto debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -120,9 +120,9 @@ router.delete(
     param('id')
       .trim()
       .isEmpty()
-      .withMessage('La id del lote es obligatorio.')
+      .withMessage('El ID del lote es obligatorio.')
       .isNumeric()
-      .withMessage('El id del lote debe ser un valor numerico.')
+      .withMessage('El ID del lote debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -140,7 +140,7 @@ router.get(
       .notEmpty()
       .withMessage('El numero de lote no puede estar vacio')
       .isAlphanumeric()
-      .withMessage('El numero de lote solo puede ser alphanumerico.')
+      .withMessage('El numero de lote solo permite letras o numeros.')
       .isLength({ min: 3, max: 30 })
       .withMessage('El largo debe estar entre 3 y 30 digitos.')
   ],
@@ -159,7 +159,7 @@ router.get(
       .isEmpty()
       .withMessage('La fecha de entrada es obligatoria.')
       .isISO8601()
-      .withMessage('La fecha debe ser una fecha válida.')
+      .withMessage('Formato de fecha invalido.')
       .toDate()
   ],
   (req, res) => {
@@ -176,9 +176,9 @@ router.get(
     param('id')
       .trim()
       .isEmpty()
-      .withMessage('La id del producto es obligatorio.')
+      .withMessage('El ID del producto es obligatorio.')
       .isNumeric()
-      .withMessage('El id del producto debe ser un valor numerico.')
+      .withMessage('El ID del producto debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)

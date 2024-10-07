@@ -1,4 +1,4 @@
-import prisma from '../libs/db'
+import prisma from '../libs/db.js'
 import pkg from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
@@ -10,7 +10,8 @@ const secret = process.env.SECRET
 
 export const createEmployee = async (req, res) => {
   try {
-    const { firstName, lastName, dni, password, area, role } = req.body
+    const dni = parseInt(req.body.dni)
+    const { firstName, lastName, password, area, role } = req.body
     let employee = await prisma.employee.findUnique({
       where: { dni }
     })

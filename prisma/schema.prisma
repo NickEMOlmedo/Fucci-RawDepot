@@ -87,7 +87,7 @@ model WithdrawalDetail {
   id           Int        @id @default(autoincrement())
   quantity     Int
   status       Quality
-  notes        String     @db.VarChar(100)
+  notes        String?    @db.VarChar(100)
   withdrawal   Withdrawal @relation(fields: [withdrawalId], references: [id])
   withdrawalId Int
   product      Product    @relation(fields: [productId], references: [id])

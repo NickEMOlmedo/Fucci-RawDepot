@@ -1,4 +1,4 @@
-import prisma from '../libs/db'
+import prisma from '../libs/db.js'
 import pkg from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
@@ -10,8 +10,8 @@ const secret = process.env.SECRET
 
 export const createAdmin = async (req, res) => {
   try {
-    console.log(req.body)
-    const { firstName, lastName, dni, email, password } = req.body
+    const dni = parseInt(req.body.dni)
+    const { firstName, lastName, email, password } = req.body
     const verifyAdmin = await prisma.admin.findUnique({ where: { dni } })
 
     // Verificar si el administrador existe si no procedemos a crearlo.
@@ -39,7 +39,9 @@ export const createAdmin = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo crear el usuario administrador.'
+      error:
+        'Error en el servidor, no se pudo crear el usuario administrador.' +
+        error
     })
   }
 }

@@ -28,7 +28,7 @@ router.post(
       .trim()
       .notEmpty()
       .withMessage('La marca del producto es obligatoria.')
-      .isAlphaNumeric()
+      .isAlphanumeric()
       .withMessage('La marca solo puede contener letras y numeros.')
       .isLength({ min: 3 })
       .withMessage('La marca debe tener al menos 3 caracteres.'),
@@ -36,7 +36,7 @@ router.post(
       .trim()
       .notEmpty()
       .withMessage('El nombre del fabricante no puede estar vacio.')
-      .isAlphaNumeric()
+      .isAlphanumeric()
       .withMessage(
         'El nombre del fabricante solo puede contener letras y numeros.'
       )
@@ -48,7 +48,7 @@ router.post(
       .trim()
       .notEmpty()
       .withMessage('La presentacion del producto no puede estar vacia.')
-      .isAlphaNumeric()
+      .isAlphanumeric()
       .withMessage('La presentacion solo puede contener letras y numeros.')
       .isLength({ min: 3 })
       .withMessage('La presentacion debe tener al menos 3 caracteres.'),
@@ -60,7 +60,11 @@ router.post(
       .withMessage('Solo se permiten letras en la calidad.')
       .isLength({ min: 3 })
       .withMessage('La calidad debe tener al menos 3 caracteres.'),
-    body('stock').trim().notEmpty('El stock es obligatorio')
+    body('stock')
+      .trim()
+      .notEmpty('El stock es obligatorio')
+      .isNumeric()
+      .withMessage('El stock solo permite numeros.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -77,9 +81,9 @@ router.get(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('La id del producto es obligatorio.')
+      .withMessage('El ID del producto es obligatorio.')
       .isNumeric()
-      .withMessage('El id del producto debe ser un valor numerico.')
+      .withMessage('El ID del producto debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -95,9 +99,9 @@ router.put(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('La id del producto es obligatorio.')
+      .withMessage('El ID del producto es obligatorio.')
       .isNumeric()
-      .withMessage('El id del producto debe ser un valor numerico.'),
+      .withMessage('El ID del producto debe ser un valor numerico.'),
     body('name')
       .trim()
       .notEmpty()
@@ -110,7 +114,7 @@ router.put(
       .trim()
       .notEmpty()
       .withMessage('La marca del producto es obligatoria.')
-      .isAlphaNumeric()
+      .isAlphanumeric()
       .withMessage('La marca solo puede contener letras y numeros.')
       .isLength({ min: 3 })
       .withMessage('La marca debe tener al menos 3 caracteres.'),
@@ -118,7 +122,7 @@ router.put(
       .trim()
       .notEmpty()
       .withMessage('El nombre del fabricante no puede estar vacio.')
-      .isAlphaNumeric()
+      .isAlphanumeric()
       .withMessage(
         'El nombre del fabricante solo puede contener letras y numeros.'
       )
@@ -130,7 +134,7 @@ router.put(
       .trim()
       .notEmpty()
       .withMessage('La presentacion del producto no puede estar vacia.')
-      .isAlphaNumeric()
+      .isAlphanumeric()
       .withMessage('La presentacion solo puede contener letras y numeros.')
       .isLength({ min: 3 })
       .withMessage('La presentacion debe tener al menos 3 caracteres.'),
@@ -142,7 +146,11 @@ router.put(
       .withMessage('Solo se permiten letras en la calidad.')
       .isLength({ min: 3 })
       .withMessage('La calidad debe tener al menos 3 caracteres.'),
-    body('stock').trim().notEmpty('El stock es obligatorio')
+    body('stock')
+      .trim()
+      .notEmpty('El stock es obligatorio')
+      .isNumeric()
+      .withMessage('El stock solo permite numeros.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -158,9 +166,9 @@ router.delete(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('La id del producto es obligatorio.')
+      .withMessage('El ID del producto es obligatorio.')
       .isNumeric()
-      .withMessage('El id del producto debe ser un valor numerico.')
+      .withMessage('El ID del producto debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)

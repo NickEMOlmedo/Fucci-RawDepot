@@ -58,19 +58,19 @@ router.post(
     body('area')
       .trim()
       .notEmpty()
-      .withMessage('El area es obligatorio.')
+      .withMessage('El area es obligatoria.')
       .isAlpha()
       .withMessage('El area solo puede contener letras.')
       .isLength({ min: 3 })
-      .withMessage('El nombre debe tener al menos 3 caracteres.'),
+      .withMessage('El area debe tener al menos 3 caracteres.'),
     body('role')
       .trim()
       .notEmpty()
-      .withMessage('El area es obligatorio.')
+      .withMessage('El rol es obligatorio.')
       .isAlpha()
-      .withMessage('El area solo puede contener letras.')
+      .withMessage('El rol solo puede contener letras.')
       .isLength({ min: 3 })
-      .withMessage('El nombre debe tener al menos 3 caracteres.')
+      .withMessage('El rol debe tener al menos 3 caracteres.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -94,7 +94,7 @@ router.post(
       .withMessage('¡El DNI o la contraseña son incorrectos!'),
     body('password')
       .trim()
-      .notEmpty()
+      .notEmpty('¡El DNI o la contraseña son incorrectos!')
       .withMessage('¡El DNI o la contraseña son incorrectos!')
       .isLength({ min: 8 })
       .withMessage('¡El DNI o la contraseña son incorrectos!')
@@ -135,11 +135,9 @@ router.get(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('El id es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .isNumeric()
-      .withMessage('El id debe contener solo números.')
-      .isLength({ min: 1, max: 10 })
-      .withMessage('El id debe tener minimo 1 digito y maximo 10.')
+      .withMessage('El ID debe contener solo números.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -155,11 +153,9 @@ router.put(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('El id es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .isNumeric()
-      .withMessage('El id debe contener solo números.')
-      .isLength({ min: 1, max: 10 })
-      .withMessage('El id debe tener minimo 1 digito y maximo 10.')
+      .withMessage('El ID debe contener solo números.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -175,11 +171,9 @@ router.delete(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('El id es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .isNumeric()
-      .withMessage('El id debe contener solo números.')
-      .isLength({ min: 1, max: 10 })
-      .withMessage('El id debe tener minimo 1 digito y maximo 10.')
+      .withMessage('El ID debe contener solo números.')
   ],
   (req, res) => {
     const errors = validationResult(req)

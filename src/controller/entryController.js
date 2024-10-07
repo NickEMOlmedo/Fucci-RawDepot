@@ -1,4 +1,4 @@
-import prisma from '../libs/db'
+import prisma from '../libs/db.js'
 
 // Funcion que carga un nuevo ingreso de mercaderia.
 

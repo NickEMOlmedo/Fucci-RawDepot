@@ -43,9 +43,9 @@ router.post(
     body('email')
       .trim()
       .notEmpty()
-      .withMessage('El email es obliatorio.')
+      .withMessage('El correo electrónico es obligatorio.')
       .isEmail()
-      .withMessage('Debe proporcionar un email valido.'),
+      .withMessage('Debe proporcionar un correo electrónico válido.'),
     body('password')
       .trim()
       .isLength({ min: 8 })
@@ -123,11 +123,11 @@ router.get(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('El id es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .isNumeric()
-      .withMessage('El id debe contener solo números.')
+      .withMessage('El ID debe contener solo números.')
       .isLength({ min: 1, max: 10 })
-      .withMessage('El id debe tener minimo 1 digito y maximo 10.')
+      .withMessage('El ID debe tener minimo 1 digito y maximo 10.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -143,11 +143,11 @@ router.put(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('El id es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .isNumeric()
-      .withMessage('El id debe contener solo números.')
+      .withMessage('El ID debe contener solo números.')
       .isLength({ min: 1, max: 10 })
-      .withMessage('El id debe tener minimo 1 digito y maximo 10.'),
+      .withMessage('El ID debe tener minimo 1 digito y maximo 10.'),
     body('firstName')
       .trim()
       .notEmpty()
@@ -207,11 +207,11 @@ router.delete(
     param('id')
       .trim()
       .notEmpty()
-      .withMessage('El id es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .isNumeric()
-      .withMessage('El id debe contener solo números.')
+      .withMessage('El ID debe contener solo números.')
       .isLength({ min: 1, max: 10 })
-      .withMessage('El id debe tener minimo 1 digito y maximo 10.')
+      .withMessage('El ID debe tener minimo 1 digito y maximo 10.')
   ],
   (req, res) => {
     const errors = validationResult(req)
