@@ -3,6 +3,9 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
+import { rateLimit } from 'express-rate-limit'
+import { authUser } from './middleware/auth.js'
+import { verifyAdmin } from './middleware/verifyAdmin.js'
 import adminRoutes from './routes/admin.routes.js'
 import employeeRoutes from './routes/employee.routes.js'
 import productRoutes from './routes/product.routes.js'
@@ -36,8 +39,8 @@ app.get('/', (req, res) => {
 
 app.use('/api/admins', adminRoutes)
 app.use('/api/employees', employeeRoutes)
-app.use('/api/products', productRoutes)
-app.use('/api/entrys', entryRoutes)
-app.use('/api/lots', lotRoutes)
-app.use('/api/withdrawals', withdrawalRoutes)
-app.use('/api/withdrawal-details', withdrawatlDetailRoutes)
+app.use('/api/products', authUser, productRoutes)
+app.use('/api/entrys', authUser, verifyAdmin, entryRoutes)
+app.use('/api/lots', authUser, lotRoutes)
+app.use('/api/withdrawals', authUser, withdrawalRoutes)
+app.use('/api/withdrawal-details', authUser, withdrawatlDetailRoutes)

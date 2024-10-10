@@ -20,6 +20,7 @@ router.post(
       .trim()
       .notEmpty()
       .withMessage('El numero de lote no puede estar vacio')
+      .bail()
       .isAlphanumeric()
       .withMessage('El numero de lote solo permite letras o numeros.')
       .isLength({ min: 3, max: 30 })
@@ -27,6 +28,7 @@ router.post(
     body('expirationDate')
       .notEmpty()
       .withMessage('La fecha de entrada es obligatoria.')
+      .bail()
       .isISO8601()
       .withMessage('La fecha debe ser una fecha válida.')
       .toDate(),
@@ -34,19 +36,25 @@ router.post(
       .trim()
       .notEmpty()
       .withMessage('La cantidad es obligatoria.')
+      .bail()
       .isNumeric()
       .withMessage('La cantidad debe ser un valor numerico.'),
     body('productId')
       .trim()
       .notEmpty()
       .withMessage('El id del producto es obligatorio.')
+      .bail()
       .isNumeric()
       .withMessage('El id del producto debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     createLot(req, res)
   }
@@ -59,13 +67,18 @@ router.get(
       .trim()
       .notEmpty()
       .withMessage('El ID del lote es obligatorio.')
+      .bail()
       .isNumeric()
       .withMessage('El ID del lote debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     getLotById()
   }
@@ -77,12 +90,14 @@ router.put(
       .trim()
       .isEmpty()
       .withMessage('El ID del lote es obligatorio.')
+      .bail()
       .isNumeric()
       .withMessage('El ID del producto debe ser un valor numerico.'),
     body('lotNumber')
       .trim()
       .notEmpty()
       .withMessage('El numero de lote no puede estar vacio')
+      .bail()
       .isAlphanumeric()
       .withMessage('El numero de lote solo permite letras o numeros.')
       .isLength({ min: 3, max: 30 })
@@ -90,6 +105,7 @@ router.put(
     body('expirationDate')
       .isEmpty()
       .withMessage('La fecha de entrada es obligatoria.')
+      .bail()
       .isISO8601()
       .withMessage('La fecha debe ser una fecha válida.')
       .toDate(),
@@ -97,19 +113,25 @@ router.put(
       .trim()
       .isEmpty()
       .withMessage('La cantidad es obligatoria.')
+      .bail()
       .isNumeric()
       .withMessage('La cantidad debe ser un valor numerico.'),
     body('productId')
       .trim()
       .isEmpty()
       .withMessage('El ID del producto es obligatorio.')
+      .bail()
       .isNumeric()
       .withMessage('El ID del producto debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     updateLot(req, res)
   }
@@ -121,13 +143,18 @@ router.delete(
       .trim()
       .isEmpty()
       .withMessage('El ID del lote es obligatorio.')
+      .bail()
       .isNumeric()
       .withMessage('El ID del lote debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     deleteLot(req, res)
   }
@@ -139,6 +166,7 @@ router.get(
       .trim()
       .notEmpty()
       .withMessage('El numero de lote no puede estar vacio')
+      .bail()
       .isAlphanumeric()
       .withMessage('El numero de lote solo permite letras o numeros.')
       .isLength({ min: 3, max: 30 })
@@ -147,7 +175,11 @@ router.get(
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     searchLotByNum(req, res)
   }
@@ -158,6 +190,7 @@ router.get(
     param('expiration_date')
       .isEmpty()
       .withMessage('La fecha de entrada es obligatoria.')
+      .bail()
       .isISO8601()
       .withMessage('Formato de fecha invalido.')
       .toDate()
@@ -165,7 +198,11 @@ router.get(
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     searchLotByExpirationDate(req, res)
   }
@@ -177,13 +214,18 @@ router.get(
       .trim()
       .isEmpty()
       .withMessage('El ID del producto es obligatorio.')
+      .bail()
       .isNumeric()
       .withMessage('El ID del producto debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     searchLotByProduct(req, res)
   }

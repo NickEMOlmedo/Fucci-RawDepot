@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { body, param, validationResult } from 'express-validator'
+import { verifyAdmin } from '../middleware/verifyAdmin.js'
 import {
   createProduct,
   getAllProducts,
@@ -15,11 +16,13 @@ const router = Router()
 
 router.post(
   '/',
+  verifyAdmin,
   [
     body('name')
       .trim()
       .notEmpty()
       .withMessage('El nombre es obligatorio.')
+      .bail()
       .isAlpha()
       .withMessage('El nombre solo puede contener letras.')
       .isLength({ min: 3 })
@@ -28,6 +31,7 @@ router.post(
       .trim()
       .notEmpty()
       .withMessage('La marca del producto es obligatoria.')
+      .bail()
       .isAlphanumeric()
       .withMessage('La marca solo puede contener letras y numeros.')
       .isLength({ min: 3 })
@@ -36,6 +40,7 @@ router.post(
       .trim()
       .notEmpty()
       .withMessage('El nombre del fabricante no puede estar vacio.')
+      .bail()
       .isAlphanumeric()
       .withMessage(
         'El nombre del fabricante solo puede contener letras y numeros.'
@@ -48,6 +53,7 @@ router.post(
       .trim()
       .notEmpty()
       .withMessage('La presentacion del producto no puede estar vacia.')
+      .bail()
       .isAlphanumeric()
       .withMessage('La presentacion solo puede contener letras y numeros.')
       .isLength({ min: 3 })
@@ -56,6 +62,7 @@ router.post(
       .trim()
       .notEmpty()
       .withMessage('La calidad del producto es obligatoria.')
+      .bail()
       .isAlpha()
       .withMessage('Solo se permiten letras en la calidad.')
       .isLength({ min: 3 })
@@ -63,13 +70,18 @@ router.post(
     body('stock')
       .trim()
       .notEmpty('El stock es obligatorio')
+      .bail()
       .isNumeric()
       .withMessage('El stock solo permite numeros.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     createProduct(req, res)
   }
@@ -82,30 +94,38 @@ router.get(
       .trim()
       .notEmpty()
       .withMessage('El ID del producto es obligatorio.')
+      .bail()
       .isNumeric()
       .withMessage('El ID del producto debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     getProductById()
   }
 )
 router.put(
   '/:id',
+  verifyAdmin,
   [
     param('id')
       .trim()
       .notEmpty()
       .withMessage('El ID del producto es obligatorio.')
+      .bail()
       .isNumeric()
       .withMessage('El ID del producto debe ser un valor numerico.'),
     body('name')
       .trim()
       .notEmpty()
       .withMessage('El nombre es obligatorio.')
+      .bail()
       .isAlpha()
       .withMessage('El nombre solo puede contener letras.')
       .isLength({ min: 3 })
@@ -114,6 +134,7 @@ router.put(
       .trim()
       .notEmpty()
       .withMessage('La marca del producto es obligatoria.')
+      .bail()
       .isAlphanumeric()
       .withMessage('La marca solo puede contener letras y numeros.')
       .isLength({ min: 3 })
@@ -122,6 +143,7 @@ router.put(
       .trim()
       .notEmpty()
       .withMessage('El nombre del fabricante no puede estar vacio.')
+      .bail()
       .isAlphanumeric()
       .withMessage(
         'El nombre del fabricante solo puede contener letras y numeros.'
@@ -134,6 +156,7 @@ router.put(
       .trim()
       .notEmpty()
       .withMessage('La presentacion del producto no puede estar vacia.')
+      .bail()
       .isAlphanumeric()
       .withMessage('La presentacion solo puede contener letras y numeros.')
       .isLength({ min: 3 })
@@ -142,6 +165,7 @@ router.put(
       .trim()
       .notEmpty()
       .withMessage('La calidad del producto es obligatoria.')
+      .bail()
       .isAlpha()
       .withMessage('Solo se permiten letras en la calidad.')
       .isLength({ min: 3 })
@@ -149,31 +173,42 @@ router.put(
     body('stock')
       .trim()
       .notEmpty('El stock es obligatorio')
+      .bail()
       .isNumeric()
       .withMessage('El stock solo permite numeros.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     updateProduct(req, res)
   }
 )
 router.delete(
   '/:id',
+  verifyAdmin,
   [
     param('id')
       .trim()
       .notEmpty()
       .withMessage('El ID del producto es obligatorio.')
+      .bail()
       .isNumeric()
       .withMessage('El ID del producto debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     deleteProduct(req, res)
   }
@@ -185,12 +220,18 @@ router.get(
       .trim()
       .notEmpty()
       .withMessage('El nombre del producto es obligatorio.')
-      .isAlpha('Solo se permiten letras.')
+      .bail()
+      .isAlpha()
+      .withMessage('Solo se permiten letras.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     searchProductByName(req, res)
   }
@@ -202,12 +243,18 @@ router.get(
       .trim()
       .notEmpty()
       .withMessage('La marca es obligatoria.')
-      .isAlpha('Solo se permiten letras.')
+      .bail()
+      .isAlpha()
+      .withMessage('Solo se permiten letras.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     searchProductByBrand(req, res)
   }
@@ -219,12 +266,18 @@ router.get(
       .trim()
       .notEmpty()
       .withMessage('La presentacion es obligatoria.')
-      .isAlpha('Solo se permiten letras.')
+      .bail()
+      .isAlpha()
+      .withMessage('Solo se permiten letras.')
   ],
   (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
     }
     searchProductByPresentation(req, res)
   }

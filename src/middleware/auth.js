@@ -1,6 +1,7 @@
-import { verify } from 'jsonwebtoken'
+import pkg from 'jsonwebtoken'
+const { verify } = pkg
 
-export const autenticarUsuario = async (req, res, next) => {
+export const authUser = async (req, res, next) => {
   const token = req.cookies.acces_token
 
   const secret = process.env.SECRET
