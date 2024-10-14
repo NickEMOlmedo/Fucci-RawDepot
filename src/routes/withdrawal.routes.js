@@ -4,7 +4,7 @@ import {
   createWithdrawal,
   deleteWithdrawal,
   getAllWithdrawals,
-  getWithdrawalBydId,
+  getWithdrawalById,
   searchWithdrawalWithAdmin,
   searchWithdrawalWithDate,
   searchWithdrawalWithEmployee,
@@ -26,8 +26,6 @@ router.post(
       .toDate(),
     body('employeeDni')
       .optional()
-      .notEmpty()
-      .withMessage('El DNI del empleado es obligatorio.')
       .custom((value, { req }) => {
         if (!value && !req.body.employeeDni) {
           throw new Error(
@@ -36,14 +34,13 @@ router.post(
         }
       })
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El DNI debe contener solo números.')
       .isLength({ min: 7, max: 8 })
       .withMessage('El DNI debe tener 7 o 8 dígitos.'),
     body('adminDni')
       .optional()
-      .notEmpty()
-      .withMessage('El DNI del administrador es obligatorio')
       .custom((value, { req }) => {
         if (!value && !req.body.adminDni) {
           throw new Error(
@@ -52,7 +49,8 @@ router.post(
         }
       })
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El DNI debe contener solo números.')
       .isLength({ min: 7, max: 8 })
       .withMessage('El DNI debe tener 7 o 8 dígitos.')
@@ -74,11 +72,11 @@ router.get(
   '/:id',
   [
     param('id')
-      .trim()
       .notEmpty()
       .withMessage('EL ID del retiro es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID del retiro debe ser un valor numerico.')
   ],
   (req, res) => {
@@ -97,23 +95,19 @@ router.put(
   '/:id',
   [
     param('id')
-      .trim()
       .notEmpty()
       .withMessage('El ID del retiro es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID del retiro debe ser un valor numerico.'),
     body('withDrawalDate')
-      .notEmpty()
-      .withMessage('La fecha de extraccion es obligatoria.')
-      .bail()
+      .optional()
       .isISO8601()
       .withMessage('Formato de fecha invalido.')
       .toDate(),
     body('employeeDni')
       .optional()
-      .notEmpty()
-      .withMessage('El DNI del empleado es obligatorio')
       .custom((value, { req }) => {
         if (!value && !req.body.employeeDni) {
           throw new Error(
@@ -122,14 +116,13 @@ router.put(
         }
       })
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El DNI debe contener solo números.')
       .isLength({ min: 7, max: 8 })
       .withMessage('El DNI debe tener 7 o 8 dígitos.'),
     body('adminDni')
       .optional()
-      .notEmpty()
-      .withMessage('El DNI del administrador es obligatorio')
       .custom((value, { req }) => {
         if (!value && !req.body.adminDni) {
           throw new Error(
@@ -138,7 +131,8 @@ router.put(
         }
       })
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El DNI debe contener solo números.')
       .isLength({ min: 7, max: 8 })
       .withMessage('El DNI debe tener 7 o 8 dígitos.')
@@ -159,11 +153,11 @@ router.delete(
   '/:id',
   [
     param('id')
-      .trim()
       .notEmpty()
       .withMessage('El ID del retiro es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID del retiro debe ser un valor numerico.')
   ],
   (req, res) => {
@@ -182,7 +176,6 @@ router.get(
   '/search/:withdrawal_date',
   [
     param('id')
-      .trim()
       .isEmpty()
       .withMessage('La fecha de retiro es obligatoria.')
       .bail()
@@ -205,11 +198,11 @@ router.get(
   '/search/:employee_dni',
   [
     param('id')
-      .trim()
       .isEmpty()
       .withMessage('El DNI del empleado es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El DNI solo puede ser numerico.')
   ],
   (req, res) => {
@@ -228,11 +221,11 @@ router.get(
   '/search/:admin_dni',
   [
     param('id')
-      .trim()
       .isEmpty()
       .withMessage('El DNI del administrador es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El DNI solo puede ser numerico.')
   ],
   (req, res) => {

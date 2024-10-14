@@ -201,7 +201,7 @@ export const deleteEmployee = async (req, res) => {
 export const updateEmployee = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
-    const verifyEmployee = prisma.employee.findUnique({
+    const verifyEmployee = await prisma.employee.findUnique({
       where: {
         id
       }
@@ -215,15 +215,21 @@ export const updateEmployee = async (req, res) => {
 
     const { firstName, lastName, dni, password, area, role } = req.body
 
-    const existingDni = await prisma.admin.findUnique({
+    const existingDni = await prisma.employee.findUnique({
       where: { dni: parseInt(dni) }
     })
 
     if (existingDni) {
-      return res.status(409).json({
-        error:
-          '¡El DNI ya está en uso por otro empleado, ingrese uno diferente!'
-      })
+      if (
+        dni &&
+        dni !== verifyEmployee.dni &&
+        existingDni.id !== verifyEmployee.id
+      ) {
+        return res.status(409).json({
+          error:
+            '¡El DNI ya está en uso por otro empleado ingrese uno diferente!'
+        })
+      }
     }
 
     const employee = await prisma.employee.update({

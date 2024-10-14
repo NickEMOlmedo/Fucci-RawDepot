@@ -185,15 +185,18 @@ export const updateAdmin = async (req, res) => {
         .json({ error: '¡El administrador no existe, verifique los datos!' })
     }
     const { firstName, lastName, dni, email, password } = req.body
+
     const existingDni = await prisma.admin.findUnique({
       where: { dni: parseInt(dni) }
     })
 
     if (existingDni) {
-      return res.status(409).json({
-        error:
-          '¡El DNI ya está en uso por otro administrador, ingrese uno difetente!'
-      })
+      if (dni && dni !== verifyAdmin.dni && existingDni.id !== verifyAdmin.id) {
+        return res.status(409).json({
+          error:
+            '¡El DNI ya está en uso por otro administrador, ingrese uno difetente!'
+        })
+      }
     }
 
     const admin = await prisma.admin.update({

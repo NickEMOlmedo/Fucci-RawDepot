@@ -15,17 +15,17 @@ router.post(
   '/',
   [
     body('quantity')
-      .trim()
       .notEmpty()
       .withMessage('La cantidad es obligatoria.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('La cantidad debe ser numerica.'),
     body('status')
-      .trim()
       .notEmpty()
       .withMessage('El status es obligatorio.')
       .bail()
+      .trim()
       .isAlpha()
       .withMessage('El status solo permite letras.'),
     body('notes')
@@ -33,18 +33,18 @@ router.post(
       .isAlphanumeric()
       .withMessage('Solo se permiten letras o numeros.'),
     body('withdrawalId')
-      .trim()
-      .isEmpty()
+      .notEmpty()
       .withMessage('El ID del  retiro obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID solo puede ser numerico.'),
     body('productId')
-      .trim()
-      .isEmpty()
+      .notEmpty()
       .withMessage('El ID del producto es  obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID solo puede ser numerico.')
   ],
   (req, res) => {
@@ -64,11 +64,11 @@ router.get(
   '/:id',
   [
     param('id')
-      .trim()
       .notEmpty()
       .withMessage('El ID del detalle de retiro es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID del detalle de retiro debe ser un valor numerico.')
   ],
   (req, res) => {
@@ -87,43 +87,36 @@ router.put(
   '/:id',
   [
     (param('id')
-      .trim()
       .notEmpty()
       .withMessage('El ID del detalle de retiro es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID del detalle de retiro debe ser un valor numerico.'),
     body('quantity')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('La cantidad es obligatoria.')
-      .bail()
-      .isNumeric()
+      .isInt()
       .withMessage('La cantidad debe ser numerica.'),
     body('status')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('El status es obligatorio.')
-      .bail()
       .isAlpha()
       .withMessage('El status solo permite letras.'),
     body('notes')
+      .optional()
       .trim()
       .isAlphanumeric()
       .withMessage('Solo se permiten letras o numeros.'),
     body('withdrawalId')
+      .optional()
       .trim()
-      .isEmpty()
-      .withMessage('El ID del  retiro obligatorio.')
-      .bail()
-      .isNumeric()
+      .isInt()
       .withMessage('El ID solo puede ser numerico.'),
     body('productId')
+      .optional()
       .trim()
-      .isEmpty()
-      .withMessage('El ID del producto es  obligatorio.')
-      .bail()
-      .isNumeric()
+      .isInt()
       .withMessage('El ID solo puede ser numerico.'))
   ],
   (req, res) => {
@@ -142,11 +135,12 @@ router.get(
   '/search/:status',
   [
     param('status')
-      .trim()
       .notEmpty()
       .withMessage('El status es obligatorio.')
       .bail()
-      .isAlpha('Solo se permiten letras.')
+      .trim()
+      .isAlpha()
+      .withMessage('Solo se permiten letras.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -164,11 +158,12 @@ router.get(
   '/search/:product_id',
   [
     param('product_id')
-      .trim()
       .notEmpty()
       .withMessage('El ID del producto es obligatorio.')
       .bail()
-      .isNumeric('Solo se permiten numeros.')
+      .trim()
+      .isInt()
+      .withMessage('Solo se permiten numeros.')
   ],
   (req, res) => {
     const errors = validationResult(req)

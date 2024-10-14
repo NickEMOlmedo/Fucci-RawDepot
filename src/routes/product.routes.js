@@ -19,28 +19,28 @@ router.post(
   verifyAdmin,
   [
     body('name')
-      .trim()
       .notEmpty()
       .withMessage('El nombre es obligatorio.')
       .bail()
+      .trim()
       .isAlpha()
       .withMessage('El nombre solo puede contener letras.')
       .isLength({ min: 3 })
       .withMessage('El nombre debe tener al menos 3 caracteres.'),
     body('brand')
-      .trim()
       .notEmpty()
       .withMessage('La marca del producto es obligatoria.')
       .bail()
+      .trim()
       .isAlphanumeric()
       .withMessage('La marca solo puede contener letras y numeros.')
       .isLength({ min: 3 })
       .withMessage('La marca debe tener al menos 3 caracteres.'),
     body('manufacturer')
-      .trim()
       .notEmpty()
       .withMessage('El nombre del fabricante no puede estar vacio.')
       .bail()
+      .trim()
       .isAlphanumeric()
       .withMessage(
         'El nombre del fabricante solo puede contener letras y numeros.'
@@ -50,28 +50,29 @@ router.post(
         'El nombre del fabricante debe tener al menos 3 caracteres.'
       ),
     body('presentation')
-      .trim()
       .notEmpty()
       .withMessage('La presentacion del producto no puede estar vacia.')
       .bail()
+      .trim()
       .isAlphanumeric()
       .withMessage('La presentacion solo puede contener letras y numeros.')
       .isLength({ min: 3 })
       .withMessage('La presentacion debe tener al menos 3 caracteres.'),
     body('quality')
-      .trim()
       .notEmpty()
       .withMessage('La calidad del producto es obligatoria.')
       .bail()
+      .trim()
       .isAlpha()
       .withMessage('Solo se permiten letras en la calidad.')
       .isLength({ min: 3 })
       .withMessage('La calidad debe tener al menos 3 caracteres.'),
     body('stock')
-      .trim()
-      .notEmpty('El stock es obligatorio')
+      .notEmpty()
+      .withMessage('El stock es obligatorio')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El stock solo permite numeros.')
   ],
   (req, res) => {
@@ -91,11 +92,11 @@ router.get(
   '/:id',
   [
     param('id')
-      .trim()
       .notEmpty()
       .withMessage('El ID del producto es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID del producto debe ser un valor numerico.')
   ],
   (req, res) => {
@@ -115,35 +116,29 @@ router.put(
   verifyAdmin,
   [
     param('id')
-      .trim()
       .notEmpty()
       .withMessage('El ID del producto es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID del producto debe ser un valor numerico.'),
     body('name')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('El nombre es obligatorio.')
-      .bail()
       .isAlpha()
       .withMessage('El nombre solo puede contener letras.')
       .isLength({ min: 3 })
       .withMessage('El nombre debe tener al menos 3 caracteres.'),
     body('brand')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('La marca del producto es obligatoria.')
-      .bail()
       .isAlphanumeric()
       .withMessage('La marca solo puede contener letras y numeros.')
       .isLength({ min: 3 })
       .withMessage('La marca debe tener al menos 3 caracteres.'),
     body('manufacturer')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('El nombre del fabricante no puede estar vacio.')
-      .bail()
       .isAlphanumeric()
       .withMessage(
         'El nombre del fabricante solo puede contener letras y numeros.'
@@ -153,28 +148,23 @@ router.put(
         'El nombre del fabricante debe tener al menos 3 caracteres.'
       ),
     body('presentation')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('La presentacion del producto no puede estar vacia.')
-      .bail()
       .isAlphanumeric()
       .withMessage('La presentacion solo puede contener letras y numeros.')
       .isLength({ min: 3 })
       .withMessage('La presentacion debe tener al menos 3 caracteres.'),
     body('quality')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('La calidad del producto es obligatoria.')
-      .bail()
       .isAlpha()
       .withMessage('Solo se permiten letras en la calidad.')
       .isLength({ min: 3 })
       .withMessage('La calidad debe tener al menos 3 caracteres.'),
     body('stock')
+      .optional()
       .trim()
-      .notEmpty('El stock es obligatorio')
-      .bail()
-      .isNumeric()
+      .isInt()
       .withMessage('El stock solo permite numeros.')
   ],
   (req, res) => {
@@ -194,11 +184,11 @@ router.delete(
   verifyAdmin,
   [
     param('id')
-      .trim()
       .notEmpty()
       .withMessage('El ID del producto es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID del producto debe ser un valor numerico.')
   ],
   (req, res) => {
@@ -217,10 +207,10 @@ router.get(
   '/search/:name',
   [
     param('name')
-      .trim()
       .notEmpty()
       .withMessage('El nombre del producto es obligatorio.')
       .bail()
+      .trim()
       .isAlpha()
       .withMessage('Solo se permiten letras.')
   ],
@@ -240,10 +230,10 @@ router.get(
   '/search/:brand',
   [
     param('brand')
-      .trim()
       .notEmpty()
       .withMessage('La marca es obligatoria.')
       .bail()
+      .trim()
       .isAlpha()
       .withMessage('Solo se permiten letras.')
   ],
@@ -263,10 +253,10 @@ router.get(
   '/search/:presentation',
   [
     param('presentation')
-      .trim()
       .notEmpty()
       .withMessage('La presentacion es obligatoria.')
       .bail()
+      .trim()
       .isAlpha()
       .withMessage('Solo se permiten letras.')
   ],

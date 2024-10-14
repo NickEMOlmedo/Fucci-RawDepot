@@ -8,8 +8,8 @@ export const createWithdrawal = async (req, res) => {
     const withdrawal = await prisma.withdrawal.create({
       data: {
         withdrawalDate,
-        employeeDni,
-        adminDni
+        employeeDni: parseInt(employeeDni),
+        adminDni: parseInt(adminDni)
       }
     })
     if (withdrawal) {
@@ -41,7 +41,7 @@ export const getAllWithdrawals = async res => {
 
 // Funcion que retorna un retiro segun el id.
 
-export const getWithdrawalBydId = async (req, res) => {
+export const getWithdrawalById = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
     const withdrawal = await prisma.withdrawal.findUnique({
@@ -79,16 +79,16 @@ export const updateWithdrawal = async (req, res) => {
     const withdrawal = await prisma.withdrawal.update({
       data: {
         withdrawalDate,
-        employeeDni,
-        adminDni
+        employeeDni: employeeDni
+          ? parseInt(employeeDni)
+          : withdrawalCompare.employeeDni,
+        adminDni: adminDni ? parseInt(adminDni) : withdrawalCompare.adminDni
       }
     })
     if (withdrawal) {
-      return res
-        .status(201)
-        .json({
-          message: '¡Usted ha actualizado un nuevo retiro exitosamente!'
-        })
+      return res.status(201).json({
+        message: '¡Usted ha actualizado un nuevo retiro exitosamente!'
+      })
     }
   } catch (error) {
     return res.status(500).json({

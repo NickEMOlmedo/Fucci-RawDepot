@@ -37,7 +37,7 @@ export const createEntry = async (req, res) => {
         productType: producType.toLowerCase(),
         receiptCode: receiptCode.toLowerCase(),
         deliveryCompany: deliveryCompany.toLowerCase(),
-        entryDate: new Date(entryDate),
+        entryDate,
         quantity: quantity.toLowerCase(),
         status: status ? status.toLowerCase() : entryCompare.status,
         adminDni: parseInt(adminDni)
@@ -117,10 +117,16 @@ export const updateEntry = async (req, res) => {
     const entry = prisma.entry.update({
       where: { id },
       data: {
-        productType: producType.toLowerCase(),
-        receiptCode: receiptCode.toLowerCase(),
-        deliveryCompany: deliveryCompany.toLowerCase(),
-        entryDate: new Date(entryDate),
+        productType: producType
+          ? producType.toLowerCase()
+          : entryCompare.productType,
+        receiptCode: receiptCode
+          ? receiptCode.toLowerCase()
+          : entryCompare.receiptCode,
+        deliveryCompany: deliveryCompany
+          ? deliveryCo0mpany.toLowerCase()
+          : entryCompare.deliveryCompany,
+        entryDate: entryDate ? entryDate : entryCompare.entryDate,
         quantity: quantity ? parseInt(quantity) : entryCompare.quantity,
         status: status ? status.toLowerCase() : entryCompare.status
       }

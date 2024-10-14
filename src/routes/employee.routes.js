@@ -21,37 +21,37 @@ router.post(
   verifySuperAdmin,
   [
     body('firstName')
-      .trim()
       .notEmpty()
       .withMessage('El nombre es obligatorio.')
       .bail()
+      .trim()
       .isAlpha()
       .withMessage('El nombre solo puede contener letras.')
       .isLength({ min: 3 })
       .withMessage('El nombre debe tener al menos 3 caracteres.'),
     body('lastName')
-      .trim()
       .notEmpty()
       .withMessage('El apellido es obligatorio.')
       .bail()
+      .trim()
       .isAlpha()
       .withMessage('El apellido solo puede contener letras.')
       .isLength({ min: 3 })
       .withMessage('El apellido debe tener al menos 3 caracteres.'),
     body('dni')
-      .trim()
       .notEmpty()
       .withMessage('El DNI es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El DNI debe contener solo números.')
       .isLength({ min: 7, max: 8 })
       .withMessage('El DNI debe tener 7 o 8 dígitos.'),
     body('password')
-      .trim()
       .notEmpty()
       .withMessage('La contraseña es obligatoria.')
       .bail()
+      .trim()
       .isLength({ min: 8 })
       .withMessage('La contraseña debe tener al menos 8 caracteres.')
       .matches(/[A-Z]/)
@@ -65,19 +65,19 @@ router.post(
       .matches(/^\S*$/, 'g')
       .withMessage('La contraseña no debe contener espacios en blanco.'),
     body('area')
-      .trim()
       .notEmpty()
       .withMessage('El area es obligatoria.')
       .bail()
+      .trim()
       .isAlpha()
       .withMessage('El area solo puede contener letras.')
       .isLength({ min: 3 })
       .withMessage('El area debe tener al menos 3 caracteres.'),
     body('role')
-      .trim()
       .notEmpty()
       .withMessage('El rol es obligatorio.')
       .bail()
+      .trim()
       .isAlpha()
       .withMessage('El rol solo puede contener letras.')
       .isLength({ min: 3 })
@@ -100,20 +100,20 @@ router.post(
   '/auth/login',
   [
     body('dni')
-      .trim()
       .notEmpty()
-      .bail()
       .withMessage('¡El DNI o la contraseña son incorrectos!')
-      .isNumeric()
+      .bail()
+      .trim()
+      .isInt()
       .withMessage('¡El DNI o la contraseña son incorrectos!')
       .bail()
       .isLength({ min: 7, max: 8 })
       .withMessage('¡El DNI o la contraseña son incorrectos!'),
     body('password')
-      .trim()
-      .notEmpty('¡El DNI o la contraseña son incorrectos!')
-      .bail()
+      .notEmpty()
       .withMessage('¡El DNI o la contraseña son incorrectos!')
+      .bail()
+      .trim()
       .isLength({ min: 8 })
       .withMessage('¡El DNI o la contraseña son incorrectos!')
   ],
@@ -130,18 +130,18 @@ router.post(
   }
 )
 router.post('/auth/logout', authUser, logoutAllUsers)
-router.get('/', verifySuperAdmin, getAllEmployees)
+router.get('/', authUser, verifySuperAdmin, getAllEmployees)
 router.get(
   '/dni/:dni',
   authUser,
   verifySuperAdmin,
   [
     param('dni')
-      .trim()
       .notEmpty()
       .withMessage('El DNI es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El DNI debe contener solo números.')
       .isLength({ min: 7, max: 8 })
       .withMessage('El DNI debe tener 7 o 8 dígitos.')
@@ -161,13 +161,14 @@ router.get(
 router.get(
   '/id/:id',
   authUser,
-  verifySuperAdmin[
+  verifySuperAdmin,
+  [
     param('id')
-      .trim()
       .notEmpty()
       .withMessage('El ID es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID debe contener solo números.')
   ],
   (req, res) => {
@@ -188,43 +189,36 @@ router.put(
   verifySuperAdmin,
   [
     param('id')
-      .trim()
       .notEmpty()
       .withMessage('El ID es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID debe contener solo números.'),
     body('firstName')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('El nombre es obligatorio.')
-      .bail()
       .isAlpha()
       .withMessage('El nombre solo puede contener letras.')
       .isLength({ min: 3 })
       .withMessage('El nombre debe tener al menos 3 caracteres.'),
     body('lastName')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('El apellido es obligatorio.')
-      .bail()
       .isAlpha()
       .withMessage('El apellido solo puede contener letras.')
       .isLength({ min: 3 })
       .withMessage('El apellido debe tener al menos 3 caracteres.'),
     body('dni')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('El DNI es obligatorio.')
-      .bail()
-      .isNumeric()
+      .isInt()
       .withMessage('El DNI debe contener solo números.')
       .isLength({ min: 7, max: 8 })
       .withMessage('El DNI debe tener 7 o 8 dígitos.'),
     body('password')
+      .optional()
       .trim()
-      .notEmpty().withMessage('La contraseña es obligatoria.')
-      .bail()
       .isLength({ min: 8 })
       .withMessage('La contraseña debe tener al menos 8 caracteres.')
       .matches(/[A-Z]/)
@@ -238,19 +232,15 @@ router.put(
       .matches(/^\S*$/, 'g')
       .withMessage('La contraseña no debe contener espacios en blanco.'),
     body('area')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('El area es obligatoria.')
-      .bail()
       .isAlpha()
       .withMessage('El area solo puede contener letras.')
       .isLength({ min: 3 })
       .withMessage('El area debe tener al menos 3 caracteres.'),
     body('role')
+      .optional()
       .trim()
-      .notEmpty()
-      .withMessage('El rol es obligatorio.')
-      .bail()
       .isAlpha()
       .withMessage('El rol solo puede contener letras.')
       .isLength({ min: 3 })
@@ -274,11 +264,11 @@ router.delete(
   verifySuperAdmin,
   [
     param('id')
-      .trim()
       .notEmpty()
       .withMessage('El ID es obligatorio.')
       .bail()
-      .isNumeric()
+      .trim()
+      .isInt()
       .withMessage('El ID debe contener solo números.')
   ],
   (req, res) => {

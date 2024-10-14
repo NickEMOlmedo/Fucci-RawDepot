@@ -97,10 +97,12 @@ export const updateLot = async (req, res) => {
     const { lotNumber, expirationDate, quantity, productId } = req.body
     const lot = await prisma.lot.update({
       data: {
-        lotNumber,
-        expirationDate,
-        quantity,
-        productId
+        lotNumber: lotNumber ? parseInt(lotNumber) : lotCompare.lotNumber,
+        expirationDate: expirationDate
+          ? expirationDate
+          : lotCompare.expirationDate,
+        quantity: quantity ? parseInt(quantity) : lotCompare.quantity,
+        productId: productId ? parseInt(productId) : lotCompare.productId
       }
     })
     if (lot) {

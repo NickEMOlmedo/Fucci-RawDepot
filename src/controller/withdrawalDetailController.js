@@ -103,11 +103,17 @@ export const updateWithdrawalDetail = async (req, res) => {
     const { quantity, status, notes, withdrawalId, productId } = req.body
     const withdrawalDetail = await prisma.withdrawalDetail.update({
       data: {
-        quantity: parseInt(quantity),
-        status: status.toLowerCase(),
-        notes: notes.toLowerCase(),
-        withdrawalId: parseInt(withdrawalId),
-        productId: parseInt(productId)
+        quantity: quantity
+          ? parseInt(quantity)
+          : withdrawalDetailCompare.quantity,
+        status: status ? status.toLowerCase() : withdrawalDetailCompare.status,
+        notes: notes ? notes.toLowerCase() : withdrawalDetailCompare.notes,
+        withdrawalId: withdrawalId
+          ? parseInt(withdrawalId)
+          : withdrawalDetailCompare.withdrawalId,
+        productId: productId
+          ? parseInt(productId)
+          : withdrawalDetailCompare.productId
       }
     })
     if (withdrawalDetail) {
