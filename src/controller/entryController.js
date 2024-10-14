@@ -62,7 +62,9 @@ export const getAllEntrys = async (req, res) => {
   try {
     const entry = await prisma.entry.findMany()
     if (entry.length === 0) {
-      res.status(404).json({ error: 'No existen ingresos para mostrar.' })
+      return res
+        .status(404)
+        .json({ error: 'No existen ingresos para mostrar.' })
     }
     return res.status(200).json(entry)
   } catch (error) {
@@ -187,13 +189,13 @@ export const searchEntryByProductType = async (req, res) => {
     })
 
     if (entry.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron ingresos que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
   }
@@ -211,13 +213,13 @@ export const searchEntryByReceiptCode = async (req, res) => {
     })
 
     if (entry.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron ingresos que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
   }
@@ -235,13 +237,13 @@ export const searchEntryByDeliveryCompany = async (req, res) => {
     })
 
     if (entry.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron ingresos que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
   }
@@ -259,13 +261,13 @@ export const searchEntryByDate = async (req, res) => {
     })
 
     if (entry.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron ingresos que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
   }
@@ -283,13 +285,13 @@ export const searchEntryByStatus = async (req, res) => {
     })
 
     if (entry.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron ingresos que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
   }
@@ -307,13 +309,13 @@ export const searchEntryByAdmin = async (req, res) => {
     })
 
     if (entry.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron ingresos que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
   }

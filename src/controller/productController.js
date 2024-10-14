@@ -167,13 +167,13 @@ export const searchProductByName = async (req, res) => {
     })
 
     if (products.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron productos que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(products)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los productos.'
     })
   }
@@ -193,13 +193,13 @@ export const searchProductByBrand = async (req, res) => {
     })
 
     if (products.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron productos que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(products)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los productos..'
     })
   }
@@ -219,13 +219,13 @@ export const searchProductByPresentation = async (req, res) => {
     })
 
     if (products.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron productos que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(products)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los productos..'
     })
   }

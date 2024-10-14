@@ -152,7 +152,7 @@ router.delete(
   }
 )
 router.get(
-  '/search/:lot_number',
+  '/search/lot_number/:lot_number',
   [
     param('lot_number')
       .notEmpty()
@@ -177,7 +177,7 @@ router.get(
   }
 )
 router.get(
-  '/search/:expiration_date',
+  '/search/expiration_date/:expiration_date',
   [
     param('expiration_date')
       .isEmpty()
@@ -200,7 +200,7 @@ router.get(
   }
 )
 router.get(
-  '/search/:product_id',
+  '/search/product_id/:product_id',
   [
     param('id')
       .isEmpty()

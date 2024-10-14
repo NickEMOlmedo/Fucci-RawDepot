@@ -152,13 +152,13 @@ export const searchLotByNum = async (req, res) => {
     })
 
     if (entry.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron lotes que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo buscar el lote.' })
   }
@@ -176,13 +176,13 @@ export const searchLotByExpirationDate = async (req, res) => {
     })
 
     if (entry.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron lotes que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudieron buscar los lotes.' })
   }
@@ -200,13 +200,13 @@ export const searchLotByProduct = async (req, res) => {
     })
 
     if (entry.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron lotes que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(entry)
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudieron buscar los lotes.' })
   }

@@ -47,9 +47,9 @@ router.post(
       .isLength({ min: 3, max: 30 })
       .withMessage('El largo debe estar entre 3 y 30 digitos.'),
     body('entryDate')
+      .notEmpty()
       .withMessage('La fecha de entrada es obligatoria.')
       .bail()
-      .notEmpty()
       .isISO8601()
       .withMessage('Formato de fecha invalido.')
       .toDate(),
@@ -187,7 +187,7 @@ router.delete(
   }
 )
 router.get(
-  '/search/:product_type',
+  '/search/product_type/:product_type',
   [
     param('product_type')
       .notEmpty()
@@ -213,7 +213,7 @@ router.get(
 )
 
 router.get(
-  '/search/:receipt_code',
+  '/search/receipt_code/:receipt_code',
   [
     param('receipt_code')
       .notEmpty()
@@ -239,7 +239,7 @@ router.get(
 )
 
 router.get(
-  '/search/:delivery_company',
+  '/search/delivery_company/:delivery_company',
   [
     param('delivery_company')
       .notEmpty()
@@ -264,7 +264,7 @@ router.get(
   }
 )
 router.get(
-  '/search/:entry_date',
+  '/search/entry_date/:entry_date',
   [
     param('entry_date')
       .notEmpty()
@@ -287,7 +287,7 @@ router.get(
   }
 )
 router.get(
-  '/search/:status',
+  '/search/status/:status',
   [
     param('status')
       .notEmpty()
@@ -310,7 +310,7 @@ router.get(
   }
 )
 router.get(
-  '/search/:admin_dni',
+  '/search/admin_dni/:admin_dni',
   [
     param('admin_dni')
       .notEmpty()

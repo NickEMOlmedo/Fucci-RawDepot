@@ -132,7 +132,7 @@ router.put(
   }
 )
 router.get(
-  '/search/:status',
+  '/search/status/:status',
   [
     param('status')
       .notEmpty()
@@ -155,7 +155,7 @@ router.get(
   }
 )
 router.get(
-  '/search/:product_id',
+  '/search/product_id/:product_id',
   [
     param('product_id')
       .notEmpty()

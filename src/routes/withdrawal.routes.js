@@ -173,7 +173,7 @@ router.delete(
   }
 )
 router.get(
-  '/search/:withdrawal_date',
+  '/search/withdrawal_date/:withdrawal_date',
   [
     param('id')
       .isEmpty()
@@ -195,7 +195,7 @@ router.get(
   }
 )
 router.get(
-  '/search/:employee_dni',
+  '/search/employee_dni/:employee_dni',
   [
     param('id')
       .isEmpty()
@@ -218,7 +218,7 @@ router.get(
   }
 )
 router.get(
-  '/search/:admin_dni',
+  '/search/admin_dni/:admin_dni',
   [
     param('id')
       .isEmpty()

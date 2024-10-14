@@ -134,13 +134,13 @@ export const searchWithdrawalWithDate = async (req, res) => {
     })
 
     if (withdrawal.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron retiros que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(withdrawal)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los retiros.'
     })
   }
@@ -158,13 +158,13 @@ export const searchWithdrawalWithEmployee = async (req, res) => {
     })
 
     if (withdrawal.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron retiros que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(withdrawal)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los retiros.'
     })
   }
@@ -182,13 +182,13 @@ export const searchWithdrawalWithAdmin = async (req, res) => {
     })
 
     if (withdrawal.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         error: 'No se encontraron retiros que coincidan con la busqueda.'
       })
     }
     return res.status(200).json(withdrawal)
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudieron buscar los retiros.'
     })
   }

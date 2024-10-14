@@ -54,8 +54,10 @@ router.post(
       .withMessage('La presentacion del producto no puede estar vacia.')
       .bail()
       .trim()
-      .isAlphanumeric()
-      .withMessage('La presentacion solo puede contener letras y numeros.')
+      .matches(/^[a-zA-Z0-9.,\s]+$/)
+      .withMessage(
+        'La presentacion solo permite letras, números, puntos y comas.'
+      )
       .isLength({ min: 3 })
       .withMessage('La presentacion debe tener al menos 3 caracteres.'),
     body('quality')
@@ -150,8 +152,10 @@ router.put(
     body('presentation')
       .optional()
       .trim()
-      .isAlphanumeric()
-      .withMessage('La presentacion solo puede contener letras y numeros.')
+      .matches(/^[a-zA-Z0-9.,\s]+$/)
+      .withMessage(
+        'La presentacion solo permite letras, números, puntos y comas.'
+      )
       .isLength({ min: 3 })
       .withMessage('La presentacion debe tener al menos 3 caracteres.'),
     body('quality')
@@ -204,7 +208,7 @@ router.delete(
   }
 )
 router.get(
-  '/search/:name',
+  '/search/name/:name',
   [
     param('name')
       .notEmpty()
@@ -227,7 +231,7 @@ router.get(
   }
 )
 router.get(
-  '/search/:brand',
+  '/search/brand/:brand',
   [
     param('brand')
       .notEmpty()
@@ -250,15 +254,17 @@ router.get(
   }
 )
 router.get(
-  '/search/:presentation',
+  '/search/presentation/:presentation',
   [
     param('presentation')
       .notEmpty()
       .withMessage('La presentacion es obligatoria.')
       .bail()
       .trim()
-      .isAlpha()
-      .withMessage('Solo se permiten letras.')
+      .matches(/^[a-zA-Z0-9.,\s]+$/)
+      .withMessage(
+        'La presentacion solo permite letras, números, puntos y comas.'
+      )
   ],
   (req, res) => {
     const errors = validationResult(req)
