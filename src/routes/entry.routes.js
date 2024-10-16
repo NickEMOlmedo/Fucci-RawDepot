@@ -19,13 +19,13 @@ const router = Router()
 router.post(
   '/',
   [
-    body('producType')
+    body('productId')
       .notEmpty()
       .withMessage('El tipo de producto es obligatorio.')
       .bail()
       .trim()
-      .isLength({ min: 3, max: 30 })
-      .withMessage('El largo debe estar entre 3 y 30 digitos.'),
+      .isInt()
+      .withMessage('El id del producto debe ser numerico.'),
     body('receiptCode')
       .notEmpty()
       .withMessage('El codigo de remito es obligatorio.')
@@ -66,7 +66,14 @@ router.post(
       .bail()
       .trim()
       .isAlpha()
-      .withMessage('El status solo permite letras.')
+      .withMessage('El status solo permite letras.'),
+    body('adminId')
+      .notEmpty()
+      .withMessage('El id del admin es obligatorio.')
+      .bail()
+      .trim()
+      .isInt()
+      .withMessage('El id del admin debe ser numerico')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -114,11 +121,11 @@ router.put(
       .trim()
       .isInt()
       .withMessage('El ID debe contener solo números.'),
-    body('producType')
+    body('productId')
       .optional()
       .trim()
-      .isLength({ min: 3, max: 30 })
-      .withMessage('El largo debe estar entre 3 y 30 digitos.'),
+      .isInt()
+      .withMessage('El id del producto debe ser numerico.'),
     body('receiptCode')
       .optional()
       .trim()
@@ -149,7 +156,12 @@ router.put(
       .optional()
       .trim()
       .isAlpha()
-      .withMessage('El status solo permite letras.')
+      .withMessage('El status solo permite letras.'),
+    body('adminId')
+      .optional()
+      .trim()
+      .isInt()
+      .withMessage('El id del admin debe ser numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -187,17 +199,15 @@ router.delete(
   }
 )
 router.get(
-  '/search/product_type/:product_type',
+  '/search/product_id/:product_id',
   [
-    param('product_type')
+    param('product_id')
       .notEmpty()
       .withMessage('El término de búsqueda es obligatorio.')
       .trim()
       .bail()
-      .isAlphanumeric()
-      .withMessage(
-        'El término de búsqueda solo puede contener letras y números.'
-      )
+      .isInt()
+      .withMessage('El término de búsqueda solo puede contener números.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -217,7 +227,7 @@ router.get(
   [
     param('receipt_code')
       .notEmpty()
-      .withMessage('El codigo de remito es obligatorio.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .trim()
       .bail()
       .isAlphanumeric()
@@ -243,7 +253,7 @@ router.get(
   [
     param('delivery_company')
       .notEmpty()
-      .withMessage('La compañia de envio es obligatoria.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .trim()
       .bail()
       .isAlphanumeric()
@@ -268,10 +278,10 @@ router.get(
   [
     param('entry_date')
       .notEmpty()
-      .withMessage('La fecha de entrada es obligatoria.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .isISO8601()
-      .withMessage('Formato de fecha invalido.')
+      .withMessage('Formato de termino de busqueda invalido.')
       .toDate()
   ],
   (req, res) => {
@@ -291,11 +301,11 @@ router.get(
   [
     param('status')
       .notEmpty()
-      .withMessage('El status es obligatorio.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
       .isAlpha()
-      .withMessage('Solo se permiten letras.')
+      .withMessage('El termino de busqueda debe contener solo letras.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -310,17 +320,15 @@ router.get(
   }
 )
 router.get(
-  '/search/admin_dni/:admin_dni',
+  '/search/admin_id/:admin_id',
   [
-    param('admin_dni')
+    param('admin_id')
       .notEmpty()
-      .withMessage('El DNI es obligatorio.')
+      .withMessage('El termino de busqueda es obligatorio')
       .bail()
       .trim()
       .isInt()
-      .withMessage('El DNI debe contener solo números.')
-      .isLength({ min: 7, max: 8 })
-      .withMessage('El DNI debe tener 7 o 8 dígitos.')
+      .withMessage('El termino de busqueda debe contener solo números.')
   ],
   (req, res) => {
     const errors = validationResult(req)

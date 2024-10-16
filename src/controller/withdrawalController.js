@@ -4,12 +4,12 @@ import prisma from '../libs/db.js'
 
 export const createWithdrawal = async (req, res) => {
   try {
-    const { withdrawalDate, employeeDni, adminDni } = req.body
+    const { withdrawalDate, employeeId, adminId } = req.body
     const withdrawal = await prisma.withdrawal.create({
       data: {
         withdrawalDate,
-        employeeDni: parseInt(employeeDni),
-        adminDni: parseInt(adminDni)
+        employeeId: parseInt(employeeId),
+        adminId: parseInt(adminId)
       }
     })
     if (withdrawal) {
@@ -75,14 +75,14 @@ export const updateWithdrawal = async (req, res) => {
         error: '¡Este retiro no existe, porfavor verifique los datos!'
       })
     }
-    const { withdrawalDate, employeeDni, adminDni } = req.body
+    const { withdrawalDate, employeeId, adminId } = req.body
     const withdrawal = await prisma.withdrawal.update({
       data: {
         withdrawalDate,
-        employeeDni: employeeDni
-          ? parseInt(employeeDni)
-          : withdrawalCompare.employeeDni,
-        adminDni: adminDni ? parseInt(adminDni) : withdrawalCompare.adminDni
+        employeeId: employeeId
+          ? parseInt(employeeId)
+          : withdrawalCompare.employeeId,
+        adminId: adminId ? parseInt(adminId) : withdrawalCompare.adminId
       }
     })
     if (withdrawal) {
@@ -150,10 +150,10 @@ export const searchWithdrawalWithDate = async (req, res) => {
 
 export const searchWithdrawalWithEmployee = async (req, res) => {
   try {
-    const employeeDni = parseInt(req.params.employee_dni)
+    const employeeId = parseInt(req.params.employeeId)
     const withdrawal = await prisma.withdrawal.findMany({
       where: {
-        employeeDni: { employeeDni }
+        employeeId: { employeeId }
       }
     })
 
@@ -174,10 +174,10 @@ export const searchWithdrawalWithEmployee = async (req, res) => {
 
 export const searchWithdrawalWithAdmin = async (req, res) => {
   try {
-    const adminDni = parseInt(req.params.admin_dni)
+    const adminId = parseInt(req.params.adminId)
     const withdrawal = await prisma.withdrawal.findMany({
       where: {
-        adminDni: { adminDni }
+        adminId: { adminId }
       }
     })
 

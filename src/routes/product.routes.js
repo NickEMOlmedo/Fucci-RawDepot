@@ -212,11 +212,11 @@ router.get(
   [
     param('name')
       .notEmpty()
-      .withMessage('El nombre del producto es obligatorio.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
       .isAlpha()
-      .withMessage('Solo se permiten letras.')
+      .withMessage('EL termino de busqueda solo permite letras.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -235,11 +235,11 @@ router.get(
   [
     param('brand')
       .notEmpty()
-      .withMessage('La marca es obligatoria.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
       .isAlpha()
-      .withMessage('Solo se permiten letras.')
+      .withMessage('El termino de busqueda solo permite letras.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -258,12 +258,12 @@ router.get(
   [
     param('presentation')
       .notEmpty()
-      .withMessage('La presentacion es obligatoria.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
       .matches(/^[a-zA-Z0-9.,\s]+$/)
       .withMessage(
-        'La presentacion solo permite letras, números, puntos y comas.'
+        'El termino de busqueda solo permite letras, números, puntos y comas.'
       )
   ],
   (req, res) => {

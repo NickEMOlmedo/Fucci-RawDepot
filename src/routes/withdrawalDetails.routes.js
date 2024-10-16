@@ -136,11 +136,11 @@ router.get(
   [
     param('status')
       .notEmpty()
-      .withMessage('El status es obligatorio.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
       .isAlpha()
-      .withMessage('Solo se permiten letras.')
+      .withMessage('El termino de busqueda solo permite letras.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -159,11 +159,11 @@ router.get(
   [
     param('product_id')
       .notEmpty()
-      .withMessage('El ID del producto es obligatorio.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
       .isInt()
-      .withMessage('Solo se permiten numeros.')
+      .withMessage('El termino de busqueda solo permite numeros.')
   ],
   (req, res) => {
     const errors = validationResult(req)

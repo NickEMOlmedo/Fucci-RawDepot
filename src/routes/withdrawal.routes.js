@@ -24,36 +24,34 @@ router.post(
       .isISO8601()
       .withMessage('Formato de fecha invalido.')
       .toDate(),
-    body('employeeDni')
+    body('employeeId')
       .optional()
       .custom((value, { req }) => {
         if (!value && !req.body.employeeDni) {
           throw new Error(
-            'Debe proporcionar al menos uno de los dos campos: El DNI del empleado o el DNI del administrador.'
+            'Debe proporcionar al menos uno de los dos campos: El id del empleado o el id del administrador.'
           )
         }
       })
       .bail()
       .trim()
       .isInt()
-      .withMessage('El DNI debe contener solo números.')
+      .withMessage('El id debe contener solo números.')
       .isLength({ min: 7, max: 8 })
-      .withMessage('El DNI debe tener 7 o 8 dígitos.'),
-    body('adminDni')
+      .withMessage('El id debe tener 7 o 8 dígitos.'),
+    body('adminId')
       .optional()
       .custom((value, { req }) => {
         if (!value && !req.body.adminDni) {
           throw new Error(
-            'Debe proporcionar al menos uno de los dos campos: El DNI del empleado o el DNI del administrador.'
+            'Debe proporcionar al menos uno de los dos campos: El id del empleado o el id del administrador.'
           )
         }
       })
       .bail()
       .trim()
       .isInt()
-      .withMessage('El DNI debe contener solo números.')
-      .isLength({ min: 7, max: 8 })
-      .withMessage('El DNI debe tener 7 o 8 dígitos.')
+      .withMessage('El id debe contener solo números.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -88,7 +86,7 @@ router.get(
       }))
       return res.status(400).json({ errors: filterErrors })
     }
-    getWithdrawalBydId(req, res)
+    getWithdrawalById(req, res)
   }
 )
 router.put(
@@ -106,36 +104,32 @@ router.put(
       .isISO8601()
       .withMessage('Formato de fecha invalido.')
       .toDate(),
-    body('employeeDni')
+    body('employeeId')
       .optional()
       .custom((value, { req }) => {
         if (!value && !req.body.employeeDni) {
           throw new Error(
-            'Debe proporcionar al menos uno de los dos campos: El DNI del empleado o el DNI del administrador.'
+            'Debe proporcionar al menos uno de los dos campos: El id del empleado o el id del administrador.'
           )
         }
       })
       .bail()
       .trim()
       .isInt()
-      .withMessage('El DNI debe contener solo números.')
-      .isLength({ min: 7, max: 8 })
-      .withMessage('El DNI debe tener 7 o 8 dígitos.'),
-    body('adminDni')
+      .withMessage('El id debe contener solo números.'),
+    body('adminId')
       .optional()
       .custom((value, { req }) => {
         if (!value && !req.body.adminDni) {
           throw new Error(
-            'Debe proporcionar al menos uno de los dos campos: El DNI del empleado o el DNI del administrador.'
+            'Debe proporcionar al menos uno de los dos campos: El id del empleado o el id del administrador.'
           )
         }
       })
       .bail()
       .trim()
       .isInt()
-      .withMessage('El DNI debe contener solo números.')
-      .isLength({ min: 7, max: 8 })
-      .withMessage('El DNI debe tener 7 o 8 dígitos.')
+      .withMessage('El id debe contener solo números.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -177,10 +171,10 @@ router.get(
   [
     param('id')
       .isEmpty()
-      .withMessage('La fecha de retiro es obligatoria.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .isISO8601()
-      .withMessage('Formato de fecha invalida')
+      .withMessage('Formato de termino de busqueda invalido.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -195,15 +189,15 @@ router.get(
   }
 )
 router.get(
-  '/search/employee_dni/:employee_dni',
+  '/search/employee_id/:employee_id',
   [
     param('id')
       .isEmpty()
-      .withMessage('El DNI del empleado es obligatorio.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
       .isInt()
-      .withMessage('El DNI solo puede ser numerico.')
+      .withMessage('El termino de busqueda solo puede ser numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -218,15 +212,15 @@ router.get(
   }
 )
 router.get(
-  '/search/admin_dni/:admin_dni',
+  '/search/admin_id/:admin_id',
   [
     param('id')
       .isEmpty()
-      .withMessage('El DNI del administrador es obligatorio.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
       .isInt()
-      .withMessage('El DNI solo puede ser numerico.')
+      .withMessage('El termino de busqueda solo puede ser numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)

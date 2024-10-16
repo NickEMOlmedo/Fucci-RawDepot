@@ -83,7 +83,7 @@ export const loginAdmin = async function (req, res) {
       })
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo loguear al empleado.'
+      error: 'Error en el servidor, login fallido.'
     })
   }
 }

@@ -156,13 +156,11 @@ router.get(
   [
     param('lot_number')
       .notEmpty()
-      .withMessage('El numero de lote no puede estar vacio')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
       .isAlphanumeric()
-      .withMessage('El numero de lote solo permite letras o numeros.')
-      .isLength({ min: 3, max: 30 })
-      .withMessage('El largo debe estar entre 3 y 30 digitos.')
+      .withMessage('EL termino de busqueda solo permite letras o numeros.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -181,10 +179,10 @@ router.get(
   [
     param('expiration_date')
       .isEmpty()
-      .withMessage('La fecha de entrada es obligatoria.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .isISO8601()
-      .withMessage('Formato de fecha invalido.')
+      .withMessage('Formato de termino de busqueda invalido.')
       .toDate()
   ],
   (req, res) => {
@@ -204,11 +202,11 @@ router.get(
   [
     param('id')
       .isEmpty()
-      .withMessage('El ID del producto es obligatorio.')
+      .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
       .isInt()
-      .withMessage('El ID del producto debe ser un valor numerico.')
+      .withMessage('El termino de busqueda debe ser un valor numerico.')
   ],
   (req, res) => {
     const errors = validationResult(req)

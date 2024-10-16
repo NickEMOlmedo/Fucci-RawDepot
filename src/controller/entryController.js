@@ -4,13 +4,13 @@ import prisma from '../libs/db.js'
 
 export const createEntry = async (req, res) => {
   try {
-    const productToCompare = req.body.producType
+    const productToCompare = req.body.productId
     const receiptCodeToCompare = req.body.receiptCode
     const deliveryCompanyToCompare = req.body.deliveryCompany
 
     const entryCompare = await prisma.entry.findFirst({
       where: {
-        producType: productToCompare.toLowerCase(),
+        productId: parseInt(productToCompare),
         receiptCode: receiptCodeToCompare.toLowerCase(),
         deliveryCompany: deliveryCompanyToCompare.toLowerCase()
       }
@@ -23,24 +23,24 @@ export const createEntry = async (req, res) => {
     }
 
     const {
-      producType,
+      productId,
       receiptCode,
       deliveryCompany,
       entryDate,
       quantity,
       status,
-      adminDni
+      adminId
     } = req.body
 
-    const entry = prisma.entry.create({
+    const entry = await prisma.entry.create({
       data: {
-        productType: producType.toLowerCase(),
+        productId: parseInt(productId),
         receiptCode: receiptCode.toLowerCase(),
         deliveryCompany: deliveryCompany.toLowerCase(),
         entryDate,
-        quantity: quantity.toLowerCase(),
+        quantity: parseInt(quantity),
         status: status ? status.toLowerCase() : entryCompare.status,
-        adminDni: parseInt(adminDni)
+        adminId: parseInt(adminId)
       }
     })
 
@@ -79,7 +79,7 @@ export const getAllEntrys = async (req, res) => {
 export const getEntryById = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
-    const entry = prisma.entry.findUnique({ where: { id } })
+    const entry = await prisma.entry.findUnique({ where: { id } })
     if (entry) {
       return res.status(200).json(entry)
     } else {
@@ -108,7 +108,7 @@ export const updateEntry = async (req, res) => {
     }
 
     const {
-      producType,
+      productId,
       receiptCode,
       deliveryCompany,
       entryDate,
@@ -116,12 +116,10 @@ export const updateEntry = async (req, res) => {
       status
     } = req.body
 
-    const entry = prisma.entry.update({
+    const entry = await prisma.entry.update({
       where: { id },
       data: {
-        productType: producType
-          ? producType.toLowerCase()
-          : entryCompare.productType,
+        productId: productId ? parseInt(productId) : entryCompare.productId,
         receiptCode: receiptCode
           ? receiptCode.toLowerCase()
           : entryCompare.receiptCode,
@@ -181,10 +179,10 @@ export const deleteEntry = async (req, res) => {
 
 export const searchEntryByProductType = async (req, res) => {
   try {
-    const productType = req.params.product_type
+    const productType = parseInt(req.params.product_type)
     const entry = await prisma.entry.findMany({
       where: {
-        producType: { contains: productType.toLowerCase() }
+        productType: { contains: productType }
       }
     })
 
@@ -196,7 +194,7 @@ export const searchEntryByProductType = async (req, res) => {
     return res.status(200).json(entry)
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudieron buscar los ingresos.'
+      error: 'Error en el servidor, no se pudieron buscar los ingresos.' + error
     })
   }
 }
@@ -301,10 +299,10 @@ export const searchEntryByStatus = async (req, res) => {
 
 export const searchEntryByAdmin = async (req, res) => {
   try {
-    const adminDni = parseInt(req.params.admin_dni)
+    const adminDni = parseInt(req.params.adminId)
     const entry = await prisma.entry.findMany({
       where: {
-        dni: parseInt(adminDni)
+        adminId
       }
     })
 
