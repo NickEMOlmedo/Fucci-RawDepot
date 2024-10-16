@@ -110,7 +110,7 @@ router.get(
       }))
       return res.status(400).json({ errors: filterErrors })
     }
-    getProductById()
+    getProductById(req, res)
   }
 )
 router.put(

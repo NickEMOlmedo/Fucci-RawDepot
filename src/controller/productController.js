@@ -57,8 +57,7 @@ export const getAllProducts = async (req, res) => {
     return res.status(200).json(product)
   } catch (error) {
     return res.status(500).json({
-      error:
-        'Error en el servidor, no se pudieron obtener los productos.' + error
+      error: 'Error en el servidor, no se pudieron obtener los productos.'
     })
   }
 }
@@ -77,7 +76,7 @@ export const getProductById = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .send({ error: 'Error en el servidor, no se pudo obtener el producto.' })
+      .json({ error: 'Error en el servidor, no se pudo obtener el producto.' })
   }
 }
 
