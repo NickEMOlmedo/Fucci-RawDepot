@@ -102,7 +102,7 @@ export const updateEntry = async (req, res) => {
     })
 
     if (!entryCompare) {
-      return res.status(409).json({
+      return res.status(404).json({
         error: '¡Este ingreso no existe, porfavor verifique los datos!'
       })
     }
@@ -148,28 +148,26 @@ export const deleteEntry = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
     const entryCompare = await prisma.entry.findUnique({
-      id: { id }
+      where: {
+        id
+      }
     })
 
     if (!entryCompare) {
-      return res.status(409).json({
+      return res.status(404).json({
         error: '¡Este ingreso no existe, porfavor verifique los datos!'
       })
     }
 
-    const entry = await prisma.entry.delete({
+    await prisma.entry.delete({
       where: {
-        id: { id }
+        id
       }
     })
 
-    if (entry) {
-      return res
-        .status(200)
-        .json({ message: 'Ingreso eliminado exitosamente!' })
-    }
+    return res.status(200).json({ message: 'Ingreso eliminado exitosamente!' })
   } catch (error) {
-    return res.status(500).send({
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudo eliminar el ingreso.'
     })
   }
@@ -177,12 +175,12 @@ export const deleteEntry = async (req, res) => {
 
 // Funcion para buscar ingresos por tipo de producto.
 
-export const searchEntryByProductType = async (req, res) => {
+export const searchEntryByProductId = async (req, res) => {
   try {
-    const productType = parseInt(req.params.product_type)
+    const productId = parseInt(req.params.product_id)
     const entry = await prisma.entry.findMany({
       where: {
-        productType: { contains: productType }
+        productId: { equals: productId }
       }
     })
 
@@ -194,7 +192,7 @@ export const searchEntryByProductType = async (req, res) => {
     return res.status(200).json(entry)
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudieron buscar los ingresos.' + error
+      error: 'Error en el servidor, no se pudieron buscar los ingresos.'
     })
   }
 }
@@ -254,7 +252,7 @@ export const searchEntryByDate = async (req, res) => {
     const entryDate = req.params.entry_date
     const entry = await prisma.entry.findMany({
       where: {
-        entryDate: new Date(entryDate)
+        entryDate: { equals: entryDate }
       }
     })
 
@@ -278,7 +276,7 @@ export const searchEntryByStatus = async (req, res) => {
     const status = req.params.status
     const entry = await prisma.entry.findMany({
       where: {
-        status: status.toLowerCase()
+        status: { equals: status.toLowerCase() }
       }
     })
 
@@ -299,10 +297,10 @@ export const searchEntryByStatus = async (req, res) => {
 
 export const searchEntryByAdmin = async (req, res) => {
   try {
-    const adminDni = parseInt(req.params.adminId)
+    const adminId = parseInt(req.params.admin_id)
     const entry = await prisma.entry.findMany({
       where: {
-        adminId
+        adminId: { equals: adminId }
       }
     })
 

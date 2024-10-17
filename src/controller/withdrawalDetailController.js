@@ -95,7 +95,7 @@ export const updateWithdrawalDetail = async (req, res) => {
       where: { id }
     })
     if (!withdrawalDetailCompare) {
-      return res.status(409).json({
+      return res.status(404).json({
         error:
           '¡Este detalle de retiro no existe, porfavor verifique los datos!'
       })
@@ -138,18 +138,16 @@ export const deleteWithdrawalDetail = async (req, res) => {
       where: { id }
     })
     if (!withdrawalDetailCompare) {
-      return res.status(409).send({
+      return res.status(404).json({
         error:
           '¡Este detalle de retiro no existe, porfavor verifique los datos!'
       })
     }
 
-    const withdrawal = await prisma.withdrawalDetail.delete({ where: { id } })
-    if (withdrawal) {
-      return res
-        .status(200)
-        .json({ message: '¡Detalle de retiro eliminado exitosamente!' })
-    }
+    await prisma.withdrawalDetail.delete({ where: { id } })
+    return res
+      .status(200)
+      .json({ message: '¡Detalle de retiro eliminado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo eliminar el detalle de retiro.'

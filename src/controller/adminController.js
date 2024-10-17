@@ -39,9 +39,7 @@ export const createAdmin = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({
-      error:
-        'Error en el servidor, no se pudo crear el usuario administrador.' +
-        error
+      error: 'Error en el servidor, no se pudo crear el usuario administrador.'
     })
   }
 }
@@ -181,7 +179,7 @@ export const updateAdmin = async (req, res) => {
 
     if (!verifyAdmin) {
       return res
-        .status(409)
+        .status(404)
         .json({ error: '¡El administrador no existe, verifique los datos!' })
     }
     const { firstName, lastName, dni, email, password } = req.body
@@ -238,17 +236,15 @@ export const deleteAdmin = async (req, res) => {
       })
     }
 
-    const admin = await prisma.admin.delete({
+    await prisma.admin.delete({
       where: {
         id
       }
     })
 
-    if (admin) {
-      return res
-        .status(200)
-        .json({ message: '¡El administrador fue eliminado exitosamente!' })
-    }
+    return res
+      .status(200)
+      .json({ message: '¡El administrador fue eliminado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
       error: 'Error en el servidor, el administrador no pudo ser eliminado'

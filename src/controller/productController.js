@@ -41,7 +41,7 @@ export const createProduct = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo cargar el producto.' + error
+      error: 'Error en el servidor, no se pudo cargar el producto.'
     })
   }
 }
@@ -90,7 +90,7 @@ export const updateProduct = async (req, res) => {
     })
 
     if (!productCompare) {
-      return res.status(409).json({
+      return res.status(404).json({
         error: '¡Este producto no existe, porfavor verifique los datos!'
       })
     }
@@ -119,8 +119,8 @@ export const updateProduct = async (req, res) => {
         .json({ message: '¡Producto actualizado exitosamente!' })
     }
   } catch (error) {
-    return res.status(500).send({
-      error: 'Error en el servidor, no se pudo actualizar el producto.' + error
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo actualizar el producto.'
     })
   }
 }
@@ -136,17 +136,21 @@ export const deleteProduct = async (req, res) => {
         error: '¡Este producto no existe, porfavor verifique los datos!'
       })
     }
-    const product = await prisma.product.delete({
+    await prisma.product.delete({
       where: { id }
     })
 
-    if (product) {
-      return res
-        .status(200)
-        .json({ message: '¡Producto eliminado exitosamente!' })
-    }
+    return res
+      .status(200)
+      .json({ message: '¡Producto eliminado exitosamente!' })
   } catch (error) {
-    return res.status(500).send({
+    if (error.code === 'P2003') {
+      return res.status(409).json({
+        error:
+          '¡No se puede eliminar el producto porque está relacionado con ingresos o lotes!'
+      })
+    }
+    return res.status(500).json({
       error: 'Error en el servidor, no se pudo eliminar el producto.'
     })
   }

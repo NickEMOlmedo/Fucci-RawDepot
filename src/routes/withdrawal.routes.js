@@ -71,7 +71,7 @@ router.get(
   [
     param('id')
       .notEmpty()
-      .withMessage('EL ID del retiro es obligatorio.')
+      .withMessage('EL ID es obligatorio.')
       .bail()
       .trim()
       .isInt()
@@ -94,7 +94,7 @@ router.put(
   [
     param('id')
       .notEmpty()
-      .withMessage('El ID del retiro es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .bail()
       .trim()
       .isInt()
@@ -148,7 +148,7 @@ router.delete(
   [
     param('id')
       .notEmpty()
-      .withMessage('El ID del retiro es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .bail()
       .trim()
       .isInt()

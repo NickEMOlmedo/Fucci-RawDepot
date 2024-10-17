@@ -80,7 +80,7 @@ router.get(
       }))
       return res.status(400).json({ errors: filterErrors })
     }
-    getLotById()
+    getLotById(req, res)
   }
 )
 router.put(
@@ -132,7 +132,7 @@ router.delete(
   '/:id',
   [
     param('id')
-      .isEmpty()
+      .notEmpty()
       .withMessage('El ID del lote es obligatorio.')
       .bail()
       .trim()
@@ -178,7 +178,7 @@ router.get(
   '/search/expiration_date/:expiration_date',
   [
     param('expiration_date')
-      .isEmpty()
+      .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .isISO8601()
@@ -200,8 +200,8 @@ router.get(
 router.get(
   '/search/product_id/:product_id',
   [
-    param('id')
-      .isEmpty()
+    param('product_id')
+      .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()

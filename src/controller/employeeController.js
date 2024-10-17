@@ -179,19 +179,18 @@ export const deleteEmployee = async (req, res) => {
         .json({ error: '¡El empleado no existe, verifique los datos!' })
     }
 
-    const employee = await prisma.employee.delete({
+    await prisma.employee.delete({
       where: {
         id
       }
     })
-    if (employee) {
-      return res
-        .status(200)
-        .json({ message: '¡El empleado ha sido eliminado satisfactoriamente!' })
-    }
+
+    return res
+      .status(200)
+      .json({ message: '¡El empleado ha sido eliminado satisfactoriamente!' })
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo eliminar al empleado.' + error
+      error: 'Error en el servidor, no se pudo eliminar al empleado.'
     })
   }
 }
@@ -255,7 +254,7 @@ export const updateEmployee = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo actualizar al empleado.' + error
+      error: 'Error en el servidor, no se pudo actualizar al empleado.'
     })
   }
 }

@@ -8,7 +8,7 @@ import {
   searchEntryByAdmin,
   searchEntryByDate,
   searchEntryByDeliveryCompany,
-  searchEntryByProductType,
+  searchEntryByProductId,
   searchEntryByReceiptCode,
   searchEntryByStatus,
   updateEntry
@@ -21,7 +21,7 @@ router.post(
   [
     body('productId')
       .notEmpty()
-      .withMessage('El tipo de producto es obligatorio.')
+      .withMessage('EL ID es obligatorio.')
       .bail()
       .trim()
       .isInt()
@@ -218,7 +218,7 @@ router.get(
       }))
       return res.status(400).json({ errors: filterErrors })
     }
-    searchEntryByProductType(req, res)
+    searchEntryByProductId(req, res)
   }
 )
 

@@ -95,7 +95,7 @@ router.get(
   [
     param('id')
       .notEmpty()
-      .withMessage('El ID del producto es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .bail()
       .trim()
       .isInt()
@@ -119,7 +119,7 @@ router.put(
   [
     param('id')
       .notEmpty()
-      .withMessage('El ID del producto es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .bail()
       .trim()
       .isInt()
@@ -189,7 +189,7 @@ router.delete(
   [
     param('id')
       .notEmpty()
-      .withMessage('El ID del producto es obligatorio.')
+      .withMessage('El ID es obligatorio.')
       .bail()
       .trim()
       .isInt()

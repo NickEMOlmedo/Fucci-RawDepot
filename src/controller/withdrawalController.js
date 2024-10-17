@@ -106,16 +106,20 @@ export const deleteWithdrawal = async (req, res) => {
       where: { id }
     })
     if (!withdrawalCompare) {
-      return res.status(409).send({
+      return res.status(404).json({
         error: '¡Este retiro no existe, porfavor verifique los datos!'
       })
     }
 
-    const withdrawal = await prisma.withdrawal.delete({ where: { id } })
-    if (withdrawal) {
-      return res.status(200).json({ message: 'Retiro eliminado exitosamente!' })
-    }
+    await prisma.withdrawal.delete({ where: { id } })
+    return res.status(200).json({ message: 'Retiro eliminado exitosamente!' })
   } catch (error) {
+    if (error.code === 'P2003') {
+      return res.status(409).json({
+        error:
+          '¡No se puede eliminar retiro porque hay un detalle de retiro relacionado!'
+      })
+    }
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo eliminar el retiro.'
     })
