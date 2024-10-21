@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { body, param, validationResult } from 'express-validator'
 import {
+  comprobationHandler,
   createLot,
   deleteLot,
   getAllLots,
@@ -218,6 +219,53 @@ router.get(
       return res.status(400).json({ errors: filterErrors })
     }
     searchLotByProduct(req, res)
+  }
+)
+
+router.post(
+  '/comprobationHandler',
+  [
+    body('lotNumber')
+      .notEmpty()
+      .withMessage('El numero de lote no puede estar vacio')
+      .bail()
+      .trim()
+      .isAlphanumeric()
+      .withMessage('El numero de lote solo permite letras o numeros.')
+      .isLength({ min: 3, max: 30 })
+      .withMessage('El largo debe estar entre 3 y 30 digitos.'),
+    body('expirationDate')
+      .notEmpty()
+      .withMessage('La fecha de entrada es obligatoria.')
+      .bail()
+      .isISO8601()
+      .withMessage('La fecha debe ser una fecha válida.')
+      .toDate(),
+    body('quantity')
+      .notEmpty()
+      .withMessage('La cantidad es obligatoria.')
+      .bail()
+      .trim()
+      .isInt()
+      .withMessage('La cantidad debe ser un valor numerico.'),
+    body('productId')
+      .notEmpty()
+      .withMessage('El id del producto es obligatorio.')
+      .bail()
+      .trim()
+      .isInt()
+      .withMessage('El id del producto debe ser un valor numerico.')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
+    }
+    comprobationHandler(req, res)
   }
 )
 

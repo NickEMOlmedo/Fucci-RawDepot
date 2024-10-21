@@ -24,6 +24,8 @@ model Admin {
   entries      Entry[]
   withdrawals  Withdrawal[]
   updatedAt    DateTime     @updatedAt()
+
+  @@index([dni])
 }
 
 model Employee {
@@ -36,20 +38,25 @@ model Employee {
   role        String       @db.VarChar(30)
   withdrawals Withdrawal[]
   updatedAt   DateTime     @updatedAt()
+
+  @@index([dni])
 }
 
 model Product {
-  id                Int                @id @default(autoincrement())
-  name              String             @db.VarChar(30)
-  brand             String             @db.VarChar(30)
-  manufacturer      String             @db.VarChar(30)
-  presentation      String             @db.VarChar(30)
-  quality           Quality
-  stock             Int
-  lots              Lot[]
-  withdrawalDetails WithdrawalDetail[]
-  Entry             Entry[]
-  updatedAt         DateTime           @updatedAt()
+  id                 Int                       @id @default(autoincrement())
+  name               String                    @db.VarChar(30)
+  brand              String                    @db.VarChar(30)
+  manufacturer       String                    @db.VarChar(30)
+  presentation       String                    @db.VarChar(30)
+  stock              Int
+  lots               Lot[]
+  Entry              Entry[]
+  updatedAt          DateTime                  @updatedAt()
+  WithdrawalProducts WithdrawalDetailProduct[]
+
+  @@index([name])
+  @@index([brand])
+  @@index([presentation])
 }
 
 model Entry {
@@ -64,6 +71,13 @@ model Entry {
   admin           Admin    @relation(fields: [adminId], references: [id])
   adminId         Int
   updatedAt       DateTime @updatedAt()
+
+  @@index([receiptCode])
+  @@index([deliveryCompany])
+  @@index([entryDate])
+  @@index([status])
+  @@index([adminId])
+  @@index([productId])
 }
 
 model Lot {
@@ -74,6 +88,9 @@ model Lot {
   product        Product  @relation(fields: [productId], references: [id])
   productId      Int
   updatedAt      DateTime @updatedAt()
+
+  @@index([lotNumber])
+  @@index([expirationDate])
 }
 
 model Withdrawal {
@@ -85,16 +102,34 @@ model Withdrawal {
   admin             Admin?             @relation(fields: [adminId], references: [id])
   adminId           Int?
   updatedAt         DateTime           @updatedAt()
+
+  @@index([employeeId])
+  @@index([adminId])
+  @@index([withdrawalDate])
 }
 
 model WithdrawalDetail {
-  id           Int        @id @default(autoincrement())
-  quantity     Int
-  status       Quality
-  notes        String?    @db.VarChar(100)
-  withdrawal   Withdrawal @relation(fields: [withdrawalId], references: [id])
-  withdrawalId Int
-  product      Product    @relation(fields: [productId], references: [id])
-  productId    Int
-  updatedAt    DateTime   @updatedAt()
+  id                 Int                       @id @default(autoincrement())
+  notes              String?                   @db.VarChar(100)
+  withdrawal         Withdrawal                @relation(fields: [withdrawalId], references: [id])
+  withdrawalId       Int
+  timestamp          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt()
+  withdrawalProducts WithdrawalDetailProduct[]
+
+  @@index([withdrawalId])
+}
+
+model WithdrawalDetailProduct {
+  id                 Int              @id @default(autoincrement())
+  withdrawalDetail   WithdrawalDetail @relation(fields: [withdrawalDetailId], references: [id])
+  withdrawalDetailId Int
+  product            Product          @relation(fields: [productId], references: [id])
+  productId          Int
+  quantity           Int
+  status             Quality
+
+  @@index([withdrawalDetailId])
+  @@index([productId])
+  @@index([quantity])
 }

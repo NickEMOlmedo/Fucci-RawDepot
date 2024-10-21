@@ -24,14 +24,13 @@ export const createProduct = async (req, res) => {
         .json({ error: '¡El producto ya existe, verifique los datos!' })
     }
 
-    const { name, brand, manufacturer, presentation, quality, stock } = req.body
+    const { name, brand, manufacturer, presentation, stock } = req.body
     const product = await prisma.product.create({
       data: {
         name: name.toLowerCase(),
         brand: brand.toLowerCase(),
         manufacturer: manufacturer.toLowerCase(),
         presentation: presentation.toLowerCase(),
-        quality: quality.toLowerCase(),
         stock: parseInt(stock)
       }
     })
@@ -52,7 +51,9 @@ export const getAllProducts = async (req, res) => {
   try {
     const product = await prisma.product.findMany()
     if (product.length === 0) {
-      res.status(404).json({ error: 'No existen productos para mostrar.' })
+      return res
+        .status(404)
+        .json({ error: 'No existen productos para mostrar.' })
     }
     return res.status(200).json(product)
   } catch (error) {
@@ -94,7 +95,7 @@ export const updateProduct = async (req, res) => {
         error: '¡Este producto no existe, porfavor verifique los datos!'
       })
     }
-    const { name, brand, manufacturer, presentation, quality, stock } = req.body
+    const { name, brand, manufacturer, presentation, stock } = req.body
     const product = await prisma.product.update({
       where: {
         id
@@ -108,7 +109,6 @@ export const updateProduct = async (req, res) => {
         presentation: presentation
           ? presentation.toLowerCase()
           : productCompare.presentation,
-        quality: quality ? quality.toLowerCase() : productCompare.quality,
         stock: stock ? parseInt(stock) : productCompare.parseInt()
       }
     })

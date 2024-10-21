@@ -44,11 +44,14 @@ export const createEntry = async (req, res) => {
       }
     })
 
-    if (entry) {
-      return res
-        .status(201)
-        .json({ message: '¡Usted ha cargado un nuevo ingreso exitosamente!' })
-    }
+    await prisma.product.update({
+      where: { id: productId },
+      data: { stock: { increment: quantity } }
+    })
+
+    return res
+      .status(201)
+      .json({ message: '¡Usted ha cargado un nuevo ingreso exitosamente!' })
   } catch (error) {
     return res.status(500).json({
       message: 'Error en el servidor, no se pudo cargar el ingreso.'
@@ -97,13 +100,14 @@ export const getEntryById = async (req, res) => {
 export const updateEntry = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
+
     const entryCompare = await prisma.entry.findUnique({
-      id: { id }
+      where: { id }
     })
 
     if (!entryCompare) {
       return res.status(404).json({
-        error: '¡Este ingreso no existe, porfavor verifique los datos!'
+        error: '¡Este ingreso no existe, por favor verifique los datos!'
       })
     }
 
@@ -116,27 +120,49 @@ export const updateEntry = async (req, res) => {
       status
     } = req.body
 
+    const newProductId = productId
+      ? parseInt(productId)
+      : entryCompare.productId
+    const newQuantity = quantity ? parseInt(quantity) : entryCompare.quantity
+
+    if (newProductId !== entryCompare.productId) {
+      await prisma.product.update({
+        where: { id: entryCompare.productId },
+        data: { stock: { decrement: entryCompare.quantity } }
+      })
+
+      await prisma.product.update({
+        where: { id: newProductId },
+        data: { stock: { increment: newQuantity } }
+      })
+    } else if (newQuantity !== entryCompare.quantity) {
+      const stockAdjust = newQuantity - entryCompare.quantity
+      await prisma.product.update({
+        where: { id: newProductId },
+        data: { stock: { increment: stockAdjust } }
+      })
+    }
+
     const entry = await prisma.entry.update({
       where: { id },
       data: {
-        productId: productId ? parseInt(productId) : entryCompare.productId,
+        productId: newProductId,
         receiptCode: receiptCode
           ? receiptCode.toLowerCase()
           : entryCompare.receiptCode,
         deliveryCompany: deliveryCompany
-          ? deliveryCo0mpany.toLowerCase()
+          ? deliveryCompany.toLowerCase()
           : entryCompare.deliveryCompany,
-        entryDate: entryDate ? entryDate : entryCompare.entryDate,
-        quantity: quantity ? parseInt(quantity) : entryCompare.quantity,
+        entryDate: entryDate || entryCompare.entryDate,
+        quantity: newQuantity,
         status: status ? status.toLowerCase() : entryCompare.status
       }
     })
 
-    if (entry) {
-      return res.status(201).json({
-        message: '¡Usted ha actualizado el ingreso exitosamente!'
-      })
-    }
+    return res.status(201).json({
+      message: '¡Usted ha actualizado el ingreso exitosamente!',
+      entry
+    })
   } catch (error) {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo actualizar el ingreso.'

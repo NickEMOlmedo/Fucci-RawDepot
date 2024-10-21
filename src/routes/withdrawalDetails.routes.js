@@ -14,38 +14,49 @@ const router = Router()
 router.post(
   '/',
   [
-    body('quantity')
+    body('withdrawalId')
+      .notEmpty()
+      .withMessage('El ID del retiro es obligatorio.')
+      .bail()
+      .trim()
+      .isInt()
+      .withMessage('El ID solo puede ser numérico.'),
+    body('notes')
+      .optional()
+      .trim()
+      .isAlphanumeric()
+      .withMessage('Solo se permiten letras o números.'),
+    body('products')
+      .isArray()
+      .withMessage('El campo de productos es obligatorio.')
+      .bail()
+      .custom(value => {
+        if (value.length === 0) {
+          throw new Error('Debes proporcionar al menos un producto.')
+        }
+        return true
+      }),
+    body('products.*.productId')
+      .notEmpty()
+      .withMessage('El ID del producto es obligatorio.')
+      .bail()
+      .trim()
+      .isInt()
+      .withMessage('El ID solo puede ser numérico.'),
+    body('products.*.quantity')
       .notEmpty()
       .withMessage('La cantidad es obligatoria.')
       .bail()
       .trim()
       .isInt()
-      .withMessage('La cantidad debe ser numerica.'),
-    body('status')
+      .withMessage('La cantidad debe ser numérica.'),
+    body('products.*.status')
       .notEmpty()
       .withMessage('El status es obligatorio.')
       .bail()
       .trim()
       .isAlpha()
-      .withMessage('El status solo permite letras.'),
-    body('notes')
-      .trim()
-      .isAlphanumeric()
-      .withMessage('Solo se permiten letras o numeros.'),
-    body('withdrawalId')
-      .notEmpty()
-      .withMessage('El ID del  retiro obligatorio.')
-      .bail()
-      .trim()
-      .isInt()
-      .withMessage('El ID solo puede ser numerico.'),
-    body('productId')
-      .notEmpty()
-      .withMessage('El ID del producto es  obligatorio.')
-      .bail()
-      .trim()
-      .isInt()
-      .withMessage('El ID solo puede ser numerico.')
+      .withMessage('El status solo permite letras.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -86,38 +97,56 @@ router.get(
 router.put(
   '/:id',
   [
-    (param('id')
+    param('id')
       .notEmpty()
       .withMessage('El ID del detalle de retiro es obligatorio.')
       .bail()
       .trim()
       .isInt()
       .withMessage('El ID del detalle de retiro debe ser un valor numerico.'),
-    body('quantity')
-      .optional()
+    body('withdrawalId')
+      .notEmpty()
+      .withMessage('El ID del retiro es obligatorio.')
+      .bail()
       .trim()
       .isInt()
-      .withMessage('La cantidad debe ser numerica.'),
-    body('status')
-      .optional()
-      .trim()
-      .isAlpha()
-      .withMessage('El status solo permite letras.'),
+      .withMessage('El ID solo puede ser numérico.'),
     body('notes')
       .optional()
       .trim()
       .isAlphanumeric()
-      .withMessage('Solo se permiten letras o numeros.'),
-    body('withdrawalId')
-      .optional()
+      .withMessage('Solo se permiten letras o números.'),
+    body('products')
+      .isArray()
+      .withMessage('El campo de productos es obligatorio.')
+      .bail()
+      .custom(value => {
+        if (value.length === 0) {
+          throw new Error('Debes proporcionar al menos un producto.')
+        }
+        return true
+      }),
+    body('products.*.productId')
+      .notEmpty()
+      .withMessage('El ID del producto es obligatorio.')
+      .bail()
       .trim()
       .isInt()
-      .withMessage('El ID solo puede ser numerico.'),
-    body('productId')
-      .optional()
+      .withMessage('El ID solo puede ser numérico.'),
+    body('products.*.quantity')
+      .notEmpty()
+      .withMessage('La cantidad es obligatoria.')
+      .bail()
       .trim()
       .isInt()
-      .withMessage('El ID solo puede ser numerico.'))
+      .withMessage('La cantidad debe ser numérica.'),
+    body('products.*.status')
+      .notEmpty()
+      .withMessage('El status es obligatorio.')
+      .bail()
+      .trim()
+      .isAlpha()
+      .withMessage('El status solo permite letras.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -131,6 +160,7 @@ router.put(
     updateWithdrawalDetail(req, res)
   }
 )
+
 router.get(
   '/search/status/:status',
   [

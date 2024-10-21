@@ -74,7 +74,7 @@ export const loginAdmin = async function (req, res) {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         sameSite: 'strict',
-        maxAge: 15 * 60 * 1000
+        maxAge: 60 * 60 * 1000
       })
       .json({
         message: '¡Bienvenido, has iniciado sesion exitosamente! '

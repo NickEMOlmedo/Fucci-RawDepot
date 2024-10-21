@@ -60,15 +60,6 @@ router.post(
       )
       .isLength({ min: 3 })
       .withMessage('La presentacion debe tener al menos 3 caracteres.'),
-    body('quality')
-      .notEmpty()
-      .withMessage('La calidad del producto es obligatoria.')
-      .bail()
-      .trim()
-      .isAlpha()
-      .withMessage('Solo se permiten letras en la calidad.')
-      .isLength({ min: 3 })
-      .withMessage('La calidad debe tener al menos 3 caracteres.'),
     body('stock')
       .notEmpty()
       .withMessage('El stock es obligatorio')
@@ -158,13 +149,6 @@ router.put(
       )
       .isLength({ min: 3 })
       .withMessage('La presentacion debe tener al menos 3 caracteres.'),
-    body('quality')
-      .optional()
-      .trim()
-      .isAlpha()
-      .withMessage('Solo se permiten letras en la calidad.')
-      .isLength({ min: 3 })
-      .withMessage('La calidad debe tener al menos 3 caracteres.'),
     body('stock')
       .optional()
       .trim()
