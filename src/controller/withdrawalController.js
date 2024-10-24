@@ -5,8 +5,11 @@ import prisma from '../libs/db.js'
 export const createWithdrawal = async (req, res) => {
   try {
     const { employeeId, adminId } = req.body
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
     const withdrawal = await prisma.withdrawal.create({
       data: {
+        withdrawalDate: today,
         employeeId: parseInt(employeeId),
         adminId: parseInt(adminId)
       }
@@ -126,11 +129,8 @@ export const deleteWithdrawal = async (req, res) => {
 
 export const searchWithdrawalByDate = async (req, res) => {
   try {
-    const withdrawalDate = req.params.withdrawal_date
-
-    console.log(typeof withdrawalDate);
-    console.log(withdrawalDate);
-
+    const withdrawalDate = new Date(req.params.withdrawal_date)
+    withdrawalDate.setHours(0, 0, 0, 0)
     const withdrawal = await prisma.withdrawal.findMany({
       where: {
         withdrawalDate: { equals: withdrawalDate }
@@ -154,8 +154,10 @@ export const searchWithdrawalByDate = async (req, res) => {
 
 export const searchWithdrawalByDateRange = async (req, res) => {
   try {
-    const withdrawalDateStart = req.body.withdrawalDate_start
-    const withdrawalDateEnd = req.withdrawalDate_end
+    const withdrawalDateStart = new Date(req.body.withdrawalDate_start)
+    const withdrawalDateEnd = new Date(req.withdrawalDate_end)
+    withdrawalDateStart.setHours(0, 0, 0, 0)
+    withdrawalDateEnd.setHours(0, 0, 0, 0)
     const entry = await prisma.entry.findMany({
       where: {
         entryDate: { gte: withdrawalDateStart, lte: withdrawalDateEnd }

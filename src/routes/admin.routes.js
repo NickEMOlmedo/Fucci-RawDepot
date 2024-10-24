@@ -18,8 +18,7 @@ const router = Router()
 
 router.post(
   '/auth/register',
-  authUser,
-  verifySuperAdmin,
+  
   [
     (body('firstName')
       .notEmpty()

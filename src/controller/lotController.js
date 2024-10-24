@@ -5,10 +5,12 @@ import prisma from '../libs/db.js'
 export const createLot = async (req, res) => {
   try {
     const { lotNumber, expirationDate, quantity, productId } = req.body
+    const expDate = new Date(expirationDate)
+    expDate.setHours(0, 0, 0, 0)
     const lot = await prisma.lot.create({
       data: {
         lotNumber: lotNumber.toLowerCase(),
-        expirationDate: expirationDate,
+        expirationDate: expDate,
         quantity: parseInt(quantity),
         productId: parseInt(productId)
       }
@@ -74,13 +76,13 @@ export const updateLot = async (req, res) => {
         .json({ error: '¡Este lote no existe, porfavor verifique los datos!' })
     }
     const { lotNumber, expirationDate, quantity, productId } = req.body
+    const expDate = new Date(expirationDate)
+    expDate.setHours(0, 0, 0, 0)
     const lot = await prisma.lot.update({
       where: { id: id },
       data: {
         lotNumber: lotNumber ? lotNumber.toLowerCase() : lotCompare.lotNumber,
-        expirationDate: expirationDate
-          ? expirationDate
-          : lotCompare.expirationDate,
+        expirationDate: expDate ? expDate : lotCompare.expirationDate,
         quantity: quantity ? parseInt(quantity) : lotCompare.quantity,
         productId: productId ? parseInt(productId) : lotCompare.productId
       }
@@ -144,7 +146,8 @@ export const searchLotByNum = async (req, res) => {
 
 export const searchLotByExpirationDate = async (req, res) => {
   try {
-    const expirationDate = req.params.expiration_date
+    const expirationDate = new Date(req.params.expiration_date)
+    expirationDate.setHours(0, 0, 0, 0)
     const entry = await prisma.lot.findMany({
       where: {
         expirationDate: { equals: expirationDate }
@@ -168,8 +171,10 @@ export const searchLotByExpirationDate = async (req, res) => {
 
 export const searchLotByExpirationDateRange = async (req, res) => {
   try {
-    const lotExpirationDateStart = req.body.expiracionDate_start
-    const lotExpirationDateEnd = req.body.expirationDate_end
+    const lotExpirationDateStart = new Date(req.body.expiracionDate_start)
+    const lotExpirationDateEnd = new Date(req.body.expirationDate_end)
+    lotExpirationDateStart.setHours(0, 0, 0, 0)
+    lotExpirationDateEnd.setHours(0, 0, 0, 0)
     const entry = await prisma.lot.findMany({
       where: {
         expirationDate: {
@@ -223,7 +228,8 @@ export const comprobationHandler = async (req, res) => {
   try {
     const lotNumberToCompare = req.body.lotNumber
     const productIdToCompare = req.body.productId
-    const expirationDateToCompare = req.body.expirationDate
+    const expirationDateToCompare = new Date(req.body.expirationDate_end)
+    expirationDateToCompare.setHours(0, 0, 0, 0)
 
     const lotCompare = await prisma.lot.findFirst({
       where: {

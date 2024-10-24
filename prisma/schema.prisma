@@ -65,7 +65,7 @@ model Entry {
   productId       Int
   receiptCode     String   @db.VarChar(30)
   deliveryCompany String   @db.VarChar(30)
-  entryDate       DateTime @default(now())
+  entryDate       DateTime @db.Date
   quantity        Int
   status          Quality
   admin           Admin    @relation(fields: [adminId], references: [id])
@@ -83,7 +83,7 @@ model Entry {
 model Lot {
   id             Int      @id @default(autoincrement())
   lotNumber      String   @db.VarChar(50)
-  expirationDate DateTime
+  expirationDate DateTime @db.Date
   quantity       Int
   product        Product  @relation(fields: [productId], references: [id])
   productId      Int
@@ -95,7 +95,7 @@ model Lot {
 
 model Withdrawal {
   id                Int                @id @default(autoincrement())
-  withdrawalDate    DateTime           @default(now())
+  withdrawalDate    DateTime           @db.Date
   employee          Employee?          @relation(fields: [employeeId], references: [id])
   employeeId        Int?
   withdrawalDetails WithdrawalDetail[]
@@ -113,7 +113,6 @@ model WithdrawalDetail {
   notes                String?                   @db.VarChar(100)
   withdrawal           Withdrawal                @relation(fields: [withdrawalId], references: [id])
   withdrawalId         Int
-  withdrawalDetailDate DateTime                  @default(now())
   updatedAt            DateTime                  @updatedAt()
   withdrawalProducts   WithdrawalDetailProduct[]
 

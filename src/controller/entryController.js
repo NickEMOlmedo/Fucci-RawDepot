@@ -31,11 +31,15 @@ export const createEntry = async (req, res) => {
       adminId
     } = req.body
 
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
     const entry = await prisma.entry.create({
       data: {
         productId: parseInt(productId),
         receiptCode: receiptCode.toLowerCase(),
         deliveryCompany: deliveryCompany.toLowerCase(),
+        entrydate: today,
         quantity: parseInt(quantity),
         status: status ? status.toLowerCase() : entryCompare.status,
         adminId: parseInt(adminId)
@@ -107,14 +111,8 @@ export const updateEntry = async (req, res) => {
       })
     }
 
-    const {
-      productId,
-      receiptCode,
-      deliveryCompany,
-      entryDate,
-      quantity,
-      status
-    } = req.body
+    const { productId, receiptCode, deliveryCompany, quantity, status } =
+      req.body
 
     const newProductId = productId
       ? parseInt(productId)
@@ -271,7 +269,8 @@ export const searchEntryByDeliveryCompany = async (req, res) => {
 
 export const searchEntryByDate = async (req, res) => {
   try {
-    const entryDate = req.params.entry_date
+    const entryDate = new Date(req.params.entry_date)
+    entryDate.setHours(0, 0, 0, 0)
     const entry = await prisma.entry.findMany({
       where: {
         entryDate: { equals: entryDate }
@@ -295,8 +294,10 @@ export const searchEntryByDate = async (req, res) => {
 
 export const searchEntryByDateRange = async (req, res) => {
   try {
-    const entryDateStart = req.body.entryDate_start
-    const entryDateEnd = req.body.entryDate_end
+    const entryDateStart = new Date(req.body.entryDate_start)
+    const entryDateEnd = new Date(req.body.entryDate_end)
+    entryDateStart.setHours(0, 0, 0, 0)
+    entryDateEnd.setHours(0, 0, 0, 0)
     const entry = await prisma.entry.findMany({
       where: {
         entryDate: { gte: entryDateStart, lte: entryDateEnd }
