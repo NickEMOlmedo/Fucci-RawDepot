@@ -44,3 +44,12 @@ app.use('/api/entrys', authUser, verifyAdmin, entryRoutes)
 app.use('/api/lots', authUser, lotRoutes)
 app.use('/api/withdrawals', authUser, withdrawalRoutes)
 app.use('/api/withdrawal-details', authUser, withdrawatlDetailRoutes)
+
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError) {
+    return res.status(400).json({
+      error:
+        'Error de sintaxis, asegurate de introducir los datos de manera correcta.'
+    })
+  }
+})

@@ -4,29 +4,26 @@ import prisma from '../libs/db.js'
 
 export const createWithdrawal = async (req, res) => {
   try {
-    const { withdrawalDate, employeeId, adminId } = req.body
+    const { employeeId, adminId } = req.body
     const withdrawal = await prisma.withdrawal.create({
       data: {
-        withdrawalDate,
         employeeId: parseInt(employeeId),
         adminId: parseInt(adminId)
       }
     })
     if (withdrawal) {
-      return res
-        .status(201)
-        .json({ message: '¡Usted ha cargado un nuevo retiro exitosamente!' })
+      return res.status(201).json({ message: '¡Retiro cargado exitosamente!' })
     }
   } catch (error) {
-    return res
-      .status(500)
-      .json({ error: 'Error en el servidor, no se pudo cargar el retiro.' })
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo cargar el retiro.' + error
+    })
   }
 }
 
 // Funcion que devuelve todos los retiros.
 
-export const getAllWithdrawals = async res => {
+export const getAllWithdrawals = async (req, res) => {
   try {
     const withdrawal = await prisma.withdrawal.findMany()
     if (withdrawal) {
@@ -46,7 +43,7 @@ export const getWithdrawalById = async (req, res) => {
     const id = parseInt(req.params.id)
     const withdrawal = await prisma.withdrawal.findUnique({
       where: {
-        id: { id }
+        id: id
       }
     })
 
@@ -56,9 +53,9 @@ export const getWithdrawalById = async (req, res) => {
       return res.status(404).json({ error: 'Retiro no encontrado!' })
     }
   } catch (error) {
-    return res
-      .status(500)
-      .json({ error: 'Error en el servidor, no se pudo retornar el retiro.' })
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudo retornar el retiro.'
+    })
   }
 }
 
@@ -75,10 +72,9 @@ export const updateWithdrawal = async (req, res) => {
         error: '¡Este retiro no existe, porfavor verifique los datos!'
       })
     }
-    const { withdrawalDate, employeeId, adminId } = req.body
+    const { employeeId, adminId } = req.body
     const withdrawal = await prisma.withdrawal.update({
       data: {
-        withdrawalDate,
         employeeId: employeeId
           ? parseInt(employeeId)
           : withdrawalCompare.employeeId,
@@ -87,7 +83,7 @@ export const updateWithdrawal = async (req, res) => {
     })
     if (withdrawal) {
       return res.status(201).json({
-        message: '¡Usted ha actualizado un nuevo retiro exitosamente!'
+        message: '¡Retiro actualizado exitosamente!'
       })
     }
   } catch (error) {
@@ -112,7 +108,7 @@ export const deleteWithdrawal = async (req, res) => {
     }
 
     await prisma.withdrawal.delete({ where: { id } })
-    return res.status(200).json({ message: 'Retiro eliminado exitosamente!' })
+    return res.status(200).json({ message: '¡Retiro eliminado exitosamente!' })
   } catch (error) {
     if (error.code === 'P2003') {
       return res.status(409).json({
@@ -128,12 +124,16 @@ export const deleteWithdrawal = async (req, res) => {
 
 // Funcion para buscar un retiro por la fecha del retiro.
 
-export const searchWithdrawalWithDate = async (req, res) => {
+export const searchWithdrawalByDate = async (req, res) => {
   try {
-    const withdrawalDate = parseInt(req.params.withdrawal_date)
+    const withdrawalDate = req.params.withdrawal_date
+
+    console.log(typeof withdrawalDate);
+    console.log(withdrawalDate);
+
     const withdrawal = await prisma.withdrawal.findMany({
       where: {
-        withdrawalDate: { withdrawalDate }
+        withdrawalDate: { equals: withdrawalDate }
       }
     })
 
@@ -150,14 +150,39 @@ export const searchWithdrawalWithDate = async (req, res) => {
   }
 }
 
+// Funcion para buscar retiros por un rango de fechas
+
+export const searchWithdrawalByDateRange = async (req, res) => {
+  try {
+    const withdrawalDateStart = req.body.withdrawalDate_start
+    const withdrawalDateEnd = req.withdrawalDate_end
+    const entry = await prisma.entry.findMany({
+      where: {
+        entryDate: { gte: withdrawalDateStart, lte: withdrawalDateEnd }
+      }
+    })
+
+    if (entry.length === 0) {
+      return res.status(404).json({
+        error: 'No se encontraron ingresos que coincidan con la busqueda.'
+      })
+    }
+    return res.status(200).json(entry)
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los retiros.'
+    })
+  }
+}
+
 // Funcion para buscar un retiro por empleado.
 
-export const searchWithdrawalWithEmployee = async (req, res) => {
+export const searchWithdrawalByEmployee = async (req, res) => {
   try {
-    const employeeId = parseInt(req.params.employeeId)
+    const employeeId = parseInt(req.params.employee_id)
     const withdrawal = await prisma.withdrawal.findMany({
       where: {
-        employeeId: { employeeId }
+        employeeId: { equals: employeeId }
       }
     })
 
@@ -176,12 +201,12 @@ export const searchWithdrawalWithEmployee = async (req, res) => {
 
 // Funcion para buscar un retiro por administrador.
 
-export const searchWithdrawalWithAdmin = async (req, res) => {
+export const searchWithdrawalByAdmin = async (req, res) => {
   try {
-    const adminId = parseInt(req.params.adminId)
+    const adminId = parseInt(req.params.admin_id)
     const withdrawal = await prisma.withdrawal.findMany({
       where: {
-        adminId: { adminId }
+        adminId: { equals: adminId }
       }
     })
 
@@ -193,7 +218,7 @@ export const searchWithdrawalWithAdmin = async (req, res) => {
     return res.status(200).json(withdrawal)
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudieron buscar los retiros.'
+      error: 'Error en el servidor, no se pudieron buscar los retiros.' + error
     })
   }
 }

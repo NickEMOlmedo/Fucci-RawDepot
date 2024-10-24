@@ -7,6 +7,7 @@ import {
   getAllLots,
   getLotById,
   searchLotByExpirationDate,
+  searchLotByExpirationDateRange,
   searchLotByNum,
   searchLotByProduct,
   updateLot
@@ -30,8 +31,8 @@ router.post(
       .notEmpty()
       .withMessage('La fecha de entrada es obligatoria.')
       .bail()
-      .isISO8601()
-      .withMessage('La fecha debe ser una fecha válida.')
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
       .toDate(),
     body('quantity')
       .notEmpty()
@@ -88,7 +89,7 @@ router.put(
   '/:id',
   [
     param('id')
-      .isEmpty()
+      .notEmpty()
       .withMessage('El ID del lote es obligatorio.')
       .bail()
       .trim()
@@ -103,8 +104,8 @@ router.put(
       .withMessage('El largo debe estar entre 3 y 30 digitos.'),
     body('expirationDate')
       .optional()
-      .isISO8601()
-      .withMessage('La fecha debe ser una fecha válida.')
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
       .toDate(),
     body('quantity')
       .optional()
@@ -182,8 +183,8 @@ router.get(
       .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')
       .bail()
-      .isISO8601()
-      .withMessage('Formato de termino de busqueda invalido.')
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
       .toDate()
   ],
   (req, res) => {
@@ -196,6 +197,36 @@ router.get(
       return res.status(400).json({ errors: filterErrors })
     }
     searchLotByExpirationDate(req, res)
+  }
+)
+router.get(
+  '/search/expirationDate_byrange',
+  [
+    body('expirationDate_start')
+      .notEmpty()
+      .withMessage('El termino de busqueda es obligatorio.')
+      .bail()
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
+      .toDate(),
+    body('expirationDate_end')
+      .notEmpty()
+      .withMessage('El termino de busqueda es obligatorio.')
+      .bail()
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
+      .toDate()
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
+    }
+    searchLotByExpirationDateRange(req, res)
   }
 )
 router.get(
@@ -238,8 +269,8 @@ router.post(
       .notEmpty()
       .withMessage('La fecha de entrada es obligatoria.')
       .bail()
-      .isISO8601()
-      .withMessage('La fecha debe ser una fecha válida.')
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
       .toDate(),
     body('quantity')
       .notEmpty()

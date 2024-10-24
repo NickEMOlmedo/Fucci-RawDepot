@@ -100,7 +100,7 @@ export const updateWithdrawalDetail = async (req, res) => {
 
     const { withdrawalDetailId, notes, products } = req.body
     await prisma.withdrawalDetail.update({
-      where: { id: parseInt() },
+      where: { id: parseInt(withdrawalDetailId) },
       data: {
         notes: notes ? notes.toLowerCase() : withdrawalDetailCompare.notes
       }
@@ -154,7 +154,7 @@ export const updateWithdrawalDetail = async (req, res) => {
     )
 
     return res.status(201).json({
-      message: '¡Usted ha actualizado un nuevo detalle de retiro exitosamente!'
+      message: '¡Detalle de retiro actualizado exitosamente!'
     })
   } catch (error) {
     return res.status(500).json({

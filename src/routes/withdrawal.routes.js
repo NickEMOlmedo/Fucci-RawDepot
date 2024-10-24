@@ -5,9 +5,10 @@ import {
   deleteWithdrawal,
   getAllWithdrawals,
   getWithdrawalById,
-  searchWithdrawalWithAdmin,
-  searchWithdrawalWithDate,
-  searchWithdrawalWithEmployee,
+  searchWithdrawalByAdmin,
+  searchWithdrawalByDate,
+  searchWithdrawalByDateRange,
+  searchWithdrawalByEmployee,
   updateWithdrawal
 } from '../controller/withdrawalController.js'
 
@@ -17,13 +18,6 @@ router.post(
   '/',
   createWithdrawal,
   [
-    body('withDrawalDate')
-      .notEmpty()
-      .withMessage('La fecha de extraccion es obligatoria.')
-      .bail()
-      .isISO8601()
-      .withMessage('Formato de fecha invalido.')
-      .toDate(),
     body('employeeId')
       .optional()
       .custom((value, { req }) => {
@@ -99,11 +93,6 @@ router.put(
       .trim()
       .isInt()
       .withMessage('El ID del retiro debe ser un valor numerico.'),
-    body('withDrawalDate')
-      .optional()
-      .isISO8601()
-      .withMessage('Formato de fecha invalido.')
-      .toDate(),
     body('employeeId')
       .optional()
       .custom((value, { req }) => {
@@ -169,12 +158,13 @@ router.delete(
 router.get(
   '/search/withdrawal_date/:withdrawal_date',
   [
-    param('id')
-      .isEmpty()
+    param('withdrawal_date')
+      .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')
       .bail()
-      .isISO8601()
-      .withMessage('Formato de termino de busqueda invalido.')
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
+      .toDate()
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -185,14 +175,45 @@ router.get(
       }))
       return res.status(400).json({ errors: filterErrors })
     }
-    searchWithdrawalWithDate(req, res)
+    searchWithdrawalByDate(req, res)
+  }
+)
+
+router.get(
+  '/search/withdrawalDate_byrange',
+  [
+    body('withdrawalDate_start')
+      .notEmpty()
+      .withMessage('El termino de busqueda es obligatorio.')
+      .bail()
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
+      .toDate(),
+    body('withdrawalDate_end')
+      .notEmpty()
+      .withMessage('El termino de busqueda es obligatorio.')
+      .bail()
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
+      .toDate()
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
+    }
+    searchWithdrawalByDateRange(req, res)
   }
 )
 router.get(
   '/search/employee_id/:employee_id',
   [
-    param('id')
-      .isEmpty()
+    param('employee_id')
+      .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
@@ -208,14 +229,14 @@ router.get(
       }))
       return res.status(400).json({ errors: filterErrors })
     }
-    searchWithdrawalWithEmployee(req, res)
+    searchWithdrawalByEmployee(req, res)
   }
 )
 router.get(
   '/search/admin_id/:admin_id',
   [
-    param('id')
-      .isEmpty()
+    param('admin_id')
+      .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')
       .bail()
       .trim()
@@ -231,7 +252,7 @@ router.get(
       }))
       return res.status(400).json({ errors: filterErrors })
     }
-    searchWithdrawalWithAdmin(req, res)
+    searchWithdrawalByAdmin(req, res)
   }
 )
 

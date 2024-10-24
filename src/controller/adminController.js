@@ -211,7 +211,7 @@ export const updateAdmin = async (req, res) => {
     if (admin) {
       return res
         .status(201)
-        .json({ message: '¡Usuario administrador modificado exitosamente!' })
+        .json({ message: '¡Administrador actualizado exitosamente!' })
     }
   } catch (error) {
     return res.status(500).json({

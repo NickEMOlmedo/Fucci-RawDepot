@@ -7,6 +7,7 @@ import {
   getEntryById,
   searchEntryByAdmin,
   searchEntryByDate,
+  searchEntryByDateRange,
   searchEntryByDeliveryCompany,
   searchEntryByProductId,
   searchEntryByReceiptCode,
@@ -46,13 +47,6 @@ router.post(
       )
       .isLength({ min: 3, max: 30 })
       .withMessage('El largo debe estar entre 3 y 30 digitos.'),
-    body('entryDate')
-      .notEmpty()
-      .withMessage('La fecha de entrada es obligatoria.')
-      .bail()
-      .isISO8601()
-      .withMessage('Formato de fecha invalido.')
-      .toDate(),
     body('quantity')
       .notEmpty()
       .withMessage('La cantidad es obligatoria.')
@@ -142,11 +136,6 @@ router.put(
       )
       .isLength({ min: 3, max: 30 })
       .withMessage('El largo debe estar entre 3 y 30 digitos.'),
-    body('entryDate')
-      .optional()
-      .isISO8601()
-      .withMessage('Formato de fecha invalido.')
-      .toDate(),
     body('quantity')
       .optional()
       .trim()
@@ -280,8 +269,8 @@ router.get(
       .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')
       .bail()
-      .isISO8601()
-      .withMessage('Formato de termino de busqueda invalido.')
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
       .toDate()
   ],
   (req, res) => {
@@ -294,6 +283,37 @@ router.get(
       return res.status(400).json({ errors: filterErrors })
     }
     searchEntryByDate(req, res)
+  }
+)
+
+router.get(
+  '/search/entrydate_byrange',
+  [
+    body('entryDate_start')
+      .notEmpty()
+      .withMessage('El termino de busqueda es obligatorio.')
+      .bail()
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
+      .toDate(),
+    body('entryDate_end')
+      .notEmpty()
+      .withMessage('El termino de busqueda es obligatorio.')
+      .bail()
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
+      .toDate()
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
+    }
+    searchEntryByDateRange(req, res)
   }
 )
 router.get(

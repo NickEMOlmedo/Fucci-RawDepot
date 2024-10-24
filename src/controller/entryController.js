@@ -26,7 +26,6 @@ export const createEntry = async (req, res) => {
       productId,
       receiptCode,
       deliveryCompany,
-      entryDate,
       quantity,
       status,
       adminId
@@ -37,7 +36,6 @@ export const createEntry = async (req, res) => {
         productId: parseInt(productId),
         receiptCode: receiptCode.toLowerCase(),
         deliveryCompany: deliveryCompany.toLowerCase(),
-        entryDate,
         quantity: parseInt(quantity),
         status: status ? status.toLowerCase() : entryCompare.status,
         adminId: parseInt(adminId)
@@ -45,13 +43,11 @@ export const createEntry = async (req, res) => {
     })
 
     await prisma.product.update({
-      where: { id: productId },
-      data: { stock: { increment: quantity } }
+      where: { id: parseInt(productId) },
+      data: { stock: { increment: parseInt(quantity) } }
     })
 
-    return res
-      .status(201)
-      .json({ message: '¡Usted ha cargado un nuevo ingreso exitosamente!' })
+    return res.status(201).json({ message: '¡Ingreso cargado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
       message: 'Error en el servidor, no se pudo cargar el ingreso.'
@@ -125,7 +121,7 @@ export const updateEntry = async (req, res) => {
       : entryCompare.productId
     const newQuantity = quantity ? parseInt(quantity) : entryCompare.quantity
 
-    if (newProductId !== entryCompare.productId) {
+    if (parseInt(newProductId) !== entryCompare.productId) {
       await prisma.product.update({
         where: { id: entryCompare.productId },
         data: { stock: { decrement: entryCompare.quantity } }
@@ -133,35 +129,35 @@ export const updateEntry = async (req, res) => {
 
       await prisma.product.update({
         where: { id: newProductId },
-        data: { stock: { increment: newQuantity } }
+        data: { stock: { increment: parseInt(newQuantity) } }
       })
-    } else if (newQuantity !== entryCompare.quantity) {
-      const stockAdjust = newQuantity - entryCompare.quantity
+    } else if (parseInt(newQuantity) !== entryCompare.quantity) {
+      const stockAdjust = parseInt(newQuantity) - entryCompare.quantity
       await prisma.product.update({
-        where: { id: newProductId },
-        data: { stock: { increment: stockAdjust } }
+        where: { id: parseInt(newProductId) },
+        data: { stock: { increment: parseInt(stockAdjust) } }
       })
     }
 
     const entry = await prisma.entry.update({
       where: { id },
       data: {
-        productId: newProductId,
+        productId: newProductId
+          ? parseInt(newProductId)
+          : entryCompare.productId,
         receiptCode: receiptCode
           ? receiptCode.toLowerCase()
           : entryCompare.receiptCode,
         deliveryCompany: deliveryCompany
           ? deliveryCompany.toLowerCase()
           : entryCompare.deliveryCompany,
-        entryDate: entryDate || entryCompare.entryDate,
-        quantity: newQuantity,
+        quantity: newQuantity ? parseInt(newQuantity) : entryCompare.quantity,
         status: status ? status.toLowerCase() : entryCompare.status
       }
     })
 
     return res.status(201).json({
-      message: '¡Usted ha actualizado el ingreso exitosamente!',
-      entry
+      message: '¡Ingreso actualizado exitosamente!'
     })
   } catch (error) {
     return res.status(500).json({
@@ -271,7 +267,7 @@ export const searchEntryByDeliveryCompany = async (req, res) => {
   }
 }
 
-// Funcion pra buscar ingresos por fecha .
+// Funcion pra buscar ingresos por fecha especifica.
 
 export const searchEntryByDate = async (req, res) => {
   try {
@@ -279,6 +275,31 @@ export const searchEntryByDate = async (req, res) => {
     const entry = await prisma.entry.findMany({
       where: {
         entryDate: { equals: entryDate }
+      }
+    })
+
+    if (entry.length === 0) {
+      return res.status(404).json({
+        error: 'No se encontraron ingresos que coincidan con la busqueda.'
+      })
+    }
+    return res.status(200).json(entry)
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los ingresos.'
+    })
+  }
+}
+
+// Funcion para buscar ingresos por un rango de fechas
+
+export const searchEntryByDateRange = async (req, res) => {
+  try {
+    const entryDateStart = req.body.entryDate_start
+    const entryDateEnd = req.body.entryDate_end
+    const entry = await prisma.entry.findMany({
+      where: {
+        entryDate: { gte: entryDateStart, lte: entryDateEnd }
       }
     })
 

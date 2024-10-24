@@ -8,15 +8,13 @@ export const createLot = async (req, res) => {
     const lot = await prisma.lot.create({
       data: {
         lotNumber: lotNumber.toLowerCase(),
-        expirationDate,
+        expirationDate: expirationDate,
         quantity: parseInt(quantity),
         productId: parseInt(productId)
       }
     })
     if (lot) {
-      return res
-        .status(201)
-        .json({ message: '¡Usted ha cargado un nuevo lote exitosamente!' })
+      return res.status(201).json({ message: '¡Lote cargado exitosamente!' })
     }
   } catch (error) {
     return res.status(500).json({
@@ -55,7 +53,7 @@ export const getLotById = async (req, res) => {
     if (lot) {
       return res.status(200).json(lot)
     } else {
-      return res.status(404).json({ error: 'Lote no encontrado!' })
+      return res.status(404).json({ error: '¡Lote no encontrado!' })
     }
   } catch (error) {
     return res.status(500).json({
@@ -77,8 +75,9 @@ export const updateLot = async (req, res) => {
     }
     const { lotNumber, expirationDate, quantity, productId } = req.body
     const lot = await prisma.lot.update({
+      where: { id: id },
       data: {
-        lotNumber: lotNumber ? parseInt(lotNumber) : lotCompare.lotNumber,
+        lotNumber: lotNumber ? lotNumber.toLowerCase() : lotCompare.lotNumber,
         expirationDate: expirationDate
           ? expirationDate
           : lotCompare.expirationDate,
@@ -87,13 +86,11 @@ export const updateLot = async (req, res) => {
       }
     })
     if (lot) {
-      return res
-        .status(201)
-        .json({ message: '¡Usted ha cargado un nuevo lote exitosamente!' })
+      return res.status(201).json({ message: '¡Lote modificado exitosamente!' })
     }
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo actualizar el lote.'
+      error: 'Error en el servidor, no se pudo actualizar el lote.' + error
     })
   }
 }
@@ -151,6 +148,34 @@ export const searchLotByExpirationDate = async (req, res) => {
     const entry = await prisma.lot.findMany({
       where: {
         expirationDate: { equals: expirationDate }
+      }
+    })
+
+    if (entry.length === 0) {
+      return res.status(404).json({
+        error: 'No se encontraron lotes que coincidan con la busqueda.'
+      })
+    }
+    return res.status(200).json(entry)
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Error en el servidor, no se pudieron buscar los lotes.'
+    })
+  }
+}
+
+//Funcion para buscar un lote por su fecha de vencimiento a traves de un rango.
+
+export const searchLotByExpirationDateRange = async (req, res) => {
+  try {
+    const lotExpirationDateStart = req.body.expiracionDate_start
+    const lotExpirationDateEnd = req.body.expirationDate_end
+    const entry = await prisma.lot.findMany({
+      where: {
+        expirationDate: {
+          gte: lotExpirationDateStart,
+          lte: lotExpirationDateEnd
+        }
       }
     })
 

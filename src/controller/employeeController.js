@@ -187,7 +187,7 @@ export const deleteEmployee = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: '¡El empleado ha sido eliminado satisfactoriamente!' })
+      .json({ message: '¡El empleado ha sido eliminado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo eliminar al empleado.'

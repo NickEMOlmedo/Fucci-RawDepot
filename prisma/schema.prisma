@@ -109,13 +109,13 @@ model Withdrawal {
 }
 
 model WithdrawalDetail {
-  id                 Int                       @id @default(autoincrement())
-  notes              String?                   @db.VarChar(100)
-  withdrawal         Withdrawal                @relation(fields: [withdrawalId], references: [id])
-  withdrawalId       Int
-  timestamp          DateTime                  @default(now())
-  updatedAt          DateTime                  @updatedAt()
-  withdrawalProducts WithdrawalDetailProduct[]
+  id                   Int                       @id @default(autoincrement())
+  notes                String?                   @db.VarChar(100)
+  withdrawal           Withdrawal                @relation(fields: [withdrawalId], references: [id])
+  withdrawalId         Int
+  withdrawalDetailDate DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt()
+  withdrawalProducts   WithdrawalDetailProduct[]
 
   @@index([withdrawalId])
 }
