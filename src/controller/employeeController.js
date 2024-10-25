@@ -21,7 +21,7 @@ export const createEmployee = async (req, res) => {
     if (employee) {
       return res.status(409).json('¡El empleado ya existe!')
     }
-    employee = await prisma.employee.create({
+    await prisma.employee.create({
       data: {
         firstName: firstName.toLowerCase(),
         lastName: lastName.toLowerCase(),

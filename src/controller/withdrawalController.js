@@ -6,17 +6,16 @@ export const createWithdrawal = async (req, res) => {
   try {
     const { employeeId, adminId } = req.body
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const withdrawal = await prisma.withdrawal.create({
+
+    await prisma.withdrawal.create({
       data: {
         withdrawalDate: today,
         employeeId: parseInt(employeeId),
         adminId: parseInt(adminId)
       }
     })
-    if (withdrawal) {
-      return res.status(201).json({ message: '¡Retiro cargado exitosamente!' })
-    }
+
+    return res.status(201).json({ message: '¡Retiro cargado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo cargar el retiro.' + error
@@ -76,7 +75,8 @@ export const updateWithdrawal = async (req, res) => {
       })
     }
     const { employeeId, adminId } = req.body
-    const withdrawal = await prisma.withdrawal.update({
+    await prisma.withdrawal.update({
+      where: { id: id },
       data: {
         employeeId: employeeId
           ? parseInt(employeeId)
@@ -84,14 +84,13 @@ export const updateWithdrawal = async (req, res) => {
         adminId: adminId ? parseInt(adminId) : withdrawalCompare.adminId
       }
     })
-    if (withdrawal) {
-      return res.status(201).json({
-        message: '¡Retiro actualizado exitosamente!'
-      })
-    }
+
+    return res
+      .status(201)
+      .json({ message: '¡Retiro actualizado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo actualizar el retiro.'
+      error: 'Error en el servidor, no se pudo actualizar el retiro.' + error
     })
   }
 }
@@ -130,10 +129,9 @@ export const deleteWithdrawal = async (req, res) => {
 export const searchWithdrawalByDate = async (req, res) => {
   try {
     const withdrawalDate = new Date(req.params.withdrawal_date)
-    withdrawalDate.setHours(0, 0, 0, 0)
     const withdrawal = await prisma.withdrawal.findMany({
       where: {
-        withdrawalDate: { equals: withdrawalDate }
+        withdrawalDate: withdrawalDate
       }
     })
 
@@ -157,7 +155,7 @@ export const searchWithdrawalByDateRange = async (req, res) => {
     const withdrawalDateStart = new Date(req.body.withdrawalDate_start)
     const withdrawalDateEnd = new Date(req.withdrawalDate_end)
     withdrawalDateStart.setHours(0, 0, 0, 0)
-    withdrawalDateEnd.setHours(0, 0, 0, 0)
+    withdrawalDateEnd.setHours(23, 59, 59, 999)
     const entry = await prisma.entry.findMany({
       where: {
         entryDate: { gte: withdrawalDateStart, lte: withdrawalDateEnd }

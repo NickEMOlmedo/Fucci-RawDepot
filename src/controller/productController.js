@@ -25,7 +25,7 @@ export const createProduct = async (req, res) => {
     }
 
     const { name, brand, manufacturer, presentation, stock } = req.body
-    const product = await prisma.product.create({
+    await prisma.product.create({
       data: {
         name: name.toLowerCase(),
         brand: brand.toLowerCase(),
@@ -35,9 +35,7 @@ export const createProduct = async (req, res) => {
       }
     })
 
-    if (product) {
-      return res.status(201).json({ message: '¡Producto creado exitosamente!' })
-    }
+    return res.status(201).json({ message: '¡Producto creado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo cargar el producto.'
@@ -96,7 +94,7 @@ export const updateProduct = async (req, res) => {
       })
     }
     const { name, brand, manufacturer, presentation, stock } = req.body
-    const product = await prisma.product.update({
+    await prisma.product.update({
       where: {
         id
       },
@@ -113,11 +111,9 @@ export const updateProduct = async (req, res) => {
       }
     })
 
-    if (product) {
-      return res
-        .status(201)
-        .json({ message: '¡Producto actualizado exitosamente!' })
-    }
+    return res
+      .status(201)
+      .json({ message: '¡Producto actualizado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo actualizar el producto.'
