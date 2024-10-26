@@ -180,7 +180,7 @@ router.get(
 )
 
 router.get(
-  '/search/withdrawalDate_byrange',
+  '/search/withdrawaldate_byrange',
   [
     body('withdrawalDate_start')
       .notEmpty()

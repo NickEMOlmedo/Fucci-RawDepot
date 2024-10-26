@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { param, body, validationResult } from 'express-validator'
 import {
   createWithdrawalDetail,
+  deleteWithdrawalDetail,
   getAllWithdrawalDetails,
   getWithdrawalDetailWithId,
   searchWithdrawalDetailWithProduct,
@@ -158,6 +159,29 @@ router.put(
       return res.status(400).json({ errors: filterErrors })
     }
     updateWithdrawalDetail(req, res)
+  }
+)
+router.delete(
+  '/:id',
+  [
+    param('id')
+      .notEmpty()
+      .withMessage('El ID es obligatorio.')
+      .bail()
+      .trim()
+      .isInt()
+      .withMessage('El ID del detalle de retiro debe ser un valor numerico.')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
+    }
+    deleteWithdrawalDetail(req, res)
   }
 )
 

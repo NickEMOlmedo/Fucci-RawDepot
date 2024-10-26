@@ -292,8 +292,9 @@ export const searchEntryByDate = async (req, res) => {
 
 export const searchEntryByDateRange = async (req, res) => {
   try {
-    const entryDateStart = new Date(req.body.entryDate_start)
-    const entryDateEnd = new Date(req.body.entryDate_end)
+    const { entryDate_start, entryDate_end } = req.body
+    const entryDateStart = new Date(entryDate_start)
+    const entryDateEnd = new Date(entryDate_end)
     const entry = await prisma.entry.findMany({
       where: {
         entryDate: { gte: entryDateStart, lte: entryDateEnd }

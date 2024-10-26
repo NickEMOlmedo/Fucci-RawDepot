@@ -88,7 +88,7 @@ export const updateLot = async (req, res) => {
     return res.status(201).json({ message: '¡Lote modificado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo actualizar el lote.' + error
+      error: 'Error en el servidor, no se pudo actualizar el lote.' 
     })
   }
 }
@@ -167,8 +167,9 @@ export const searchLotByExpirationDate = async (req, res) => {
 
 export const searchLotByExpirationDateRange = async (req, res) => {
   try {
-    const lotExpirationDateStart = new Date(req.body.expirationDate_start)
-    const lotExpirationDateEnd = new Date(req.body.expirationDate_end)
+    const { expirationDate_start, expirationDate_end } = req.body
+    const lotExpirationDateStart = new Date(expirationDate_start)
+    const lotExpirationDateEnd = new Date(expirationDate_end)
     const entry = await prisma.lot.findMany({
       where: {
         expirationDate: {
@@ -186,7 +187,7 @@ export const searchLotByExpirationDateRange = async (req, res) => {
     return res.status(200).json(entry)
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudieron buscar los lotes.' + error
+      error: 'Error en el servidor, no se pudieron buscar los lotes.' 
     })
   }
 }

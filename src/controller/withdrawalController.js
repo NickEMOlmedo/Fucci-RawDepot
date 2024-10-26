@@ -18,7 +18,7 @@ export const createWithdrawal = async (req, res) => {
     return res.status(201).json({ message: '¡Retiro cargado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo cargar el retiro.' + error
+      error: 'Error en el servidor, no se pudo cargar el retiro.' 
     })
   }
 }
@@ -28,9 +28,12 @@ export const createWithdrawal = async (req, res) => {
 export const getAllWithdrawals = async (req, res) => {
   try {
     const withdrawal = await prisma.withdrawal.findMany()
-    if (withdrawal) {
-      return res.status(200).json(withdrawal)
+    if (withdrawal.length === 0) {
+      return res
+        .status(404)
+        .json({ error: 'No existen ingresos para mostrar.' })
     }
+    return res.status(200).json(withdrawal)
   } catch (error) {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudieron obtener los retiros.'
@@ -90,7 +93,7 @@ export const updateWithdrawal = async (req, res) => {
       .json({ message: '¡Retiro actualizado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo actualizar el retiro.' + error
+      error: 'Error en el servidor, no se pudo actualizar el retiro.'
     })
   }
 }
@@ -152,10 +155,11 @@ export const searchWithdrawalByDate = async (req, res) => {
 
 export const searchWithdrawalByDateRange = async (req, res) => {
   try {
-    const withdrawalDateStart = new Date(req.body.withdrawalDate_start)
-    const withdrawalDateEnd = new Date(req.withdrawalDate_end)
-    withdrawalDateStart.setHours(0, 0, 0, 0)
-    withdrawalDateEnd.setHours(23, 59, 59, 999)
+    const { withdrawalDate_start, withdrawalDate_end } = req.body
+
+    const withdrawalDateStart = new Date(withdrawalDate_start)
+    const withdrawalDateEnd = new Date(withdrawalDate_end)
+
     const entry = await prisma.entry.findMany({
       where: {
         entryDate: { gte: withdrawalDateStart, lte: withdrawalDateEnd }
@@ -218,7 +222,7 @@ export const searchWithdrawalByAdmin = async (req, res) => {
     return res.status(200).json(withdrawal)
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudieron buscar los retiros.' + error
+      error: 'Error en el servidor, no se pudieron buscar los retiros.'
     })
   }
 }

@@ -6,6 +6,18 @@ export const createWithdrawalDetail = async (req, res) => {
   try {
     const { withdrawalId, notes, products } = req.body
 
+    const id = parseInt(withdrawalId)
+
+    const existingDetail = await prisma.withdrawalDetail.findFirst({
+      where: { withdrawalId: id }
+    })
+
+    if (existingDetail) {
+      return res.status(400).json({
+        error: 'Ya existe un detalle de retiro para este retiro.'
+      })
+    }
+
     const withdrawalDetail = await prisma.withdrawalDetail.create({
       data: {
         withdrawalId: parseInt(withdrawalId),
@@ -16,7 +28,7 @@ export const createWithdrawalDetail = async (req, res) => {
     await prisma.withdrawalDetailProduct.createMany({
       data: products.map(product => ({
         withdrawalDetailId: parseInt(withdrawalDetail.id),
-        productId: parseInt(productId),
+        productId: parseInt(product.productId),
         quantity: parseInt(product.quantity),
         status: product.status.toLowerCase()
       }))
@@ -25,8 +37,8 @@ export const createWithdrawalDetail = async (req, res) => {
     await Promise.all(
       products.map(product => {
         return prisma.product.update({
-          where: { id: product.productId },
-          data: { stock: { decrement: product.quantity } }
+          where: { id: parseInt(product.productId) },
+          data: { stock: { decrement: parseInt(product.quantity) } }
         })
       })
     )
@@ -36,20 +48,26 @@ export const createWithdrawalDetail = async (req, res) => {
       .json({ message: '¡Detalle de retiro creado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo cargar el detalle de retiro.'
+      error:
+        'Error en el servidor, no se pudo cargar el detalle de retiro.' 
     })
   }
 }
 
 // Funcion que muestra todos los detalles de retiro.
 
-export const getAllWithdrawalDetails = async res => {
+export const getAllWithdrawalDetails = async (req, res) => {
   try {
-    const withdrawalDetail = await prisma.withdrawalDetail.findMany()
+    const withdrawalDetail = await prisma.withdrawalDetail.findMany({
+      include: { withdrawalProducts: { include: { product: true } } }
+    })
 
-    if (withdrawalDetail) {
-      return res.status(200).json(withdrawalDetail)
+    if (withdrawalDetail.length === 0) {
+      return res
+        .status(404)
+        .json({ error: 'No existen ingresos para mostrar.' })
     }
+    return res.status(200).json(withdrawalDetail)
   } catch (error) {
     return res.status(500).json({
       error:
@@ -65,8 +83,9 @@ export const getWithdrawalDetailWithId = async (req, res) => {
     const id = parseInt(req.params.id)
     const withdrawalDetail = await prisma.withdrawalDetail.findUnique({
       where: {
-        id: { id }
-      }
+        id: id
+      },
+      include: { withdrawalProducts: { include: { product: true } } }
     })
 
     if (withdrawalDetail) {
@@ -78,7 +97,8 @@ export const getWithdrawalDetailWithId = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo obtener el detalle de retiro.'
+      error:
+        'Error en el servidor, no se pudo obtener el detalle de retiro.' 
     })
   }
 }
@@ -89,7 +109,7 @@ export const updateWithdrawalDetail = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
     const withdrawalDetailCompare = await prisma.withdrawalDetail.findUnique({
-      where: { id }
+      where: { id: id }
     })
     if (!withdrawalDetailCompare) {
       return res.status(404).json({
@@ -98,9 +118,9 @@ export const updateWithdrawalDetail = async (req, res) => {
       })
     }
 
-    const { withdrawalDetailId, notes, products } = req.body
+    const { notes, products } = req.body
     await prisma.withdrawalDetail.update({
-      where: { id: parseInt(withdrawalDetailId) },
+      where: { id: id },
       data: {
         notes: notes ? notes.toLowerCase() : withdrawalDetailCompare.notes
       }
@@ -108,16 +128,14 @@ export const updateWithdrawalDetail = async (req, res) => {
 
     await Promise.all(
       products.map(async product => {
-        const existingProduct = await prisma.withdrawalDetailProduct.findUnique(
-          {
-            where: {
-              withdrawalDetailId_productId: {
-                withdrawalDetailId: parseInt(withdrawalDetailCompare.id),
-                productId: parseInt(product.productId)
-              }
-            }
+        const existingProduct = await prisma.withdrawalDetailProduct.findFirst({
+          where: {
+            withdrawalDetailId: id,
+            productId: parseInt(product.productId)
           }
-        )
+        })
+
+        console.log(existingProduct.id)
 
         if (existingProduct) {
           await prisma.withdrawalDetailProduct.update({
@@ -153,12 +171,13 @@ export const updateWithdrawalDetail = async (req, res) => {
       })
     )
 
-    return res.status(201).json({
+    return res.status(200).json({
       message: '¡Detalle de retiro actualizado exitosamente!'
     })
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo actualizar el detalle de retiro.'
+      error:
+        'Error en el servidor, no se pudo actualizar el detalle de retiro.' 
     })
   }
 }
@@ -177,6 +196,9 @@ export const deleteWithdrawalDetail = async (req, res) => {
           '¡Este detalle de retiro no existe, porfavor verifique los datos!'
       })
     }
+    await prisma.withdrawalDetailProduct.deleteMany({
+      where: { withdrawalDetailId: id }
+    })
 
     await prisma.withdrawalDetail.delete({ where: { id } })
     return res
@@ -207,8 +229,22 @@ export const searchWithdrawalDetailWithStatus = async (req, res) => {
       }
     })
 
-    if (withdrawalDetails.length > 0) {
-      return res.status(200).json(withdrawalDetails)
+    // Aca filtramos los resultados de la consulta
+    //para que devuelva los detalles de retiro que solo coincidan con la busqueda.
+
+    const filteredDetails = withdrawalDetails.map(filter => ({
+      ...filter,
+      withdrawalProducts: filter.withdrawalProducts.filter(
+        product => product.status.toLowerCase() === status
+      )
+    }))
+
+    const filteringCheck = filteredDetails.some(
+      detail => detail.withdrawalProducts.length > 0
+    )
+
+    if (filteringCheck) {
+      return res.status(200).json(filteredDetails)
     } else {
       return res.status(404).json({
         error: '¡No se encontraron detalles de retiro con ese estado!'
@@ -240,8 +276,22 @@ export const searchWithdrawalDetailWithProduct = async (req, res) => {
       }
     })
 
-    if (withdrawalDetails.length > 0) {
-      return res.status(200).json(withdrawalDetails)
+    // Aca filtramos los resultados de la consulta
+    //para que devuelva los detalles de retiro que solo coincidan con la busqueda.
+
+    const filteredDetails = withdrawalDetails.map(filter => ({
+      ...filter,
+      withdrawalProducts: filter.withdrawalProducts.filter(
+        product => product.productId === productId
+      )
+    }))
+
+    const filteringCheck = filteredDetails.some(
+      detail => detail.withdrawalProducts.length > 0
+    )
+
+    if (filteringCheck) {
+      return res.status(200).json(filteredDetails)
     } else {
       return res.status(404).json({
         error: '¡No se encontraron detalles de retiro para ese producto!'
