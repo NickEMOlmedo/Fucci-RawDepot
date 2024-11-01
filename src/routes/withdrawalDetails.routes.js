@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { param, body, validationResult } from 'express-validator'
+import { param, body, query, validationResult } from 'express-validator'
 import {
   createWithdrawalDetail,
   deleteWithdrawalDetail,
@@ -71,7 +71,30 @@ router.post(
     createWithdrawalDetail(req, res)
   }
 )
-router.get('/', getAllWithdrawalDetails)
+router.get(
+  '/',
+  [
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
+    }
+    getAllWithdrawalDetails(req, res)
+  }
+)
 router.get(
   '/:id',
   [
@@ -194,7 +217,15 @@ router.get(
       .bail()
       .trim()
       .isAlpha()
-      .withMessage('El termino de busqueda solo permite letras.')
+      .withMessage('El termino de busqueda solo permite letras.'),
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -217,7 +248,15 @@ router.get(
       .bail()
       .trim()
       .isInt()
-      .withMessage('El termino de busqueda solo permite numeros.')
+      .withMessage('El termino de busqueda solo permite numeros.'),
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.')
   ],
   (req, res) => {
     const errors = validationResult(req)

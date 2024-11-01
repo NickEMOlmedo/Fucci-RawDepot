@@ -1,5 +1,7 @@
 import { Router } from 'express'
-import { body, param, validationResult } from 'express-validator'
+import { body, param, query, validationResult } from 'express-validator'
+import { verifyAdmin } from '../middleware/verifyAdmin.js'
+import { verifySuperAdmin } from '../middleware/verifySuperAdmin.js'
 import {
   createEntry,
   deleteEntry,
@@ -81,9 +83,34 @@ router.post(
     createEntry(req, res)
   }
 )
-router.get('/', getAllEntrys)
+router.get(
+  '/',
+  verifyAdmin,
+  [
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
+    }
+    getAllEntrys(req, res)
+  }
+)
 router.get(
   '/:id',
+  verifyAdmin,
   [
     param('id')
       .notEmpty()
@@ -107,6 +134,7 @@ router.get(
 )
 router.put(
   '/:id',
+  verifyAdmin,
   [
     param('id')
       .notEmpty()
@@ -166,6 +194,7 @@ router.put(
 )
 router.delete(
   '/:id',
+  verifyAdmin,
   [
     param('id')
       .notEmpty()
@@ -189,6 +218,7 @@ router.delete(
 )
 router.get(
   '/search/product_id/:product_id',
+  verifyAdmin,
   [
     param('product_id')
       .notEmpty()
@@ -196,7 +226,15 @@ router.get(
       .trim()
       .bail()
       .isInt()
-      .withMessage('El término de búsqueda solo puede contener números.')
+      .withMessage('El término de búsqueda solo puede contener números.'),
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -213,6 +251,7 @@ router.get(
 
 router.get(
   '/search/receipt_code/:receipt_code',
+  verifyAdmin,
   [
     param('receipt_code')
       .notEmpty()
@@ -239,6 +278,7 @@ router.get(
 
 router.get(
   '/search/delivery_company/:delivery_company',
+  verifyAdmin,
   [
     param('delivery_company')
       .notEmpty()
@@ -248,7 +288,15 @@ router.get(
       .isAlphanumeric()
       .withMessage(
         'El término de búsqueda solo puede contener letras y números.'
-      )
+      ),
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -271,7 +319,15 @@ router.get(
       .bail()
       .matches(/^\d{4}-\d{2}-\d{2}$/)
       .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
-      .toDate()
+      .toDate(),
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.')
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -289,6 +345,14 @@ router.get(
 router.get(
   '/search/entrydate_byrange',
   [
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.'),
     body('entryDate_start')
       .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')
@@ -319,6 +383,14 @@ router.get(
 router.get(
   '/search/status/:status',
   [
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.'),
     param('status')
       .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')
@@ -342,6 +414,14 @@ router.get(
 router.get(
   '/search/admin_id/:admin_id',
   [
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.'),
     param('admin_id')
       .notEmpty()
       .withMessage('El termino de busqueda es obligatorio')

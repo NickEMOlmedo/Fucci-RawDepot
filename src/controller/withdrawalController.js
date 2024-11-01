@@ -18,7 +18,7 @@ export const createWithdrawal = async (req, res) => {
     return res.status(201).json({ message: '¡Retiro cargado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo cargar el retiro.' 
+      error: 'Error en el servidor, no se pudo cargar el retiro.'
     })
   }
 }
@@ -26,8 +26,13 @@ export const createWithdrawal = async (req, res) => {
 // Funcion que devuelve todos los retiros.
 
 export const getAllWithdrawals = async (req, res) => {
+  const skip = parseInt(req.query.skip) || 0
+  const take = parseInt(req.query.take) || 10
   try {
-    const withdrawal = await prisma.withdrawal.findMany()
+    const withdrawal = await prisma.withdrawal.findMany({
+      skip: skip,
+      take: take
+    })
     if (withdrawal.length === 0) {
       return res
         .status(404)
@@ -131,11 +136,15 @@ export const deleteWithdrawal = async (req, res) => {
 
 export const searchWithdrawalByDate = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const withdrawalDate = new Date(req.params.withdrawal_date)
     const withdrawal = await prisma.withdrawal.findMany({
       where: {
         withdrawalDate: withdrawalDate
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (withdrawal.length === 0) {
@@ -155,15 +164,18 @@ export const searchWithdrawalByDate = async (req, res) => {
 
 export const searchWithdrawalByDateRange = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const { withdrawalDate_start, withdrawalDate_end } = req.body
-
     const withdrawalDateStart = new Date(withdrawalDate_start)
     const withdrawalDateEnd = new Date(withdrawalDate_end)
 
     const entry = await prisma.entry.findMany({
       where: {
         entryDate: { gte: withdrawalDateStart, lte: withdrawalDateEnd }
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (entry.length === 0) {
@@ -183,11 +195,15 @@ export const searchWithdrawalByDateRange = async (req, res) => {
 
 export const searchWithdrawalByEmployee = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const employeeId = parseInt(req.params.employee_id)
     const withdrawal = await prisma.withdrawal.findMany({
       where: {
         employeeId: { equals: employeeId }
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (withdrawal.length === 0) {
@@ -207,11 +223,15 @@ export const searchWithdrawalByEmployee = async (req, res) => {
 
 export const searchWithdrawalByAdmin = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const adminId = parseInt(req.params.admin_id)
     const withdrawal = await prisma.withdrawal.findMany({
       where: {
         adminId: { equals: adminId }
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (withdrawal.length === 0) {

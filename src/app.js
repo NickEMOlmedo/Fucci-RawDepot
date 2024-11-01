@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
 app.use('/api/admins', adminRoutes)
 app.use('/api/employees', employeeRoutes)
 app.use('/api/products', authUser, productRoutes)
-app.use('/api/entrys', authUser, verifyAdmin, entryRoutes)
+app.use('/api/entrys', authUser, entryRoutes)
 app.use('/api/lots', authUser, lotRoutes)
 app.use('/api/withdrawals', authUser, withdrawalRoutes)
 app.use('/api/withdrawal-details', authUser, withdrawatlDetailRoutes)

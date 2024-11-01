@@ -1,6 +1,7 @@
 import { Router } from 'express'
-import { body, param, validationResult } from 'express-validator'
+import { body, param, query, validationResult } from 'express-validator'
 import { verifyAdmin } from '../middleware/verifyAdmin.js'
+import { verifySuperAdmin } from '../middleware/verifySuperAdmin.js'
 import {
   createProduct,
   getAllProducts,
@@ -80,7 +81,30 @@ router.post(
     createProduct(req, res)
   }
 )
-router.get('/', getAllProducts)
+router.get(
+  '/',
+  [
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
+    }
+    getAllProducts(req, res)
+  }
+)
 router.get(
   '/:id',
   [
@@ -194,6 +218,14 @@ router.delete(
 router.get(
   '/search/name/:name',
   [
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.'),
     param('name')
       .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')
@@ -217,6 +249,14 @@ router.get(
 router.get(
   '/search/brand/:brand',
   [
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.'),
     param('brand')
       .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')
@@ -240,6 +280,14 @@ router.get(
 router.get(
   '/search/presentation/:presentation',
   [
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.'),
     param('presentation')
       .notEmpty()
       .withMessage('El termino de busqueda es obligatorio.')

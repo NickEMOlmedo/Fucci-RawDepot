@@ -88,16 +88,17 @@ export const loginEmployee = async (req, res) => {
 
 export const getAllEmployees = async (req, res) => {
   try {
-    const employee = await prisma.employee.findMany()
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
+    const employee = await prisma.employee.findMany({ skip: skip, take: take })
     if (employee.length === 0) {
       res.status(404).json({ error: 'No existen empleados para mostrar.' })
     }
     return res.status(200).json(
-      employee.map(({ id, firstName, lastName, dni, area, role }) => ({
+      employee.map(({ id, firstName, lastName, area, role }) => ({
         id,
         firstName,
         lastName,
-        dni,
         area,
         role
       }))

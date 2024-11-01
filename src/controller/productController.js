@@ -107,7 +107,8 @@ export const updateProduct = async (req, res) => {
         presentation: presentation
           ? presentation.toLowerCase()
           : productCompare.presentation,
-        stock: stock ? parseInt(stock) : productCompare.parseInt()
+        stock:
+          stock !== undefined ? parseInt(stock) : parseInt(productCompare.stock)
       }
     })
 
@@ -143,7 +144,7 @@ export const deleteProduct = async (req, res) => {
     if (error.code === 'P2003') {
       return res.status(409).json({
         error:
-          '¡No se puede eliminar el producto porque está relacionado con ingresos o lotes!'
+          '¡No se puede eliminar el producto porque está relacionado con un ingreso!'
       })
     }
     return res.status(500).json({
@@ -156,13 +157,17 @@ export const deleteProduct = async (req, res) => {
 
 export const searchProductByName = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const name = req.params.name
     const products = await prisma.product.findMany({
       where: {
         name: {
           contains: name.toLowerCase()
         }
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (products.length === 0) {
@@ -182,13 +187,17 @@ export const searchProductByName = async (req, res) => {
 
 export const searchProductByBrand = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const brand = req.params.brand
     const products = await prisma.product.findMany({
       where: {
         brand: {
           contains: brand.toLowerCase()
         }
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (products.length === 0) {
@@ -208,13 +217,17 @@ export const searchProductByBrand = async (req, res) => {
 
 export const searchProductByPresentation = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const presentacion = req.params.presentation
     const products = await prisma.product.findMany({
       where: {
         presentation: {
           contains: presentacion.toLowerCase()
         }
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (products.length === 0) {

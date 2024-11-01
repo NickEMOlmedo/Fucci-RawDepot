@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { body, param, validationResult } from 'express-validator'
+import { body, param, query, validationResult } from 'express-validator'
 import {
   deleteEmployee,
   updateEmployee,
@@ -14,6 +14,8 @@ import { logoutAllUsers } from '../middleware/logoutAllUsers.js'
 import { verifySuperAdmin } from '../middleware/verifySuperAdmin.js'
 
 const router = Router()
+
+// Ruta para registro de un nuevo empleado.
 
 router.post(
   '/auth/register',
@@ -96,6 +98,8 @@ router.post(
   }
 )
 
+// Ruta para login de los empleados.
+
 router.post(
   '/auth/login',
   [
@@ -130,7 +134,35 @@ router.post(
   }
 )
 router.post('/auth/logout', authUser, logoutAllUsers)
-router.get('/', authUser, verifySuperAdmin, getAllEmployees)
+
+//Ruta que de vuelve todos los empleados en la db.
+
+router.get(
+  '/',
+  authUser,
+  verifySuperAdmin,
+  [
+    query('skip')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Skip debe ser un número entero positivo.'),
+    query('take')
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage('Take debe ser un número entero entre 1 y 100.')
+  ],
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      const filterErrors = errors.array().map(error => ({
+        path: error.path,
+        msg: error.msg
+      }))
+      return res.status(400).json({ errors: filterErrors })
+    }
+    getAllEmployees(req, res)
+  }
+)
 router.get(
   '/dni/:dni',
   authUser,

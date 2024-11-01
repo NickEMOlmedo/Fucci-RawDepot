@@ -4,56 +4,70 @@ import prisma from '../libs/db.js'
 
 export const createEntry = async (req, res) => {
   try {
-    const productToCompare = req.body.productId
-    const receiptCodeToCompare = req.body.receiptCode
-    const deliveryCompanyToCompare = req.body.deliveryCompany
-
-    const entryCompare = await prisma.entry.findFirst({
-      where: {
-        productId: parseInt(productToCompare),
-        receiptCode: receiptCodeToCompare.toLowerCase(),
-        deliveryCompany: deliveryCompanyToCompare.toLowerCase()
-      }
-    })
-
-    if (entryCompare) {
-      return res.status(409).json({
-        error: '¡Este ingreso ya existe, porfavor verifique los datos!'
-      })
-    }
-
     const {
       productId,
       receiptCode,
       deliveryCompany,
       quantity,
+      lotNumber,
+      expirationDate,
       status,
       adminId
     } = req.body
 
     const today = new Date()
+    const expDate = new Date(expirationDate)
 
-    await prisma.entry.create({
-      data: {
+    // Verificar si el ingreso ya existe
+    const entryExists = await prisma.entry.findFirst({
+      where: {
         productId: parseInt(productId),
         receiptCode: receiptCode.toLowerCase(),
-        deliveryCompany: deliveryCompany.toLowerCase(),
-        entryDate: today,
-        quantity: parseInt(quantity),
-        status: status ? status.toLowerCase() : entryCompare.status,
-        adminId: parseInt(adminId)
+        deliveryCompany: deliveryCompany.toLowerCase()
       }
     })
 
-    await prisma.product.update({
-      where: { id: parseInt(productId) },
-      data: { stock: { increment: parseInt(quantity) } }
+    if (entryExists) {
+      return res.status(409).json({
+        error: '¡Este ingreso ya existe, por favor verifique los datos!'
+      })
+    }
+
+    await prisma.$transaction(async tx => {
+      const lot = await tx.lot.create({
+        data: {
+          lotNumber: lotNumber.toLowerCase(),
+          expirationDate: expDate,
+          quantity: parseInt(quantity),
+          productId: parseInt(productId)
+        }
+      })
+
+      await tx.entry.create({
+        data: {
+          productId: parseInt(productId),
+          receiptCode: receiptCode.toLowerCase(),
+          deliveryCompany: deliveryCompany.toLowerCase(),
+          entryDate: today,
+          lotId: lot.id,
+          quantity: parseInt(quantity),
+          status: status ? status.toLowerCase() : 'pendiente',
+          adminId: parseInt(adminId)
+        }
+      })
+
+      await tx.product.update({
+        where: { id: parseInt(productId) },
+        data: { stock: { increment: parseInt(quantity) } }
+      })
     })
 
-    return res.status(201).json({ message: '¡Ingreso cargado exitosamente!' })
+    return res
+      .status(201)
+      .json({ message: '¡Ingreso registrado exitosamente!' })
   } catch (error) {
     return res.status(500).json({
-      message: 'Error en el servidor, no se pudo cargar el ingreso.'
+      message: 'Error en el servidor, no se pudo cargar el ingreso.' + error
     })
   }
 }
@@ -62,7 +76,9 @@ export const createEntry = async (req, res) => {
 
 export const getAllEntrys = async (req, res) => {
   try {
-    const entry = await prisma.entry.findMany()
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
+    const entry = await prisma.entry.findMany({ skip: skip, take: take })
     if (entry.length === 0) {
       return res
         .status(404)
@@ -99,9 +115,9 @@ export const getEntryById = async (req, res) => {
 export const updateEntry = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
-
     const entryCompare = await prisma.entry.findUnique({
-      where: { id }
+      where: { id },
+      include: { lot: true }
     })
 
     if (!entryCompare) {
@@ -110,55 +126,76 @@ export const updateEntry = async (req, res) => {
       })
     }
 
-    const { productId, receiptCode, deliveryCompany, quantity, status } =
-      req.body
+    const {
+      productId,
+      receiptCode,
+      deliveryCompany,
+      quantity,
+      status,
+      lotNumber,
+      expirationDate
+    } = req.body
 
     const newProductId = productId
       ? parseInt(productId)
       : entryCompare.productId
     const newQuantity = quantity ? parseInt(quantity) : entryCompare.quantity
 
-    if (parseInt(newProductId) !== entryCompare.productId) {
-      await prisma.product.update({
-        where: { id: entryCompare.productId },
-        data: { stock: { decrement: entryCompare.quantity } }
-      })
+    await prisma.$transaction(async tx => {
+      //Aca actualizamoas el stock dependiendo de cambios en producto o cantidad.
+      if (parseInt(newProductId) !== entryCompare.productId) {
+        await tx.product.update({
+          where: { id: entryCompare.productId },
+          data: { stock: { decrement: entryCompare.quantity } }
+        })
 
-      await prisma.product.update({
-        where: { id: newProductId },
-        data: { stock: { increment: parseInt(newQuantity) } }
-      })
-    } else if (parseInt(newQuantity) !== entryCompare.quantity) {
-      const stockAdjust = parseInt(newQuantity) - entryCompare.quantity
-      await prisma.product.update({
-        where: { id: parseInt(newProductId) },
-        data: { stock: { increment: parseInt(stockAdjust) } }
-      })
-    }
-
-    await prisma.entry.update({
-      where: { id },
-      data: {
-        productId: newProductId
-          ? parseInt(newProductId)
-          : entryCompare.productId,
-        receiptCode: receiptCode
-          ? receiptCode.toLowerCase()
-          : entryCompare.receiptCode,
-        deliveryCompany: deliveryCompany
-          ? deliveryCompany.toLowerCase()
-          : entryCompare.deliveryCompany,
-        quantity: newQuantity ? parseInt(newQuantity) : entryCompare.quantity,
-        status: status ? status.toLowerCase() : entryCompare.status
+        await tx.product.update({
+          where: { id: newProductId },
+          data: { stock: { increment: parseInt(newQuantity) } }
+        })
+      } else if (parseInt(newQuantity) !== entryCompare.quantity) {
+        const stockAdjust = parseInt(newQuantity) - entryCompare.quantity
+        await tx.product.update({
+          where: { id: parseInt(newProductId) },
+          data: { stock: { increment: parseInt(stockAdjust) } }
+        })
       }
-    })
+      const lot = await tx.lot.update({
+        where: { id: entryCompare.lot.id },
+        data: {
+          lotNumber: lotNumber
+            ? lotNumber.toLowerCase()
+            : entryCompare.lot.lotNumber,
+          expirationDate: expirationDate
+            ? new Date(expirationDate)
+            : entryCompare.lot.expirationDate,
+          quantity: newQuantity,
+          productId: newProductId
+        }
+      })
 
+      await tx.entry.update({
+        where: { id },
+        data: {
+          productId: newProductId,
+          receiptCode: receiptCode
+            ? receiptCode.toLowerCase()
+            : entryCompare.receiptCode,
+          deliveryCompany: deliveryCompany
+            ? deliveryCompany.toLowerCase()
+            : entryCompare.deliveryCompany,
+          lotId: lot.id ? parseInt(lot.id) : entryCompare.lotId,
+          quantity: newQuantity,
+          status: status ? status.toLowerCase() : entryCompare.status
+        }
+      })
+    })
     return res.status(201).json({
       message: '¡Ingreso actualizado exitosamente!'
     })
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo actualizar el ingreso.'
+      error: 'Error en el servidor, no se pudo actualizar el ingreso.' + error
     })
   }
 }
@@ -166,25 +203,40 @@ export const updateEntry = async (req, res) => {
 export const deleteEntry = async (req, res) => {
   try {
     const id = parseInt(req.params.id)
+
+    // Verificar si la entrada existe
     const entryCompare = await prisma.entry.findUnique({
-      where: {
-        id
-      }
+      where: { id },
+      include: { lot: true }
     })
 
     if (!entryCompare) {
       return res.status(404).json({
-        error: '¡Este ingreso no existe, porfavor verifique los datos!'
+        error: '¡Esta entrada no existe, por favor verifique los datos!'
       })
     }
 
-    await prisma.entry.delete({
-      where: {
-        id
+    await prisma.$transaction(async tx => {
+      await tx.product.update({
+        where: { id: entryCompare.productId },
+        data: { stock: { decrement: entryCompare.quantity } }
+      })
+
+      await tx.entry.delete({
+        where: { id }
+      })
+
+      const lot = entryCompare.lot
+      if (lot !== undefined || lote !== null) {
+        await tx.lot.delete({
+          where: { id: lot.id }
+        })
       }
     })
 
-    return res.status(200).json({ message: 'Ingreso eliminado exitosamente!' })
+    return res.status(200).json({
+      message: 'Ingreso eliminado exitosamente!'
+    })
   } catch (error) {
     return res.status(500).json({
       error: 'Error en el servidor, no se pudo eliminar el ingreso.'
@@ -244,11 +296,15 @@ export const searchEntryByReceiptCode = async (req, res) => {
 
 export const searchEntryByDeliveryCompany = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const deliveryCompany = req.params.delivery_company
     const entry = await prisma.entry.findMany({
       where: {
         deliveryCompany: { contains: deliveryCompany.toLowerCase() }
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (entry.length === 0) {
@@ -268,11 +324,15 @@ export const searchEntryByDeliveryCompany = async (req, res) => {
 
 export const searchEntryByDate = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const entryDate = new Date(req.params.entry_date)
     const entry = await prisma.entry.findMany({
       where: {
         entryDate: entryDate
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (entry.length === 0) {
@@ -292,13 +352,17 @@ export const searchEntryByDate = async (req, res) => {
 
 export const searchEntryByDateRange = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const { entryDate_start, entryDate_end } = req.body
     const entryDateStart = new Date(entryDate_start)
     const entryDateEnd = new Date(entryDate_end)
     const entry = await prisma.entry.findMany({
       where: {
         entryDate: { gte: entryDateStart, lte: entryDateEnd }
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (entry.length === 0) {
@@ -318,11 +382,15 @@ export const searchEntryByDateRange = async (req, res) => {
 
 export const searchEntryByStatus = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const status = req.params.status
     const entry = await prisma.entry.findMany({
       where: {
         status: { equals: status.toLowerCase() }
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (entry.length === 0) {
@@ -342,11 +410,15 @@ export const searchEntryByStatus = async (req, res) => {
 
 export const searchEntryByAdmin = async (req, res) => {
   try {
+    const skip = parseInt(req.query.skip) || 0
+    const take = parseInt(req.query.take) || 10
     const adminId = parseInt(req.params.admin_id)
     const entry = await prisma.entry.findMany({
       where: {
         adminId: { equals: adminId }
-      }
+      },
+      skip: skip,
+      take: take
     })
 
     if (entry.length === 0) {

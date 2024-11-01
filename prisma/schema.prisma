@@ -70,6 +70,8 @@ model Entry {
   status          Quality
   admin           Admin    @relation(fields: [adminId], references: [id])
   adminId         Int
+  lot             Lot      @relation(fields: [lotId], references: [id])
+  lotId           Int
   updatedAt       DateTime @updatedAt()
 
   @@index([receiptCode])
@@ -87,6 +89,7 @@ model Lot {
   quantity       Int
   product        Product  @relation(fields: [productId], references: [id])
   productId      Int
+  lotEntrys      Entry[]
   updatedAt      DateTime @updatedAt()
 
   @@index([lotNumber])
@@ -109,12 +112,12 @@ model Withdrawal {
 }
 
 model WithdrawalDetail {
-  id                   Int                       @id @default(autoincrement())
-  notes                String?                   @db.VarChar(100)
-  withdrawal           Withdrawal                @relation(fields: [withdrawalId], references: [id])
-  withdrawalId         Int
-  updatedAt            DateTime                  @updatedAt()
-  withdrawalProducts   WithdrawalDetailProduct[]
+  id                 Int                       @id @default(autoincrement())
+  notes              String?                   @db.VarChar(100)
+  withdrawal         Withdrawal                @relation(fields: [withdrawalId], references: [id])
+  withdrawalId       Int
+  updatedAt          DateTime                  @updatedAt()
+  withdrawalProducts WithdrawalDetailProduct[]
 
   @@index([withdrawalId])
 }

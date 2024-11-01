@@ -6,3 +6,4 @@ export const verifySuperAdmin = (req, res, next) => {
     message: '¡Acceso no autorizado, solo puede acceder un Super Administrador!'
   })
 }
+ 

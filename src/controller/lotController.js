@@ -1,27 +1,5 @@
 import prisma from '../libs/db.js'
 
-// Funcion para ingresar un nuevo lote.
-
-export const createLot = async (req, res) => {
-  try {
-    const { lotNumber, expirationDate, quantity, productId } = req.body
-    const expDate = new Date(expirationDate)
-    await prisma.lot.create({
-      data: {
-        lotNumber: lotNumber.toLowerCase(),
-        expirationDate: expDate,
-        quantity: parseInt(quantity),
-        productId: parseInt(productId)
-      }
-    })
-    return res.status(201).json({ message: '¡Lote cargado exitosamente!' })
-  } catch (error) {
-    return res.status(500).json({
-      error: 'Error en el servidor, no se pudo cargar el lote.'
-    })
-  }
-}
-
 // Funcion que muestra todos lotes.
 
 export const getAllLots = async (req, res) => {
@@ -61,58 +39,6 @@ export const getLotById = async (req, res) => {
   }
 }
 
-// Funcion para modificar un lote.
-
-export const updateLot = async (req, res) => {
-  try {
-    const id = parseInt(req.params.id)
-    const lotCompare = await prisma.lot.findUnique({ where: { id } })
-    if (!lotCompare) {
-      return res
-        .status(404)
-        .json({ error: '¡Este lote no existe, porfavor verifique los datos!' })
-    }
-    const { lotNumber, expirationDate, quantity, productId } = req.body
-    const expDate = new Date(expirationDate)
-    expDate.setHours(0, 0, 0, 0)
-    await prisma.lot.update({
-      where: { id: id },
-      data: {
-        lotNumber: lotNumber ? lotNumber.toLowerCase() : lotCompare.lotNumber,
-        expirationDate: expDate ? expDate : lotCompare.expirationDate,
-        quantity: quantity ? parseInt(quantity) : lotCompare.quantity,
-        productId: productId ? parseInt(productId) : lotCompare.productId
-      }
-    })
-
-    return res.status(201).json({ message: '¡Lote modificado exitosamente!' })
-  } catch (error) {
-    return res.status(500).json({
-      error: 'Error en el servidor, no se pudo actualizar el lote.' 
-    })
-  }
-}
-
-// Funcion para poder eliminar un lote.
-
-export const deleteLot = async (req, res) => {
-  try {
-    const id = parseInt(req.params.id)
-    const lotCompare = await prisma.lot.findUnique({ where: { id } })
-    if (!lotCompare) {
-      return res
-        .status(404)
-        .json({ error: '¡Este lote no existe, porfavor verifique los datos!' })
-    }
-
-    await prisma.lot.delete({ where: { id } })
-    return res.status(200).json({ message: '¡Lote eliminado exitosamente!' })
-  } catch (error) {
-    return res.status(500).json({
-      error: 'Error en el servidor, no se pudo eliminar el lote.'
-    })
-  }
-}
 
 // Funcion para buscar un lote por su numero de lote.
 
