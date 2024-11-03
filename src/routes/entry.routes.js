@@ -69,7 +69,23 @@ router.post(
       .bail()
       .trim()
       .isInt()
-      .withMessage('El id del admin debe ser numerico')
+      .withMessage('El id del admin debe ser numerico'),
+    body('lotNumber')
+      .notEmpty()
+      .withMessage('El numero de lote no puede estar vacio')
+      .bail()
+      .trim()
+      .isAlphanumeric()
+      .withMessage('El numero de lote solo permite letras o numeros.')
+      .isLength({ min: 3, max: 30 })
+      .withMessage('El largo debe estar entre 3 y 30 digitos.'),
+    body('expirationDate')
+      .notEmpty()
+      .withMessage('La fecha de entrada es obligatoria.')
+      .bail()
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
+      .toDate()
   ],
   (req, res) => {
     const errors = validationResult(req)
@@ -178,7 +194,21 @@ router.put(
       .optional()
       .trim()
       .isInt()
-      .withMessage('El id del admin debe ser numerico.')
+      .withMessage('El id del admin debe ser numerico.'),
+      body('lotNumber')
+      .optional()
+      .bail()
+      .trim()
+      .isAlphanumeric()
+      .withMessage('El numero de lote solo permite letras o numeros.')
+      .isLength({ min: 3, max: 30 })
+      .withMessage('El largo debe estar entre 3 y 30 digitos.'),
+    body('expirationDate')
+      .optional()
+      .bail()
+      .matches(/^\d{4}-\d{2}-\d{2}$/)
+      .withMessage('Formato de fecha inválido. Usa YYYY-MM-DD.')
+      .toDate(),
   ],
   (req, res) => {
     const errors = validationResult(req)

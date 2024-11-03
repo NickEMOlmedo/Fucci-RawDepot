@@ -39,7 +39,6 @@ export const getLotById = async (req, res) => {
   }
 }
 
-
 // Funcion para buscar un lote por su numero de lote.
 
 export const searchLotByNum = async (req, res) => {
@@ -113,7 +112,7 @@ export const searchLotByExpirationDateRange = async (req, res) => {
     return res.status(200).json(entry)
   } catch (error) {
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudieron buscar los lotes.' 
+      error: 'Error en el servidor, no se pudieron buscar los lotes.'
     })
   }
 }
@@ -161,17 +160,22 @@ export const comprobationHandler = async (req, res) => {
     })
 
     if (lotCompare) {
-      return res.status(200).json({
-        message:
-          '¡El lote de ese producto ya existe con esa misma fecha! ¿Desea cargarlo igualmente?.'
-      })
+      throw Object.assign(
+        new Error({
+          message:
+            '¡El lote de ese producto ya existe con esa misma fecha! ¿Desea cargarlo igualmente?.'
+        }),
+        { name: 'ConflictLotError' }
+      )
     }
 
     return res.status(200).json({
-      message: 'El lote no existe. Puede continuar con la carga.',
       exists: false
     })
   } catch (error) {
+    if (error.name === 'ConflictLotError') {
+      return res.status(409).json(error.message)
+    }
     return res
       .status(500)
       .json({ error: 'Error en el servidor, no se pudo comprobar el lote.' })

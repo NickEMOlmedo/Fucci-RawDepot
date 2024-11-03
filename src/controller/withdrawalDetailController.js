@@ -4,7 +4,7 @@ import prisma from '../libs/db.js'
 
 export const createWithdrawalDetail = async (req, res) => {
   try {
-    const { withdrawalId, notes, products } = req.body 
+    const { withdrawalId, notes, products } = req.body
 
     await prisma.$transaction(async tx => {
       const withdrawalDetail = await tx.withdrawalDetail.create({
@@ -17,31 +17,57 @@ export const createWithdrawalDetail = async (req, res) => {
       for (const product of products) {
         const productId = parseInt(product.productId)
         const quantity = parseInt(product.quantity)
-
+        const status = product.status
         const stockProduct = await tx.product.findUnique({
           where: { id: productId },
           include: { lots: { orderBy: { expirationDate: 'asc' } } }
         })
-
-        if (stockProduct.stock < quantity) {
-          return res.status(400).json({
-            error: `No hay suficiente stock para el producto: ${stockProduct.name}`
-          })
+        console.log(stockProduct)
+        // Manejo de lotes para disminuir el stock
+        let remainingQuantity = quantity
+        for (const lot of stockProduct.lots) {
+          if (lot.quantity >= remainingQuantity) {
+            await tx.lot.update({
+              where: { id: lot.id },
+              data: { quantity: { decrement: remainingQuantity } }
+            })
+            remainingQuantity = 0
+            break
+          } else {
+            remainingQuantity -= lot.quantity
+            await tx.lot.update({
+              where: { id: lot.id },
+              data: { quantity: 0 }
+            })
+          }
         }
 
-        const oldestLot = stockProduct.lots[0]
-
-        await tx.lot.update({
-          where: { id: oldestLot.id },
-          data: { quantity: { decrement: quantity } }
-        })
+        if (remainingQuantity === 0) {
+          await tx.product.update({
+            where: { id: productId },
+            data: { stock: { decrement: quantity } }
+          })
+        } else {
+          throw Object.assign(
+            new Error({
+              message: `No hay suficiente stock para el producto: ${
+                stockProduct.name +
+                ' ' +
+                stockProduct.brand +
+                ' ' +
+                stockProduct.presentation
+              }`
+            }),
+            { name: 'LotStockError' }
+          )
+        }
 
         await tx.withdrawalDetailProduct.create({
           data: {
             withdrawalDetailId: withdrawalDetail.id,
             productId: productId,
             quantity: quantity,
-            status: 'good'
+            status: status.toLowerCase()
           }
         })
       }
@@ -49,8 +75,12 @@ export const createWithdrawalDetail = async (req, res) => {
 
     return res.status(201).json({ message: '¡Retiro registrado exitosamente!' })
   } catch (error) {
+    if (error.name === 'LotStockError') {
+      return res.status(400).json(error.message)
+    }
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo cargar el detalle de retiro.'
+      error:
+        'Error en el servidor, no se pudo cargar el detalle de retiro.' + error
     })
   }
 }
@@ -112,7 +142,7 @@ export const getWithdrawalDetailWithId = async (req, res) => {
 export const updateWithdrawalDetail = async (req, res) => {
   try {
     const { withdrawalDetailId } = req.params
-    const { notes, products, status } = req.body
+    const { notes, products } = req.body
 
     const withdrawalDetail = await prisma.withdrawalDetail.findUnique({
       where: { id: parseInt(withdrawalDetailId) },
@@ -134,6 +164,7 @@ export const updateWithdrawalDetail = async (req, res) => {
       for (const product of products) {
         const productId = parseInt(product.productId)
         const quantity = parseInt(product.quantity)
+        const status = product.status
 
         const existingDetailProduct = withdrawalDetail.withdrawalProducts.find(
           p => p.productId === productId
@@ -144,23 +175,46 @@ export const updateWithdrawalDetail = async (req, res) => {
           include: { lots: { orderBy: { expirationDate: 'asc' } } }
         })
 
-        if (stockProduct.stock < quantity) {
-          return res.status(400).json({
-            error: `No hay suficiente stock para el producto: ${stockProduct.name}`
-          })
+        let remainingQuantity = quantity
+
+        // Manejo de lotes para disminuir el stock
+        for (const lot of stockProduct.lots) {
+          if (lot.quantity >= remainingQuantity) {
+            await tx.lot.update({
+              where: { id: lot.id },
+              data: { quantity: { decrement: remainingQuantity } }
+            })
+            remainingQuantity = 0
+            break
+          } else {
+            remainingQuantity -= lot.quantity
+            await tx.lot.update({
+              where: { id: lot.id },
+              data: { quantity: 0 }
+            })
+          }
         }
 
-        const oldLot = stockProduct.lots[0]
+        if (remainingQuantity > 0) {
+          throw Object.assign(
+            new Error({
+              message: `No hay suficiente stock para el producto: ${
+                stockProduct.name +
+                ' ' +
+                stockProduct.brand +
+                ' ' +
+                stockProduct.presentation
+              }`
+            }),
+            { name: 'LotStockError' }
+          )
+        }
 
-        await tx.lot.update({
-          where: { id: oldLot.id },
-          data: { quantity: { decrement: quantity } }
-        })
-
+        //Actualizamos el detalle y si no lo creamos.
         if (existingDetailProduct) {
           await tx.withdrawalDetailProduct.update({
             where: { id: existingDetailProduct.id },
-            data: { quantity: quantity, status: status }
+            data: { quantity: quantity, status: status.toLowerCase() }
           })
         } else {
           await tx.withdrawalDetailProduct.create({
@@ -168,7 +222,7 @@ export const updateWithdrawalDetail = async (req, res) => {
               withdrawalDetailId: withdrawalDetail.id,
               productId: productId,
               quantity: quantity,
-              status: status
+              status: status.toLowerCase()
             }
           })
         }
@@ -177,10 +231,15 @@ export const updateWithdrawalDetail = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: '¡Detalle de retiro actualizado exitosamente!' })
+      .json({ message: '¡Detalle de retiro actualizado exitosam0ente!' })
   } catch (error) {
+    if (error.name === 'LotStockError') {
+      return res.status(400).json(error.message)
+    }
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo actualizar el detalle de retiro.'
+      error:
+        'Error en el servidor, no se pudo actualizar el detalle de retiro.' +
+        error
     })
   }
 }
@@ -210,17 +269,43 @@ export const deleteWithdrawalDetail = async (req, res) => {
           })
 
         if (withdrawalDetailProduct) {
+          const quantityToRestore = withdrawalDetailProduct.quantity
+
+          //Volvemos el stock del producto a su estado
           await tx.product.update({
             where: { id: withdrawalDetailProduct.productId },
-            data: { stock: { increment: withdrawalDetailProduct.quantity } }
+            data: { stock: { increment: quantityToRestore } }
           })
 
-          const oldestLot = withdrawalDetailProduct.product.lots[0]
+          let remainingQuantity = quantityToRestore
 
-          await tx.lot.update({
-            where: { id: oldestLot.id },
-            data: { quantity: { increment: withdrawalDetailProduct.quantity } }
-          })
+          // Disminuir en los lotes disponibles
+          for (const lot of withdrawalDetailProduct.product.lots) {
+            if (lot.quantity >= remainingQuantity) {
+              await tx.lot.update({
+                where: { id: lot.id },
+                data: { quantity: { increment: remainingQuantity } }
+              })
+              remainingQuantity = 0
+              break
+            } else {
+              remainingQuantity -= lot.quantity
+              await tx.lot.update({
+                where: { id: lot.id },
+                data: { quantity: { increment: lot.quantity } }
+              })
+            }
+          }
+
+          // Si queda cantidad remanente, significa que no hay suficientes lotes para restaurar
+          if (remainingQuantity > 0) {
+            throw Object.assign(
+              new Error(
+                `No se puede restaurar la cantidad completa del producto: ${withdrawalDetailProduct.product.name}`
+              ),
+              { name: 'LotRestoreError' }
+            )
+          }
         }
       }
 
@@ -233,8 +318,13 @@ export const deleteWithdrawalDetail = async (req, res) => {
       .status(200)
       .json({ message: '¡Detalle de retiro eliminado exitosamente!' })
   } catch (error) {
+    if (error.name === 'LotRestoreError') {
+      return res.status(400).json(error.message)
+    }
     return res.status(500).json({
-      error: 'Error en el servidor, no se pudo eliminar el detalle de retiro.'
+      error:
+        'Error en el servidor, no se pudo eliminar el detalle de retiro.' +
+        error
     })
   }
 }
