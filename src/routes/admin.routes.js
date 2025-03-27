@@ -200,7 +200,7 @@ router.get(
   }
 )
 router.put(
-  '/auth/update/:id',
+  '/update/:id',
   authUser,
   verifySuperAdmin,
   [
@@ -268,7 +268,7 @@ router.put(
   }
 )
 router.delete(
-  '/auth/delete/:id',
+  '/delete/:id',
   authUser,
   verifySuperAdmin,
   [
