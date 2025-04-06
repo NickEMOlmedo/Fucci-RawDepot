@@ -11,6 +11,7 @@ import entryRoutes from "./routes/entry.routes.js";
 import lotRoutes from "./routes/lot.routes.js";
 import withdrawalRoutes from "./routes/withdrawal.routes.js";
 import withdrawatlDetailRoutes from "./routes/withdrawalDetails.routes.js";
+import { authenticateSession } from "./middleware/verifySessions.js";
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use("/api/entrys", authUser, entryRoutes);
 app.use("/api/lots", authUser, lotRoutes);
 app.use("/api/withdrawals", authUser, withdrawalRoutes);
 app.use("/api/withdrawal-details", authUser, withdrawatlDetailRoutes);
+app.use("/api/authenticateSession",authenticateSession)
 
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError) {
